@@ -1,0 +1,11 @@
+# IDE
+.idea
+
+# enviroment vars
+.env
+
+# osm files
+pbf/*.pbf
+
+# mapnik
+tile_creator/mapnik/mapnik.xml

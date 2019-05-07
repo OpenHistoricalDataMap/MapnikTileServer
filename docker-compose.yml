@@ -1,0 +1,108 @@
+version: '3.4'
+
+services:
+
+  # ssl proxy - let's encrypt
+  # https://docs.traefik.io/user-guide/docker-and-lets-encrypt/
+  traefik:
+    image: traefik
+    restart: always
+    # command: --help for all traefik commands
+    command: >
+      --docker.domain=${HOSTNAME}
+      --acme.storage=/etc/traefik/acme/acme.json
+      --acme.email=${ACME_EMAIL}
+    ports:
+      - 80:80       # HTTP port
+      - 443:443     # HTTPS port
+      - 8080:8080
+    networks:
+      - web
+      - intern
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./proxy/trefik.toml:/traefik.toml
+    container_name: traefik
+    labels:
+      - "traefik.docker.network=web"
+
+  # static website
+  # https://localhost/?date=2017-01-01
+  nginx:
+    image: nginx
+    volumes:
+      - ./website:/usr/share/nginx/html
+    restart: always
+    networks:
+      - web
+      - intern
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:${HOSTNAME},www.${HOSTNAME}"
+      - "traefik.basic.protocol=http"
+
+  # adminer -> like phpmyadmin for mariadb
+  # https://github.com/TimWolla/docker-adminer
+  adminer-db:
+    image: adminer
+    restart: always
+    depends_on:
+      - postgis
+    command: php -S 0.0.0.0:8080 -t /var/www/html
+    networks:
+      - web
+      - intern
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:db-admin.${HOSTNAME}"
+      - "traefik.basic.protocol=http"
+
+  # postgres database with PostGIS
+  # https://github.com/kartoza/docker-postgis
+  postgis:
+    image: kartoza/postgis:9.6-2.4 # Provides PostgreSQL 9.6, PostGIS 2.4
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - intern
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      #POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_MULTIPLE_EXTENSIONS: postgis,hstore,postgis_topology # You can pass as many extensions as you need.
+
+  # https://mapnik.org/
+  # based on debian stable
+  tile_creator:
+    build:
+      context: ./tile_creator
+      args:
+        timezone: ${TIMEZONE}
+        mapnik: v3.0.22
+    depends_on:
+      - postgis
+    volumes:
+      - ./pbf:/pbf
+      - ./tile_creator/mapnik:/mapnik-xml
+    networks:
+      - intern
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ALWAYS_ON: ${ALWAYS_ON}
+
+
+networks:
+  web:
+    external: true
+  intern:
+    external: false
+
+volumes:
+  pgdata:

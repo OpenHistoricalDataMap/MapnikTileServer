@@ -1,0 +1,61 @@
+# https://hub.docker.com/_/ubuntu
+# get Ubuntu 18.04
+FROM ubuntu:bionic
+
+# setup timezone for tzdata
+ARG timezone
+ENV TZ=$timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# update repo
+RUN apt-get update
+
+# Style dependencies
+RUN apt-get install --no-install-recommends -y \
+    ca-certificates curl gnupg postgresql-client python fonts-hanazono \
+    fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted mapnik-utils \
+    nodejs npm ttf-unifont unzip
+
+# dependencies for import *.pdf files to postgres
+RUN apt-get install -y osm2pgsql postgresql-client
+
+# load styles from -> https://github.com/gravitystorm/openstreetmap-carto.git
+RUN apt-get install -y git wget
+RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /openstreetmap-carto
+WORKDIR /openstreetmap-carto
+
+# install cartoCSS -> https://github.com/mapbox/carto
+RUN apt install -y nodejs npm
+RUN npm install -g carto
+RUN npm install -g millstone
+
+# setup dependencies for mapnik
+RUN apt-get install -y python3-software-properties software-properties-common
+RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
+RUN apt-get update -y
+RUN apt-get install -y gcc-6 g++-6 clang-3.9
+RUN export CXX="clang++-3.9" && export CC="clang-3.9"
+
+# install mapnik
+RUN apt-get install -y python zlib1g-dev clang make pkg-config curl
+RUN apt-get install -y postgresql-contrib libfreetype6 libfreetype6-dev libicu-dev libboost-all-dev libpq-dev \
+    sqlite3 libsqlite3-dev \
+    libgdal-dev gdal-bin libproj-dev proj-data proj-bin libgeos-dev \
+    libcairo2-dev python-cairo-dev
+RUN git clone https://github.com/mapnik/mapnik.git /mapnik
+RUN cd /mapnik
+ARG mapnik
+RUN git checkout $mapnik
+RUN git submodule update --init
+RUN source bootstrap.sh
+RUN PYTHON=python3 ./configure CUSTOM_CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" CXX=${CXX} CC=${CC}
+RUN make PYTHON=python3
+# RUN make test
+# todo fix SVG PARSING ERROR:"SVG support error: <enable-background> attribute is not supported"
+RUN make install
+
+# Add run script
+ADD ./start-up.sh /start-up.sh
+RUN chmod 755 /start-up.sh
+
+CMD ["/start-up.sh"]
