@@ -22,7 +22,6 @@ RUN apt-get install -y osm2pgsql postgresql-client
 # load styles from -> https://github.com/gravitystorm/openstreetmap-carto.git
 RUN apt-get install -y git wget
 RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /openstreetmap-carto
-WORKDIR /openstreetmap-carto
 
 # install cartoCSS -> https://github.com/mapbox/carto
 RUN apt install -y nodejs npm
@@ -33,8 +32,9 @@ RUN npm install -g millstone
 RUN apt-get install -y python3-software-properties software-properties-common
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update -y
-RUN apt-get install -y gcc-6 g++-6 clang-3.9
-RUN export CXX="clang++-3.9" && export CC="clang-3.9"
+ARG clang
+RUN apt-get install -y gcc-6 g++-6 clang-$clang
+RUN export CXX="clang++-$clang" && export CC="clang-$clang"
 
 # install mapnik
 RUN apt-get install -y python zlib1g-dev clang make pkg-config curl
@@ -43,16 +43,19 @@ RUN apt-get install -y postgresql-contrib libfreetype6 libfreetype6-dev libicu-d
     libgdal-dev gdal-bin libproj-dev proj-data proj-bin libgeos-dev \
     libcairo2-dev python-cairo-dev
 RUN git clone https://github.com/mapnik/mapnik.git /mapnik
-RUN cd /mapnik
+WORKDIR /mapnik
 ARG mapnik
+RUN git fetch --all
 RUN git checkout $mapnik
 RUN git submodule update --init
-RUN source bootstrap.sh
-RUN PYTHON=python3 ./configure CUSTOM_CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" CXX=${CXX} CC=${CC}
-RUN make PYTHON=python3
-# RUN make test
+RUN /bin/bash -c "source bootstrap.sh"
+RUN ./configure CUSTOM_CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" CXX=clang++-$clang CC=clang-$clang
+RUN make
+RUN make test
 # todo fix SVG PARSING ERROR:"SVG support error: <enable-background> attribute is not supported"
 RUN make install
+
+WORKDIR /openstreetmap-carto
 
 # Add run script
 ADD ./start-up.sh /start-up.sh

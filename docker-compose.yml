@@ -72,7 +72,7 @@ services:
       - intern
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      #POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_MULTIPLE_EXTENSIONS: postgis,hstore,postgis_topology # You can pass as many extensions as you need.
 
@@ -84,6 +84,7 @@ services:
       args:
         timezone: ${TIMEZONE}
         mapnik: v3.0.22
+        clang: 3.9
     depends_on:
       - postgis
     volumes:
