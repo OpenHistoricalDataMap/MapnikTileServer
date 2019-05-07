@@ -36,25 +36,15 @@ Output after executing:
 - tile_creator/mapnik/mapnik.xml
 
 
+# ToDo's
+
+Execute `indexes.sql` to database -> https://github.com/gravitystorm/openstreetmap-carto/blob/master/INSTALL.md#custom-indexes
+
+install instructions -> https://ircama.github.io/osm-carto-tutorials/tile-server-ubuntu/
+
+setup tileserver -> https://wiki.openstreetmap.org/wiki/Mod_tile/Setup_of_your_own_tile_server
+
 # Errors
 
 compiling Mapnik -> `SVG PARSING ERROR:"SVG support error: <enable-background> attribute is not supported"`
 
-After ``python scripts/get-shapefiles.py -n -s`` on `tile_creator/start-up.sh` at container start.
-
-```
-...
-tile_creator_1  | Warning: amenity-points.mss:2154:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:2140:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:2018:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:2003:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1952:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1927:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1901:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1852:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1835:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1822:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1804:6 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: amenity-points.mss:1780:4 Styles do not match layer selector .text-low-zoom.
-tile_creator_1  | Warning: admin.mss:115:6 Styles do not match layer selector #admin-low-zoom.
-```

@@ -25,7 +25,8 @@ RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /openstree
 
 # install cartoCSS -> https://github.com/mapbox/carto
 RUN apt install -y nodejs npm
-RUN npm install -g carto
+RUN npm install -g n stable
+RUN npm install -g carto@0
 RUN npm install -g millstone
 
 # setup dependencies for mapnik
@@ -55,7 +56,56 @@ RUN make test
 # todo fix SVG PARSING ERROR:"SVG support error: <enable-background> attribute is not supported"
 RUN make install
 
+# install mapnik python
+RUN apt-get install -y python-setuptools python3-setuptools
+ARG BOOST_PYTHON_LIB
+RUN export BOOST_PYTHON_LIB=$BOOST_PYTHON_LIB
+ARG BOOST_THREAD_LIB
+RUN export BOOST_THREAD_LIB=$BOOST_THREAD_LIB
+ARG BOOST_SYSTEM_LIB
+RUN export BOOST_SYSTEM_LIB=$BOOST_SYSTEM_LIB
+RUN git clone -b v3.0.x https://github.com/mapnik/python-mapnik.git /mapnik-python
+WORKDIR /mapnik-python
+RUN python setup.py develop
+RUN python setup.py install
+
 WORKDIR /openstreetmap-carto
+
+# install openstreetmap-carto -> https://github.com/gravitystorm/openstreetmap-carto/blob/master/INSTALL.md
+RUN apt-get install fonts-dejavu-core
+RUN python scripts/get-shapefiles.py
+
+# install Noto Sans fonts
+RUN git clone https://github.com/googlei18n/noto-emoji.git /noto-emoji
+RUN git clone https://github.com/googlei18n/noto-fonts.git /noto-fonts
+RUN cp /noto-emoji/fonts/NotoColorEmoji.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-emoji/fonts/NotoEmoji-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansArabicUI-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoNaskhArabicUI-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansArabicUI-Bold.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoNaskhArabicUI-Bold.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansAdlam-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansAdlamUnjoined-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansChakma-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansOsage-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansSinhalaUI-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansArabicUI-Regular.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansCherokee-Bold.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansSinhalaUI-Bold.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansSymbols-Bold.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/hinted/NotoSansArabicUI-Bold.ttf /usr/share/fonts/truetype/noto
+RUN cp /noto-fonts/unhinted/NotoSansSymbols2-Regular.ttf /usr/share/fonts/truetype/noto
+RUN apt install -y fontconfig
+RUN fc-cache -fv
+RUN fc-list
+
+# Install Yaml and Package Manager for Python
+RUN apt-get install -y python-yaml python-pip
+
+# set system language
+ARG language
+RUN locale-gen $language $language.UTF-8
+RUN dpkg-reconfigure locales
 
 # Add run script
 ADD ./start-up.sh /start-up.sh

@@ -85,6 +85,10 @@ services:
         timezone: ${TIMEZONE}
         mapnik: v3.0.22
         clang: 3.9
+        language: ${LANGUAGE}
+        BOOST_PYTHON_LIB: boost_python
+        BOOST_THREAD_LIB: boost_thread
+        BOOST_SYSTEM_LIB: boost_system
     depends_on:
       - postgis
     volumes:
@@ -93,11 +97,11 @@ services:
     networks:
       - intern
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      PGHOST: postgis
       ALWAYS_ON: ${ALWAYS_ON}
-
 
 networks:
   web:
