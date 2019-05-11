@@ -7,7 +7,7 @@
 debug = false
 
 logLevel = "ERROR" # DEBUG, INFO, WARN, ERROR, FATAL, PANIC
-defaultEntryPoints = ["https","http","geoserver"]
+defaultEntryPoints = ["https","http"]
 
 # default entry point
 [entryPoints]
@@ -19,11 +19,8 @@ defaultEntryPoints = ["https","http","geoserver"]
   address = ":443"
   [entryPoints.https.tls]
 
-  [entryPoints.geoserver]
-  address = ":8080"
-  [entryPoints.geoserver.tls]
 
-
+[api]
 # Enable Dashboard
 #
 # Optional

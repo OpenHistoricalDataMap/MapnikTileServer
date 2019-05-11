@@ -1,0 +1,268 @@
+# inspired by https://github.com/zavpyj/osm-tiles-docker
+# https://hub.docker.com/_/ubuntu
+# get Ubuntu 18.04
+FROM ubuntu:bionic
+
+# setup timezone for tzdata
+ARG TIMEZONE
+ENV TZ=$TIMEZONE
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+ARG CLANG_VERSION
+
+# Update cache and install dependencies
+RUN apt-get update -y && apt-get install -y \
+    apache2 \
+    apache2-dev \
+    autoconf \
+    autogen \
+    build-essential \
+    bzip2 \
+    ca-certificates \
+    checkinstall \
+    clang \
+    clang-$CLANG_VERSION \
+    cmake \
+    curl \
+    debootstrap \
+    fonts-dejavu-core \
+    fonts-hanazono \
+    fonts-noto-cjk \
+    fonts-noto-hinted \
+    fonts-noto-unhinted \
+    fontconfig \
+    g++ \
+    g++-6 \
+    gawk \
+    gcc \
+    gcc-6 \
+    gdal-bin \
+    gettext \
+    gettext-base \
+    git-core \
+    gnupg \
+    libagg-dev \
+    libboost-all-dev \
+    libboost-dev \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-python-dev \
+    libboost-regex-dev \
+    libboost-system-dev \
+    libboost-thread-dev \
+    libbz2-dev \
+    libcairo2-dev \
+    libcairo-dev \
+    libcairomm-1.0-dev \
+    libexpat1-dev \
+    libfreetype6 \
+    libfreetype6-dev \
+    libgdal-dev \
+    libgeos-dev \
+    libgeos++-dev \
+    libharfbuzz-dev \
+    libicu-dev \
+    liblua5.2-dev \
+    # libmapnik3.0 \        # to install mapnik via package
+    # libmapnik-dev \       # to install mapnik via package
+    libmemcached-dev \
+    libpng-dev \
+    libpq-dev \
+    libproj-dev \
+    libprotobuf-c0-dev \
+    libsqlite3-dev \
+    libtiff5-dev \
+    libtool \
+    libxml2-dev \
+    locales \
+    lua5.2 \
+    make \
+    mawk \
+    mapnik-utils \
+    memcached \
+    munin \
+    munin-node \
+    npm \
+    nodejs \
+    pkg-config \
+    postgresql-client \
+    postgresql-contrib \
+    proj-bin \
+    proj-data \
+    protobuf-c-compiler \
+    python \
+    python3-pip \
+    python3-setuptools \
+    python3-software-properties \
+    python-cairo-dev \
+    # python-mapnik \       # to install mapnik via package
+    python-pip \
+    python-setuptools \
+    python-yaml \
+    osm2pgsql \
+    rados-objclass-dev \
+    software-properties-common \
+    sqlite3 \
+    sudo \
+    tar \
+    ttf-unifont \
+    typecatcher \
+    unifont \
+    unzip \
+    wget \
+    zlib1g-dev
+
+# set system language
+ARG LANGUAGE
+RUN locale-gen $LANGUAGE $LANGUAGE.UTF-8
+RUN dpkg-reconfigure locales
+ENV LANG $LANGUAGE.UTF-8
+RUN locale-gen $LANGUAGE.UTF-8
+RUN update-locale LANG=$LANGUAGE.UTF-8
+
+# Avoid munin cron tasks and associated logs
+RUN rm -f /etc/cron.d/munin /etc/cron.d/munin-node /etc/cron.d/sysstat
+
+# install Noto Sans fonts
+RUN git clone https://github.com/googlei18n/noto-emoji.git /opt/noto-emoji && \
+    git clone https://github.com/googlei18n/noto-fonts.git /opt/noto-fonts && \
+    cp /opt/noto-emoji/fonts/NotoColorEmoji.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-emoji/fonts/NotoEmoji-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansArabicUI-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoNaskhArabicUI-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansArabicUI-Bold.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoNaskhArabicUI-Bold.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansAdlam-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansAdlamUnjoined-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansChakma-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansOsage-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansSinhalaUI-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansArabicUI-Regular.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansCherokee-Bold.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansSinhalaUI-Bold.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansSymbols-Bold.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/hinted/NotoSansArabicUI-Bold.ttf /usr/share/fonts/truetype/noto && \
+    cp /opt/noto-fonts/unhinted/NotoSansSymbols2-Regular.ttf /usr/share/fonts/truetype/noto && \
+    fc-cache -fv && \
+    fc-list && \
+    rm -r /opt/noto-emoji && \
+    rm -r /opt/noto-fonts
+
+# set nodejs to stable
+RUN npm install -g n stable
+
+# install cartoCSS -> https://github.com/mapbox/carto
+ARG CARTO_VERSION
+RUN npm install -g carto@$CARTO_VERSION
+
+# install millstone
+RUN npm install -g millstone
+
+# https://github.com/gravitystorm/openstreetmap-carto
+ARG OSM_CARTO_VERSION
+RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /opt/openstreetmap-carto  && \
+    cd /opt/openstreetmap-carto && \
+    git fetch --all && \
+    git checkout $OSM_CARTO_VERSION && \
+    ./scripts/get-shapefiles.py && \
+    carto project.mml > style.xml
+
+# install mapnik
+RUN export CXX="clang++-$CLANG_VERSION" && export CC="clang-$CLANG_VERSION"
+ARG MAPNIK_VERSION
+RUN git clone https://github.com/mapnik/mapnik.git /opt/mapnik && \
+    cd /opt/mapnik && \
+    git fetch --all && \
+    git checkout $MAPNIK_VERSION && \
+    git submodule update --init && \
+    /bin/bash -c "source bootstrap.sh" && \
+    ./configure CUSTOM_CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" CXX=clang++-$CLANG_VERSION CC=clang-$CLANG_VERSION && \
+    make && \
+    make test && \
+    make install
+# todo fix SVG PARSING ERROR:"SVG support error: <enable-background> attribute is not supported"
+
+# install mapnik python
+ARG BOOST_PYTHON_LIB
+RUN export BOOST_PYTHON_LIB=$BOOST_PYTHON_LIB
+ARG BOOST_THREAD_LIB
+RUN export BOOST_THREAD_LIB=$BOOST_THREAD_LIB
+ARG BOOST_SYSTEM_LIB
+RUN export BOOST_SYSTEM_LIB=$BOOST_SYSTEM_LIB
+RUN git clone -b v3.0.x https://github.com/mapnik/python-mapnik.git /mapnik-python && \
+    cd /mapnik-python && \
+    python setup.py develop && \
+    python setup.py install
+
+# Verify that Mapnik has been correctly installed
+RUN mapnik-config -v
+RUN mapnik-config --input-plugins
+RUN python -c "import mapnik;print mapnik.__file__"
+
+# Install mod_tile and renderd
+#master is not a good point to rely on, but no tag exists on mod_tile Github's project since v0.4 (2011) !
+#So we rely on the last commit of the master branch at the time of this Dockerfile
+ARG MOD_TILE_VERSION
+ARG MOD_TILE_PARALLEL_BUILD
+
+# link /opt/mapnik/mason_packages/ to /home/travis/build/mapbox/mason/
+RUN mkdir -p /home/travis/build/mapbox/mason/
+RUN ln -s /opt/mapnik/mason_packages/ /home/travis/build/mapbox/mason/
+
+RUN git clone https://github.com/openstreetmap/mod_tile.git /opt/mod_tile && \
+    cd /opt/mod_tile && \
+    git reset --hard $MOD_TILE_VERSION && \
+    ./autogen.sh && \
+    ./configure && \
+    make && \
+    make -j $MOD_TILE_PARALLEL_BUILD && \
+    make install && \
+    make install-mod_tile && \
+    ldconfig
+
+COPY ./build/renderd.conf /usr/local/etc/
+RUN cp -p /usr/local/etc/renderd.conf /usr/local/etc/renderd.conf.orig
+
+# Create the files required for the mod_tile system to run
+RUN mkdir /var/run/renderd && chown www-data: /var/run/renderd
+RUN mkdir /var/lib/mod_tile && chown www-data /var/lib/mod_tile
+
+# Configure mod_tile
+COPY ./build/mod_tile.load /etc/apache2/mods-available/
+COPY ./build/mod_tile.conf /etc/apache2/mods-available/
+RUN a2enmod mod_tile
+
+# Set the osm2pgsql import cache size in MB. Used in `run import` and `run importappend`.
+ARG OSM_IMPORT_CACHE
+ENV OSM_IMPORT_CACHE 40
+
+#Add the perl script to render only an extract of the map
+COPY ./build/render_list_geo.pl /opt/
+RUN chmod +x /opt/render_list_geo.pl
+
+# Configure mod_rewrite
+COPY ./build/rewrite.conf /etc/apache2/mods-available/
+COPY ./build/000-default.conf /etc/apache2/sites-available/
+
+# enable apache ssl support
+RUN sudo a2enmod ssl
+
+# enable port 80 & 443 for apache
+EXPOSE 80 443
+
+# autostart apache
+RUN update-rc.d -f apache2 remove
+RUN update-rc.d apache2 defaults
+
+# Add isDatabaseOn.py
+RUN pip3 install psycopg2
+ADD ./isDatabaseOn.py /isDatabaseOn.py
+
+# Add run script
+ADD ./start-up.sh /start-up.sh
+RUN chmod +x /start-up.sh
+
+# Clean up APT
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+CMD ["/start-up.sh"]

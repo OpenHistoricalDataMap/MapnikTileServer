@@ -10,7 +10,7 @@ services:
     # command: --help for all traefik commands
     command: >
       --docker.domain=${HOSTNAME}
-      --acme.storage=/etc/traefik/acme/acme.json
+      --acme.storage=/acme.json
       --acme.email=${ACME_EMAIL}
     ports:
       - 80:80       # HTTP port
@@ -26,22 +26,6 @@ services:
     labels:
       - "traefik.docker.network=web"
 
-  # static website
-  # https://localhost/?date=2017-01-01
-  nginx:
-    image: nginx
-    volumes:
-      - ./website:/usr/share/nginx/html
-    restart: always
-    networks:
-      - web
-      - intern
-    labels:
-      - "traefik.docker.network=web"
-      - "traefik.enable=true"
-      - "traefik.basic.frontend.rule=Host:${HOSTNAME},www.${HOSTNAME}"
-      - "traefik.basic.protocol=http"
-
   # adminer -> like phpmyadmin for mariadb
   # https://github.com/TimWolla/docker-adminer
   adminer-db:
@@ -49,6 +33,7 @@ services:
     restart: always
     depends_on:
       - postgis
+      - traefik
     command: php -S 0.0.0.0:8080 -t /var/www/html
     networks:
       - web
@@ -63,8 +48,6 @@ services:
   # https://github.com/kartoza/docker-postgis
   postgis:
     image: kartoza/postgis:9.6-2.4 # Provides PostgreSQL 9.6, PostGIS 2.4
-    ports:
-      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
@@ -73,35 +56,55 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: gis
       POSTGRES_MULTIPLE_EXTENSIONS: postgis,hstore,postgis_topology # You can pass as many extensions as you need.
 
-  # https://mapnik.org/
-  # based on debian stable
-  tile_creator:
+  # Ubuntu 18.04 with mapnik, mod_tile, apache2, carto & openstreetmap-carto
+  # inspired by - https://ircama.github.io/osm-carto-tutorials/tile-server-ubuntu/
+  #             - https://github.com/zavpyj/osm-tiles-docker
+  #             - https://switch2osm.org/manually-building-a-tile-server-16-04-2-lts/
+  tile_server:
     build:
-      context: ./tile_creator
+      context: ./tile_server
       args:
-        timezone: ${TIMEZONE}
-        mapnik: v3.0.22
-        clang: 3.9
-        language: ${LANGUAGE}
+        LANGUAGE: ${LANGUAGE}             # system language like de_DE
+        TIMEZONE: ${TIMEZONE}             # system timezone like Europe/Berlin
+        CLANG_VERSION: 3.9                # clang version
+        CARTO_VERSION: 0                  # carto version 0.x
+        OSM_CARTO_VERSION: v4.21.0        # version of https://github.com/gravitystorm/openstreetmap-carto/releases
+        MOD_TILE_VERSION: e25bfdba1c1f2103c69529f1a30b22a14ce311f1  # commit of https://github.com/openstreetmap/mod_tile
+        MOD_TILE_PARALLEL_BUILD: 4
+        OSM_IMPORT_CACHE: 40              # osm2pgsql import cache size in MB
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        MAPNIK_VERSION: v3.0.22
         BOOST_PYTHON_LIB: boost_python
         BOOST_THREAD_LIB: boost_thread
         BOOST_SYSTEM_LIB: boost_system
+    restart: always
+    volumes:
+      - ./pbf:/opt/pbf
+      - ./website:/var/www/html
     depends_on:
       - postgis
-    volumes:
-      - ./pbf:/pbf
-      - ./tile_creator/mapnik:/mapnik-xml
+      - traefik
     networks:
       - intern
+      - web
     environment:
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATABASE: gis
       PGHOST: postgis
-      ALWAYS_ON: ${ALWAYS_ON}
+      IMPORT: ${IMPORT}
+      RENDER: ${RENDER}
+      RUN_WEBSERVER: ${RUN_WEBSERVER}
+      ServerName: ${HOSTNAME}
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.basic.frontend.rule=Host:www.${HOSTNAME},${HOSTNAME}"
+      - "traefik.basic.protocol=http"
 
 networks:
   web:
