@@ -42,8 +42,8 @@ def isDatabaseActive() -> bool:
         return True
 
 
-print("wait 10 secounds")
-time.sleep(10)
+print("wait 30 secounds")
+time.sleep(30)
 # todo check if database is ready not just online
 
 while isDatabaseActive() is False:
