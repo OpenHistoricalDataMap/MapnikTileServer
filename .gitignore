@@ -7,5 +7,5 @@
 # osm files
 pbf/*.pbf
 
-# mapnik
-tile_creator/mapnik/mapnik.xml
+# doc
+doc/_build
