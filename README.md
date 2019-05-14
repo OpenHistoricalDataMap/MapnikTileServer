@@ -1,5 +1,7 @@
 # OHDM-Docker
 
+[![Documentation Status](https://readthedocs.org/projects/docker-ohdm/badge/?version=latest)](https://docker-ohdm.readthedocs.io/en/latest/?badge=latest)
+     
 It's a `docker-compose` repo for the new version of http://www.ohdm.net/, but it's just the beginning, so
 do what you want and get back later :)
 
