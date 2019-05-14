@@ -8,4 +8,4 @@
 pbf/*.pbf
 
 # doc
-doc/_build
+docs/_build
