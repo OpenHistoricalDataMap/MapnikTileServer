@@ -126,7 +126,7 @@ class TileGenerator:
         mapnik.load_map_from_string(map, self.generate_date_style_xml())
 
         prj: mapnik.Projection = mapnik.Projection(
-            "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs +over")
+            "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over")
 
         p0 = self.from_px_to_ll((self.width * self.x_pixel, self.height * (self.y_pixel + 1)), self.zoom)
         p1 = self.from_px_to_ll((self.width * (self.x_pixel + 1), self.height * self.y_pixel), self.zoom)
