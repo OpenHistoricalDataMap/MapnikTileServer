@@ -5,7 +5,9 @@
 It's a `docker-compose` repo for the new version of http://www.ohdm.net/, but it's just the beginning, so
 do what you want and get back later :)
 
-## minimum Server Requirements
+![Docker Container Overview](docs/_static/ProjectOverview.png)
+
+## minimum Server Requirements for developing
 
 - 3 GB of RAM
 - 20 GB of free disk space
@@ -23,11 +25,9 @@ $ cp .env-example .env
 $ vim .env
 ```
 
-**2. Download a** `*.pbf` **file to** `./pbf`
+**2. Import**
 
-```bash
-$ wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -O pbf/berlin-latest.osm.pbf
-```
+TODO 
 
 **3. Create docker network** `web`
 
@@ -41,14 +41,8 @@ $ docker network create web
 $ docker-compose build
 ```
 
-**5. all files from `./pbf/` to database**
+**5. Execute Docker**
 
 ```bash
-$ docker-compose up -d postgis
-```
-
-**6. Execute Docker**
-
-```bash
-$ docker-compose up -d
+$ docker-compose up -d webserver
 ```
