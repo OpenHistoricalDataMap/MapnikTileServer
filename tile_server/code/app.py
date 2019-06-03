@@ -15,11 +15,11 @@ cache = redis.Redis(host='redis', port=6379)
 
 def generate_default_style_xml() -> str:
     """
-    Generate with carto and style.mml the default style.xml with jinja2 vars
+    Generate with carto and project.mml the default style.xml with jinja2 vars
     :return: jinja2 Template for custom date style.xml
     """
     # generate mapnik xml and return it to a string
-    response = subprocess.run("carto /opt/openstreetmap-carto/style.mml 1>&2",
+    response = subprocess.run("carto /opt/openstreetmap-carto/project.mml 1>&2",
                               cwd="/opt/openstreetmap-carto",
                               shell=True, stderr=subprocess.PIPE)
     return response.stderr.decode("utf-8")
@@ -79,7 +79,7 @@ class TileGenerator:
         :return: rendered style_xml for a date
         """
         # set style filename
-        style_file: str = "{}-style.mml".format(self.request_date_to_string())
+        style_file: str = "{}-project.mml".format(self.request_date_to_string())
 
         if env.bool("CACHE", default=False):
             # try if exists to get cache style_xml

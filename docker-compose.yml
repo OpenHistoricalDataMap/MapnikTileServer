@@ -91,7 +91,7 @@ services:
     volumes:
       - ./pbf:/opt/pbf
       - ./tile_server/code:/code
-      - ./project.mml:/opt/openstreetmap-carto/style.mml
+      - ./project.mml:/opt/openstreetmap-carto/project.mml
     depends_on:
       - postgis
       - redis
