@@ -16,4 +16,10 @@ Docker-Compose
 In the docs for Docker-Compose are install instruction for Linux, Mac & Windows. Just follow the instruction to get done.
 https://docs.docker.com/compose/install/
 
+DNS Setup
+---------
 
+At the following subdomains to your IP with a ``A`` record.
+
+- ``www``
+- ``db-admin``
