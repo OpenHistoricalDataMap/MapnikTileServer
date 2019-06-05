@@ -6,11 +6,16 @@
 Welcome to OHDM Docker's documentation!
 =======================================
 
+.. include:: intro.rst
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   install
+   install-requirements
+   setup
+   tile_server
+   website
    documentation
 
 

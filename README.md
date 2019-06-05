@@ -7,6 +7,36 @@ do what you want and get back later :)
 
 ![Docker Container Overview](docs/_static/ProjectOverview.png)
 
+```
+computermuseum
+│   .env                               # enviroment var file
+│   .env-example                       # example enviroment var file
+│   .gitignore
+│   .readthedocs.yml                   # config file for https://readthedocs.org/
+│   docker-compose.yml                 # docker-compose file
+│   LICENSE 
+│   project.mml                        # mapnik style, edit only for develop / testing purpose
+│   README.md  
+│    
+└───docs                               # docs based on https://readthedocs.org/
+│
+└───import                             # dockerfile & startup script to import database
+│
+└───nginx                              # nginx conf files
+│
+└───proxy                              # traefik conf files
+│
+└───tile_server                        # wordpress files
+│   │   dockerfile                     # tile_server dockerfile
+│   │   requirements.txt               # python dependencies for the tile server
+│   └───code
+│       │   __init__.py
+│       │   app.py                     # tile server code (flask & mapnik)
+│       │   wsgi.py                    # start script for the production server
+│
+└───website                            # html content of demo OHDM website
+```
+
 ## minimum Server Requirements for developing
 
 - 3 GB of RAM
@@ -18,7 +48,7 @@ do what you want and get back later :)
 
 Copy `.env-example` to `.env` and change it to you needs
 
--> todo need more description
+If you need more explanation about the `.env` file, look in the docs -> https://readthedocs.org/projects/docker-ohdm/
 
 ```bash
 $ cp .env-example .env
