@@ -5,7 +5,39 @@
 It's a `docker-compose` repo for the new version of http://www.ohdm.net/, but it's just the beginning, so
 do what you want and get back later :)
 
-## minimum Server Requirements
+![Docker Container Overview](docs/_static/ProjectOverview.png)
+
+```
+computermuseum
+│   .env                               # enviroment var file
+│   .env-example                       # example enviroment var file
+│   .gitignore
+│   .readthedocs.yml                   # config file for https://readthedocs.org/
+│   docker-compose.yml                 # docker-compose file
+│   LICENSE 
+│   project.mml                        # mapnik style, edit only for develop / testing purpose
+│   README.md  
+│    
+└───docs                               # docs based on https://readthedocs.org/
+│
+└───import                             # dockerfile & startup script to import database
+│
+└───nginx                              # nginx conf files
+│
+└───proxy                              # traefik conf files
+│
+└───tile_server                        # wordpress files
+│   │   dockerfile                     # tile_server dockerfile
+│   │   requirements.txt               # python dependencies for the tile server
+│   └───code
+│       │   __init__.py
+│       │   app.py                     # tile server code (flask & mapnik)
+│       │   wsgi.py                    # start script for the production server
+│
+└───website                            # html content of demo OHDM website
+```
+
+## minimum Server Requirements for developing
 
 - 3 GB of RAM
 - 20 GB of free disk space
@@ -16,18 +48,16 @@ do what you want and get back later :)
 
 Copy `.env-example` to `.env` and change it to you needs
 
--> todo need more description
+If you need more explanation about the `.env` file, look in the docs -> https://readthedocs.org/projects/docker-ohdm/
 
 ```bash
 $ cp .env-example .env
 $ vim .env
 ```
 
-**2. Download a** `*.pbf` **file to** `./pbf`
+**2. Import**
 
-```bash
-$ wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -O pbf/berlin-latest.osm.pbf
-```
+TODO 
 
 **3. Create docker network** `web`
 
@@ -41,14 +71,8 @@ $ docker network create web
 $ docker-compose build
 ```
 
-**5. all files from `./pbf/` to database**
+**5. Execute Docker**
 
 ```bash
-$ docker-compose up -d postgis
-```
-
-**6. Execute Docker**
-
-```bash
-$ docker-compose up -d
+$ docker-compose up -d webserver
 ```
