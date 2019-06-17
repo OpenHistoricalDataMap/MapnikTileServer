@@ -8,7 +8,7 @@ do what you want and get back later :)
 ![Docker Container Overview](docs/_static/ProjectOverview.png)
 
 ```
-computermuseum
+OHDM
 │   .env                               # enviroment var file
 │   .env-example                       # example enviroment var file
 │   .gitignore
