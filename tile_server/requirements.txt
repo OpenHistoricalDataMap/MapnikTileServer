@@ -1,5 +1,10 @@
+# tile_server
 flask==1.0.2            # https://pypi.org/project/Flask/
 redis==3.2.1            # https://pypi.org/project/redis/
 gunicorn==19.9.0        # https://pypi.org/project/gunicorn/
 Jinja2==2.10.1          # https://pypi.org/project/Jinja2/
 envparse==0.2.0         # https://pypi.org/project/envparse/
+
+# date_template_importer
+ruamel.yaml==0.15.97    # https://pypi.org/project/ruamel.yaml/
+sqlparse==0.3.0         # https://pypi.org/project/sqlparse/
