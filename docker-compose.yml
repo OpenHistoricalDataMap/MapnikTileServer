@@ -89,9 +89,7 @@ services:
         OSM_CARTO_VERSION: v4.21.0        # version of https://github.com/gravitystorm/openstreetmap-carto/releases
     restart: always
     volumes:
-      - ./pbf:/opt/pbf
-      - ./tile_server/code:/code
-      - ./project.mml:/opt/openstreetmap-carto/project.mml
+      - ./tile_server/app:/app
     depends_on:
       - postgis
       - redis
@@ -99,6 +97,7 @@ services:
     networks:
       - intern
     environment:
+      # Postgres Enviroment Vars https://www.postgresql.org/docs/current/libpq-envars.html
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: gis
