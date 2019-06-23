@@ -5,3 +5,6 @@ osm2pgsql -G --hstore --drop --slim --multi-geometry --style /opt/openstreetmap-
 
 # Create indexes
 scripts/indexes.py
+
+# create dev Database
+psql -f /update.sql

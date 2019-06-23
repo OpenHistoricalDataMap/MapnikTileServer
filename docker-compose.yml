@@ -116,6 +116,7 @@ services:
         CARTO_VERSION: 0                  # carto version 0.x
     volumes:
       - ./pbf:/opt/pbf
+      - ./import/update.sql:/update.sql
     depends_on:
       - postgis
     networks:
