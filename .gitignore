@@ -9,3 +9,8 @@ pbf/*.pbf
 
 # doc
 docs/_build
+
+# venv / env
+venv/
+
+project.mml
