@@ -1,9 +1,11 @@
-# OHDM-Docker
+# OHDM Mapnik Tile Server
 
-[![Documentation Status](https://readthedocs.org/projects/docker-ohdm/badge/?version=latest)](https://docker-ohdm.readthedocs.io/en/latest/?badge=latest)
-     
-It's a `docker-compose` repo for the new version of http://www.ohdm.net/, but it's just the beginning, so
-do what you want and get back later :)
+![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki](https://img.shields.io/badge/wiki-read-green.svg)
+![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg)
+
+A time sensitive [Mapnik](https://mapnik.org/) Tile Server written in Python with [Flask Framework](http://flask.pocoo.org/).
+
+![Docker Container Overview](https://raw.githubusercontent.com/wiki/OpenHistoricalDataMap/MapnikTileServer/_static/ProjectOverview.png)
 
 ## minimum Server Requirements
 
