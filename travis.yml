@@ -1,0 +1,32 @@
+sudo: true
+dist: xenial
+before_install:
+  - sudo apt-get update -y && apt-get install -y\
+    fonts-dejavu-core \
+    fonts-hanazono \
+    fonts-noto-cjk \
+    fonts-noto-cjk-extra \
+    fonts-noto-color-emoji \
+    fonts-noto-hinted \
+    fonts-noto-unhinted \
+    libmapnik3.0 \
+    libmapnik-dev \
+    mapnik-utils \
+    python3-mapnik \
+    python3-pip \
+    ttf-unifont \
+    typecatcher \
+    unifont \
+    xfonts-unifont
+language: python
+python:
+  - "3.6"
+install:
+  - sudo pip install redis
+  - sudo pip install flask
+  - sudo pip install jinja2
+  - sudo pip install envparse
+script:
+  - python test_generate_default_style_xml.py
+  - python test_get_tile.py
+  - python test_tileGenerator.py
