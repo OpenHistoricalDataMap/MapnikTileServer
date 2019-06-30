@@ -56,9 +56,14 @@ $ cp .env-example .env
 $ vim .env
 ```
 
-**2. Import**
+**2. Import (Import Demo Database)**
 
-TODO 
+Download a OSM Datafile like https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf into ``./pbf``
+
+```bash
+$ wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -P pdf
+$ docker-compose up import
+```
 
 **3. Create docker network** `web`
 
