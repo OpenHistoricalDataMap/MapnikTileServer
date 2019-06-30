@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tile_server.code import app
+from tile_server.app import app
 
 
 class TestGet_tile(TestCase):

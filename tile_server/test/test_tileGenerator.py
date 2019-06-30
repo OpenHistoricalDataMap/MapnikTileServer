@@ -1,7 +1,7 @@
 from unittest import TestCase
 import datetime
 
-from tile_server.code import app
+from tile_server.app import app
 
 
 class TestTileGenerator(TestCase):

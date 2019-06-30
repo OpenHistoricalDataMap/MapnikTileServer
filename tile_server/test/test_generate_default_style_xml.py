@@ -3,7 +3,7 @@ from unittest import TestCase
 import redis
 from flask import Flask
 
-from tile_server.code import app
+from tile_server.app import app
 
 
 class TestGenerate_default_style_xml(TestCase):
