@@ -7,10 +7,8 @@ A time sensitive [Mapnik](https://mapnik.org/) Tile Server written in Python wit
 
 ![Docker Container Overview](https://raw.githubusercontent.com/wiki/OpenHistoricalDataMap/MapnikTileServer/_static/ProjectOverview.png)
 
-![Docker Container Overview](docs/_static/ProjectOverview.png)
-
 ```
-OHDM
+OHDM Mapnik Tile Server
 │   .env                               # enviroment var file
 │   .env-example                       # example enviroment var file
 │   .gitignore
