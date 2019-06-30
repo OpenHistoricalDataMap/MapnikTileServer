@@ -91,7 +91,6 @@ services:
     volumes:
       - ./tile_server/app:/app
     depends_on:
-      - postgis
       - redis
       - traefik
     networks:
@@ -100,8 +99,8 @@ services:
       # Postgres Enviroment Vars https://www.postgresql.org/docs/current/libpq-envars.html
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: gis
-      PGHOST: postgis
+      PGDATABASE: ${POSTGRES_DATABASE}
+      PGHOST: ${POSTGRES_HOST}
       ServerName: ${HOSTNAME}
       DEBUG: ${DEBUG}
       CACHE: ${CACHE}
@@ -124,8 +123,8 @@ services:
     environment:
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: gis
-      PGHOST: postgis
+      PGDATABASE: ${POSTGRES_DATABASE}
+      PGHOST: ${POSTGRES_HOST}
 
   redis:
     image: "redis:alpine"

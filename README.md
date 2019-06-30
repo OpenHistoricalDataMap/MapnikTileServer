@@ -56,7 +56,7 @@ $ cp .env-example .env
 $ vim .env
 ```
 
-**2. Import (Import Demo Database)**
+**2. Import (Import Demo Database - Optional)**
 
 Download a OSM Datafile like https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf into ``./pbf``
 
@@ -78,6 +78,14 @@ $ docker-compose build
 ```
 
 **5. Execute Docker**
+
+To start the tile server with a Docker Database Server
+
+```bash
+$ docker-compose up -d webserver postgis
+```
+
+To start the tile server with a external Database Server
 
 ```bash
 $ docker-compose up -d webserver
