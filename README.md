@@ -31,7 +31,8 @@ OHDM
 └───tile_server                        # wordpress files
 │   │   dockerfile                     # tile_server dockerfile
 │   │   requirements.txt               # python dependencies for the tile server
-│   └───code
+|   |   date_template_importer.py      # script for inserting date template into Mapnik style conf file
+│   └───app
 │       │   __init__.py
 │       │   app.py                     # tile server code (flask & mapnik)
 │       │   wsgi.py                    # start script for the production server

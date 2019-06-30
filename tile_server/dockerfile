@@ -53,13 +53,17 @@ RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /opt/opens
     cd /opt/openstreetmap-carto && \
     git fetch --all && \
     git checkout $OSM_CARTO_VERSION && \
-    ./scripts/get-shapefiles.py && \
-    carto project.mml > style.xml
+    ./scripts/get-shapefiles.py
 
 ADD requirements.txt /requirements.txt
 RUN pip3 install -r /requirements.txt
 
-WORKDIR /code
+ADD date_template_importer.py /date_template_importer.py
+
+RUN python3 /date_template_importer.py -i /opt/openstreetmap-carto/project.mml -o /opt/openstreetmap-carto/style.mml
+RUN carto /opt/openstreetmap-carto/style.mml > /opt/openstreetmap-carto/style.xml
+
+WORKDIR /app
 
 # enable port 5000 for nginx proxy
 EXPOSE 5000

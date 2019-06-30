@@ -19,7 +19,7 @@ def generate_default_style_xml() -> str:
     :return: jinja2 Template for custom date style.xml
     """
     # generate mapnik xml and return it to a string
-    response = subprocess.run("carto /opt/openstreetmap-carto/project.mml 1>&2",
+    response = subprocess.run("carto /opt/openstreetmap-carto/style.mml 1>&2",
                               cwd="/opt/openstreetmap-carto",
                               shell=True, stderr=subprocess.PIPE)
     return response.stderr.decode("utf-8")
@@ -97,6 +97,13 @@ class TileGenerator:
         if env.bool("CACHE", default=False):
             # upload style_xml file to redis cache
             cache.set(style_file, current_style_xml, ex=env.int("CAHCE_EXPIRE_TIME", default=3600))
+
+        import codecs
+        file = codecs.open("/app/{}-style.xml".format(self.request_date_to_string()), "w", "utf-8")
+        file.write(current_style_xml)
+        file.close()
+
+
 
         return current_style_xml
 
