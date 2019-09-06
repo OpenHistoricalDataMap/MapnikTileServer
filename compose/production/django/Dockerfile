@@ -9,7 +9,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update \
   # psycopg2 dependencies
   && apt-get install -y gcc python3-psycopg2 python-psycopg2 musl-dev \
-  && apt-get install -y libpq-dev postgresql-contrib \
+  && apt-get install -y libpq-dev \
   # python3
   && apt-get install -y python3 python3-pip python3-dev \
   # Pillow dependencies
@@ -30,10 +30,7 @@ RUN apt-get update \
   # mapnik
   && apt-get install -y libmapnik3.0 libmapnik-dev mapnik-utils python3-mapnik \
   # nodejs
-  && apt-get install -y npm nodejs \
-
-RUN addgroup -S django \
-    && adduser -S -G django django
+  && apt-get install -y npm nodejs
 
 # install Noto Sans fonts
 RUN git clone https://github.com/googlei18n/noto-emoji.git /opt/noto-emoji && \
@@ -49,7 +46,7 @@ RUN ln -sfn /usr/bin/python3 /usr/bin/python
 RUN npm install -g n stable
 
 # install cartoCSS -> https://github.com/mapbox/carto
-RUN npm install -g carto@$0
+RUN npm install -g carto@0
 
 # install millstone
 RUN npm install -g millstone
@@ -57,12 +54,16 @@ RUN npm install -g millstone
 # https://github.com/gravitystorm/openstreetmap-carto
 RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto  && \
     cd /opt/openstreetmap-carto && \
-    ./scripts/get-shapefiles.py
+    ./scripts/get-shapefiles.py && \
+    carto project.mml > style.xml
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
 RUN pip3 install --no-cache-dir -r /requirements/production.txt \
     && rm -rf /requirements
+
+RUN groupadd django \
+    && useradd -g django django
 
 COPY ./compose/production/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
@@ -88,14 +89,8 @@ RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 COPY . /app
 
-RUN npm install && npm cache clean --force
-RUN npm run build
-
 RUN chown -R django /app
 RUN chown -R django /opt/openstreetmap-carto/
-
-RUN python /app/manage.py date_template_importer
-RUN carto /opt/openstreetmap-carto/style.mml > /opt/openstreetmap-carto/style.xml
 
 USER django
 

@@ -12,9 +12,19 @@ class TileGenerator:
     based on https://wiki.openstreetmap.org/wiki/Howto_real_time_tiles_rendering_with_mapnik_and_mod_python
     """
 
-    def __init__(self, zoom: int, x_pixel: float, y_pixel: float, request_date: date = None,
-                 style_xml_template: str = None, osm_cato_path: str = None, levels: int = 20, width: int = 256,
-                 height: int = 256, cache: bool = False):
+    def __init__(
+        self,
+        zoom: int,
+        x_pixel: float,
+        y_pixel: float,
+        request_date: date = None,
+        style_xml_template: str = None,
+        osm_cato_path: str = None,
+        levels: int = 20,
+        width: int = 256,
+        height: int = 256,
+        cache: bool = False,
+    ):
         self.request_date: date = request_date
         self.style_xml_template: str = style_xml_template
         self.zoom: int = zoom
@@ -55,7 +65,7 @@ class TileGenerator:
         convert request_date to string
         :return: string %Y-%m-%d
         """
-        return self.request_date.strftime('%Y-%m-%d')
+        return self.request_date.strftime("%Y-%m-%d")
 
     def generate_date_style_xml(self) -> str:
         """
@@ -71,10 +81,15 @@ class TileGenerator:
 
     def get_bbox(self) -> mapnik.Envelope:
         prj: mapnik.Projection = mapnik.Projection(
-            "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over")
+            "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+        )
 
-        p0 = self.from_px_to_ll((self.width * self.x_pixel, self.height * (self.y_pixel + 1)), self.zoom)
-        p1 = self.from_px_to_ll((self.width * (self.x_pixel + 1), self.height * self.y_pixel), self.zoom)
+        p0 = self.from_px_to_ll(
+            (self.width * self.x_pixel, self.height * (self.y_pixel + 1)), self.zoom
+        )
+        p1 = self.from_px_to_ll(
+            (self.width * (self.x_pixel + 1), self.height * self.y_pixel), self.zoom
+        )
         c0 = prj.forward(mapnik.Coord(p0[0], p0[1]))
         c1 = prj.forward(mapnik.Coord(p1[0], p1[1]))
 
@@ -85,11 +100,8 @@ class TileGenerator:
         generate tile or load it from redis cache
         :return:  tile as png image in bytes format
         """
-        tile_name: str = '/tmp/{}-{}-{}-{}.png'.format(
-            self.request_date_to_string(),
-            self.zoom,
-            self.x_pixel,
-            self.y_pixel
+        tile_name: str = "/tmp/{}-{}-{}-{}.png".format(
+            self.request_date_to_string(), self.zoom, self.x_pixel, self.y_pixel
         )
 
         os.chdir(self.osm_cato_path)
@@ -109,7 +121,7 @@ class TileGenerator:
 
         # todo generate tile without save it to hdd
         mapnik.render_to_file(map, tile_name)
-        tile_content: bytes = open(tile_name, 'rb').read()
+        tile_content: bytes = open(tile_name, "rb").read()
         os.remove(tile_name)
 
         return tile_content

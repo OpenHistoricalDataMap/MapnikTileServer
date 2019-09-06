@@ -1,8 +1,8 @@
 class FloatConverter:
-    regex = '[\d\.\d]+'
+    regex = "[\d\.\d]+"
 
     def to_python(self, value):
         return float(value)
 
     def to_url(self, value):
-        return '{}'.format(value)
+        return "{}".format(value)

@@ -38,9 +38,7 @@ class TileCache(models.Model):
 
     def set_valid_date(self):
         tile_generator: TileGenerator = TileGenerator(
-            zoom=self.zoom,
-            x_pixel=self.x_pixel,
-            y_pixel=self.y_pixel
+            zoom=self.zoom, x_pixel=self.x_pixel, y_pixel=self.y_pixel
         )
         geom = Polygon.from_bbox(tile_generator.get_bbox())
 
@@ -49,18 +47,34 @@ class TileCache(models.Model):
         self.valid_since = None
         self.valid_until = None
 
-        self.set_valid_date_iterate_objects(PlanetOsmLine.objects.filter(
-            way__bbcontains=geom, valid_since__lte=valid_since, valid_until__gte=valid_until
-        ))
-        self.set_valid_date_iterate_objects(PlanetOsmPoint.objects.filter(
-            way__bbcontains=geom, valid_since__lte=valid_since, valid_until__gte=valid_until
-        ))
-        self.set_valid_date_iterate_objects(PlanetOsmPolygon.objects.filter(
-            way__bbcontains=geom, valid_since__lte=valid_since, valid_until__gte=valid_until
-        ))
-        self.set_valid_date_iterate_objects(PlanetOsmRoads.objects.filter(
-            way__bbcontains=geom, valid_since__lte=valid_since, valid_until__gte=valid_until
-        ))
+        self.set_valid_date_iterate_objects(
+            PlanetOsmLine.objects.filter(
+                way__bbcontains=geom,
+                valid_since__lte=valid_since,
+                valid_until__gte=valid_until,
+            )
+        )
+        self.set_valid_date_iterate_objects(
+            PlanetOsmPoint.objects.filter(
+                way__bbcontains=geom,
+                valid_since__lte=valid_since,
+                valid_until__gte=valid_until,
+            )
+        )
+        self.set_valid_date_iterate_objects(
+            PlanetOsmPolygon.objects.filter(
+                way__bbcontains=geom,
+                valid_since__lte=valid_since,
+                valid_until__gte=valid_until,
+            )
+        )
+        self.set_valid_date_iterate_objects(
+            PlanetOsmRoads.objects.filter(
+                way__bbcontains=geom,
+                valid_since__lte=valid_since,
+                valid_until__gte=valid_until,
+            )
+        )
 
         if self.valid_since is None:
             self.valid_since = valid_since
@@ -89,9 +103,13 @@ class TileCache(models.Model):
 class PlanetOsmLine(models.Model):
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
-    addr_housename = models.TextField(db_column='addr:housename', blank=True, null=True)
-    addr_housenumber = models.TextField(db_column='addr:housenumber', blank=True, null=True)
-    addr_interpolation = models.TextField(db_column='addr:interpolation', blank=True, null=True)
+    addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
+    addr_housenumber = models.TextField(
+        db_column="addr:housenumber", blank=True, null=True
+    )
+    addr_interpolation = models.TextField(
+        db_column="addr:interpolation", blank=True, null=True
+    )
     admin_level = models.TextField(blank=True, null=True)
     aerialway = models.TextField(blank=True, null=True)
     aeroway = models.TextField(blank=True, null=True)
@@ -140,14 +158,16 @@ class PlanetOsmLine(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'planet_osm_line'
+        db_table = "planet_osm_line"
 
 
 class PlanetOsmPoint(models.Model):
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
-    addr_housename = models.TextField(db_column='addr:housename', blank=True, null=True)
-    addr_housenumber = models.TextField(db_column='addr:housenumber', blank=True, null=True)
+    addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
+    addr_housenumber = models.TextField(
+        db_column="addr:housenumber", blank=True, null=True
+    )
     admin_level = models.TextField(blank=True, null=True)
     aerialway = models.TextField(blank=True, null=True)
     aeroway = models.TextField(blank=True, null=True)
@@ -183,15 +203,19 @@ class PlanetOsmPoint(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'planet_osm_point'
+        db_table = "planet_osm_point"
 
 
 class PlanetOsmPolygon(models.Model):
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
-    addr_housename = models.TextField(db_column='addr:housename', blank=True, null=True)
-    addr_housenumber = models.TextField(db_column='addr:housenumber', blank=True, null=True)
-    addr_interpolation = models.TextField(db_column='addr:interpolation', blank=True, null=True)
+    addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
+    addr_housenumber = models.TextField(
+        db_column="addr:housenumber", blank=True, null=True
+    )
+    addr_interpolation = models.TextField(
+        db_column="addr:interpolation", blank=True, null=True
+    )
     admin_level = models.TextField(blank=True, null=True)
     aerialway = models.TextField(blank=True, null=True)
     aeroway = models.TextField(blank=True, null=True)
@@ -240,15 +264,19 @@ class PlanetOsmPolygon(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'planet_osm_polygon'
+        db_table = "planet_osm_polygon"
 
 
 class PlanetOsmRoads(models.Model):
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
-    addr_housename = models.TextField(db_column='addr:housename', blank=True, null=True)
-    addr_housenumber = models.TextField(db_column='addr:housenumber', blank=True, null=True)
-    addr_interpolation = models.TextField(db_column='addr:interpolation', blank=True, null=True)
+    addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
+    addr_housenumber = models.TextField(
+        db_column="addr:housenumber", blank=True, null=True
+    )
+    addr_interpolation = models.TextField(
+        db_column="addr:interpolation", blank=True, null=True
+    )
     admin_level = models.TextField(blank=True, null=True)
     aerialway = models.TextField(blank=True, null=True)
     aeroway = models.TextField(blank=True, null=True)
@@ -297,4 +325,4 @@ class PlanetOsmRoads(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'planet_osm_roads'
+        db_table = "planet_osm_roads"

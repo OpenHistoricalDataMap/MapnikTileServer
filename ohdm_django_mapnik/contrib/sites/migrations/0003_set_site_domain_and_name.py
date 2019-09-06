@@ -12,10 +12,7 @@ def update_site_forward(apps, schema_editor):
     Site = apps.get_model("sites", "Site")
     Site.objects.update_or_create(
         id=settings.SITE_ID,
-        defaults={
-            "domain": "ohdm.net",
-            "name": "OHDM Django Mapnik",
-        },
+        defaults={"domain": "ohdm.net", "name": "OHDM Django Mapnik"},
     )
 
 

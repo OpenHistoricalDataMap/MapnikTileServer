@@ -44,7 +44,7 @@ LOCALE_PATHS = [ROOT_DIR.path("locale")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
-DATABASES["default"]["ENGINE"] = 'django.contrib.gis.db.backends.postgis'
+DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 
 # URLS
 # ------------------------------------------------------------------------------
@@ -301,4 +301,6 @@ os.environ["PGHOST"] = env("POSTGRES_HOST")
 os.environ["PGPORT"] = env("POSTGRES_PORT")
 
 # load default style_xml
-OSM_CARTO_STYLE_XML: str = open("{}/style.xml".format(env("CARTO_STYLE_PATH")), 'r', encoding="utf-8").read()
+OSM_CARTO_STYLE_XML: str = open(
+    "{}/style.xml".format(env("CARTO_STYLE_PATH")), "r", encoding="utf-8"
+).read()

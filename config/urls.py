@@ -10,7 +10,7 @@ urlpatterns = [
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
-    path('tile/', include('ohdm_django_mapnik.ohdm.urls')),
+    path("tile/", include("ohdm_django_mapnik.ohdm.urls")),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
