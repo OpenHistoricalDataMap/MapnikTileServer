@@ -1,13 +1,40 @@
-dist: xenial
+dist: bionic
 services:
   - postgresql
 before_install:
+  # https://github.com/pydanny/cookiecutter-django
   - sudo apt-get update -qq
   - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
   - sudo apt-get install -qq libjpeg8-dev libfreetype6-dev libwebp-dev
   - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
   - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
   - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
+
+  # project dependencies
+  # psycopg2 dependencies
+  - sudo apt-get install -qq gcc python3-psycopg2 python-psycopg2 musl-dev
+  - sudo apt-get install -qq libpq-dev
+  # python3
+  - sudo apt-get install -qq python3 python3-pip python3-dev
+  # Pillow dependencies
+  - sudo apt-get install -qq libjpeg8-dev zlib1g-dev libtiff-dev libfreetype6 libfreetype6-dev libwebp-dev libopenjp2-7-dev libopenjp2-7-dev
+  # CFFI dependencies
+  - sudo apt-get install -qq libffi-dev python-cffi cl-cffi
+  # Translations dependencies
+  - sudo apt-get install -qq gettext
+  # https://docs.djangoproject.com/en/dev/ref/django-admin/#dbshell
+  - sudo apt-get install -qq postgresql-client
+  # https://docs.djangoproject.com/en/2.2/ref/contrib/gis/install/geolibs/
+  - sudo apt-get install -qq binutils libproj-dev gdal-bin
+  # fonts
+  - sudo apt-get install -qq fonts-dejavu-core fonts-hanazono fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji
+  - sudo apt-get install -qq fonts-noto-hinted fonts-noto-unhinted fontconfig psf-unifont ttf-unifont typecatcher unifont xfonts-unifont
+  # git
+  - sudo apt-get install -qq git
+  # mapnik
+  - sudo apt-get install -qq libmapnik3.0 libmapnik-dev mapnik-utils python3-mapnik
+  # nodejs
+  - sudo apt-get install -qq npm nodejs
 language: python
 python:
   - "3.6"
