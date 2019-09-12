@@ -1,6 +1,30 @@
 dist: bionic
+
 services:
   - postgresql
+  - redis
+
+addons:
+  postgresql: 9.6
+  apt:
+    packages:
+    - postgresql-9.6-postgis-2.3
+
+cache:
+  pip: true
+  directories:
+    - node_modules
+    - $HOME/.cache/pip
+    - noto-emoji
+    - openstreetmap-carto
+
+env:
+  global:
+    - DJANGO_SETTINGS_MODULE="config.settings.local"
+    - DATABASE_URL="postgres://postgres@localhost:5432/gis"
+    - SECRET_KEY="irrelevant"
+    - CELERY_BROKER_URL="redis://localhost:6379/0"
+
 before_install:
   # https://github.com/pydanny/cookiecutter-django
   - sudo apt-get update -qq
@@ -35,10 +59,19 @@ before_install:
   - sudo apt-get install -qq libmapnik3.0 libmapnik-dev mapnik-utils python3-mapnik
   # nodejs
   - sudo apt-get install -qq npm nodejs
+
+  # setup postgis
+  - psql -U postgres -c "create extension postgis"
+  - psql -U postgres -c "create extension hstore"
+  - psql -U postgres -c "create extension postgis_topology"
+
 language: python
+
 python:
   - "3.6"
+
 install:
   - pip install -r requirements/local.txt
+
 script:
   - "pytest"
