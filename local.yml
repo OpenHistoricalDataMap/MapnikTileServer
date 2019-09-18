@@ -12,6 +12,8 @@ services:
     image: ohdm_django_mapnik_local_django
     depends_on:
       - postgres
+      - celeryworker
+      - celerybeat
     volumes:
       - .:/app
       - ../openstreetmap-carto:/opt/openstreetmap-carto
