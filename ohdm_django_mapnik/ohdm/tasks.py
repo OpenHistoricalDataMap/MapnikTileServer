@@ -2,9 +2,10 @@ from django.core.cache import cache
 from config.celery_app import app
 from datetime import date
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
+from config.settings.base import env
 
 
-@app.task
+@app.task(soft_time_limit=env.int("TILE_GENERATOR_SOFT_TIMEOUT"), time_limit=env.int("TILE_GENERATOR_HARD_TIMEOUT"))
 def async_generate_tile(
     year: int,
     month: int,
