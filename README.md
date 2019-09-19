@@ -36,7 +36,6 @@ Based on a Fork of [openstreetmap-carto](https://github.com/linuxluigi/openstree
 - [Bootstrap 4](https://getbootstrap.com/) Theme by [bootswatch.com](https://bootswatch.com/minty/)
 - [Leaflet](https://leafletjs.com/) for map view
 - [Bootstrap Datepicker](https://github.com/uxsolutions/bootstrap-datepicker)
-- [Leafet Permalink](https://github.com/MarcChasse/leaflet.Permalink)
 
 ## Roadmap
 
