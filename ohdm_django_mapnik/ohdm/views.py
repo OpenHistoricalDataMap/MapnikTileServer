@@ -95,22 +95,3 @@ def generate_tile_reload_project(
     )
 
     return HttpResponse(tile_gen.render_tile(), content_type="image/jpeg")
-
-
-def generate_osm_tile(
-    request, zoom: int, x_pixel: float, y_pixel: float
-) -> HttpResponse:
-    # generate normal osm tile
-    style_xml: str = open(
-        "{}/style.xml".format(env("CARTO_STYLE_PATH_DEBUG")), "r", encoding="utf-8"
-    ).read()
-    tile_gen: TileGenerator = TileGenerator(
-        request_date=date(year=2000, month=1, day=1),
-        style_xml_template=style_xml,
-        zoom=int(zoom),
-        x_pixel=float(x_pixel),
-        y_pixel=float(y_pixel),
-        osm_cato_path=env("CARTO_STYLE_PATH_DEBUG"),
-    )
-
-    return HttpResponse(tile_gen.render_tile(), content_type="image/jpeg")

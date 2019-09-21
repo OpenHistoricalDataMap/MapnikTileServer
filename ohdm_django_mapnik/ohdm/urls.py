@@ -27,9 +27,4 @@ if settings.DEBUG:
             views.generate_tile_reload_project,
             name="generate time sensitive tile, generate through project.mml style.xml and reload it",
         ),
-        path(
-            "<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png",
-            views.generate_osm_tile,
-            name="generate normal osm tile",
-        ),
     ]
