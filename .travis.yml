@@ -24,6 +24,7 @@ env:
     - DATABASE_URL="postgres://postgres@localhost:5432/gis"
     - SECRET_KEY="irrelevant"
     - CELERY_BROKER_URL="redis://localhost:6379/0"
+    - PGPORT=5433
 
 before_script:
   # setup postgis
