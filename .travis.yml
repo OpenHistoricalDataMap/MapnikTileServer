@@ -27,7 +27,7 @@ env:
 
 before_script:
   # setup postgis
-  - sudo systemctl start postgresql@11-main
+  - sudo systemctl restart postgresql@11-main
   - psql -U postgres -c "create extension postgis"
   - psql -U postgres -c "create extension hstore"
   - psql -U postgres -c "create extension postgis_topology"
