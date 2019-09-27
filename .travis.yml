@@ -2,10 +2,10 @@ dist: bionic
 
 services:
   - postgresql
-  - redis
+  - redis-server
 
 addons:
-  postgresql: 11
+  postgresql: '11'
   apt:
     packages:
     - postgresql-11-postgis-2.5
