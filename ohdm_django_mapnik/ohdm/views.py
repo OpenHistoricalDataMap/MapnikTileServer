@@ -1,6 +1,5 @@
 from celery.result import AsyncResult
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse
 from datetime import date
 from config.settings.base import env, OSM_CARTO_STYLE_XML
 from ohdm_django_mapnik.debug_utily import get_style_xml
@@ -13,7 +12,17 @@ from django.core.cache import cache
 def generate_tile(
     request, year: int, month: int, day: int, zoom: int, x_pixel: float, y_pixel: float
 ) -> HttpResponse:
-    # generate time sensitive tile for production
+    """
+    get a mapnik tile, get it from cache if exist else it will be generated as a celery task
+    :param request: django request
+    :param year: request year as INT
+    :param month: request month as INT
+    :param day: request day as INT
+    :param zoom: mapnik zoom level
+    :param x_pixel: mapnik x coordinate
+    :param y_pixel: mapnik y coordinate
+    :return:
+    """
 
     request_date: date = date(year=int(year), month=int(month), day=int(day))
 
@@ -67,6 +76,17 @@ def generate_tile(
 def generate_tile_reload_style(
     request, year: int, month: int, day: int, zoom: int, x_pixel: float, y_pixel: float
 ) -> HttpResponse:
+    """
+    reload style.xml & than generate a new mapnik tile
+    :param request: django request
+    :param year: request year as INT
+    :param month: request month as INT
+    :param day: request day as INT
+    :param zoom: mapnik zoom level
+    :param x_pixel: mapnik x coordinate
+    :param y_pixel: mapnik y coordinate
+    :return:
+    """
     # generate time sensitive tile and reload style.xml
     tile_gen: TileGenerator = TileGenerator(
         request_date=date(year=int(year), month=int(month), day=int(day)),
@@ -83,7 +103,17 @@ def generate_tile_reload_style(
 def generate_tile_reload_project(
     request, year: int, month: int, day: int, zoom: int, x_pixel: float, y_pixel: float
 ) -> HttpResponse:
-    # generate time sensitive tile, generate through project.mml style.xml and reload it
+    """
+    generate   reload style.xml & than generate a new mapnik tile
+    :param request: django request
+    :param year: request year as INT
+    :param month: request month as INT
+    :param day: request day as INT
+    :param zoom: mapnik zoom level
+    :param x_pixel: mapnik x coordinate
+    :param y_pixel: mapnik y coordinate
+    :return:
+    """
 
     tile_gen: TileGenerator = TileGenerator(
         request_date=date(year=int(year), month=int(month), day=int(day)),

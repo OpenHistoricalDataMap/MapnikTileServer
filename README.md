@@ -363,3 +363,5 @@ Don’t try to scale `postgres`, `celerybeat`, or `traefik`!
 Right now the test are in development. In `.travis.yml` is a test pipeline for travis, but it still needs some improvements.
 
 To read how to run test go to [cookiecutter-django](https://cookiecutter-django.readthedocs.io/en/latest/testing.html)
+
+Or for running test manual use ``docker-compose -f local.yml run django pytest``

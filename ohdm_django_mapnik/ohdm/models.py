@@ -11,6 +11,9 @@ from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 
 class TileCache(models.Model):
+    """
+    model for every cached tile
+    """
     created = models.DateTimeField(auto_now_add=True)
     zoom = models.IntegerField()
     x_pixel = models.FloatField()
@@ -101,6 +104,9 @@ class TileCache(models.Model):
 
 
 class PlanetOsmLine(models.Model):
+    """
+    osm line model
+    """
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -162,6 +168,9 @@ class PlanetOsmLine(models.Model):
 
 
 class PlanetOsmPoint(models.Model):
+    """
+    osm point model
+    """
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -207,6 +216,9 @@ class PlanetOsmPoint(models.Model):
 
 
 class PlanetOsmPolygon(models.Model):
+    """
+    osm polygon model
+    """
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -268,6 +280,9 @@ class PlanetOsmPolygon(models.Model):
 
 
 class PlanetOsmRoads(models.Model):
+    """
+    osm road model
+    """
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)

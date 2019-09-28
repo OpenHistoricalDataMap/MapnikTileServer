@@ -1,4 +1,8 @@
 class FloatConverter:
+    """
+    convert a float string to a float value
+    """
+
     regex = "[\d\.\d]+"
 
     def to_python(self, value):

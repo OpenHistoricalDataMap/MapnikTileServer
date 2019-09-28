@@ -17,6 +17,19 @@ def async_generate_tile(
     osm_cato_path: str,
     cache_key: str,
 ) -> str:
+    """
+    run celery background task to generate a mapnik tile & cache the tile
+    :param year: request year as INT
+    :param month: request month as INT
+    :param day: request day as INT
+    :param style_xml_template: path to style.xml
+    :param zoom: mapnik zoom level
+    :param x_pixel: mapnik x coordinate
+    :param y_pixel: mapnik y coordinate
+    :param osm_cato_path: path to osm cato
+    :param cache_key: cache key for mapnik tile
+    :return:
+    """
 
     cache.set(
         cache_key,
@@ -27,7 +40,7 @@ def async_generate_tile(
             x_pixel=float(x_pixel),
             y_pixel=float(y_pixel),
             osm_cato_path=osm_cato_path,
-            cache=True,
+            use_cache=True,
         ).render_tile(),
     )
 

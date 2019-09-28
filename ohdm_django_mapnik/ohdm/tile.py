@@ -23,7 +23,7 @@ class TileGenerator:
         levels: int = 20,
         width: int = 256,
         height: int = 256,
-        cache: bool = False,
+        use_cache: bool = False,
     ):
         self.request_date: date = request_date
         self.style_xml_template: str = style_xml_template
@@ -33,6 +33,7 @@ class TileGenerator:
         self.width: int = width
         self.height: int = height
         self.osm_cato_path: str = osm_cato_path
+        self.use_cache = use_cache
 
         self.Bc = []
         self.Cc = []
@@ -107,7 +108,7 @@ class TileGenerator:
         os.chdir(self.osm_cato_path)
         map: mapnik.Map = mapnik.Map(self.width, self.height)
 
-        if cache:
+        if self.use_cache:
             style_key: str = "{}-style.xml".format(self.request_date_to_string())
             style_xml: str = cache.get_or_set(style_key, self.generate_date_style_xml())
         else:
