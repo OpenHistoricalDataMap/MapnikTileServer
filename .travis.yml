@@ -1,19 +1,30 @@
 dist: bionic
 
+services:
+  - postgresql
+
 addons:
   apt:
     sources:
       - ppa:chris-lea/redis-server
+      - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main'
+          key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
     packages:
     - redis-tools
+    - redis-server
+    - postgresql-client-11
+    - postgresql-common
+    - postgresql-11
+    - postgresql-11-postgis-2.5
+    - postgresql-11-pgrouting
+    - netcat
+    - postgresql-11-ogr-fdw
 
 before_script:
-  - sudo apt-get install curl ca-certificates gnupg
-  - curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-  - sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq postgresql-client-11 postgresql-common postgresql-11 postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat postgresql-11-ogr-fdw
   - sudo service postgresql restart
+  - psql -c 'create database gis;' -U postgres
+  - psql -c 'CREATE EXTENSION postgis;' -U postgres -d gis
+  - psql -c 'CREATE EXTENSION postgis_topology;' -U postgres -d gis
 
 language: python
 
@@ -21,7 +32,4 @@ python:
   - "3.6"
 
 script:
-  - psql -c 'create database gis;' -U postgres
-  - psql -c 'CREATE EXTENSION postgis;' -U postgres -d gis
-  - psql -c 'CREATE EXTENSION postgis_topology;' -U postgres -d gis
   - "pytest"
