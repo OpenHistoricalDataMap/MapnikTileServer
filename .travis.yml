@@ -7,18 +7,12 @@ addons:
     packages:
     - redis-tools
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
-  - sudo apt-get install -qq libjpeg8-dev libfreetype6-dev libwebp-dev
-  - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
-  - sudo apt-get install -qq firefox automake libtool libreadline7 libreadline6-dev libreadline-dev
-  - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
-
 before_script:
-  - sudo add-apt-repository ppa:ubuntugis/ppa -y
+  - sudo apt-get install curl ca-certificates gnupg
+  - curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
   - sudo apt-get update -qq
-  - sudo apt-get install postgresql-client-11 postgresql-common postgresql-11 postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat postgresql-11-ogr-fdw -y
+  - sudo apt-get install -qq postgresql-client-11 postgresql-common postgresql-11 postgresql-11-postgis-2.5 postgresql-11-pgrouting netcat postgresql-11-ogr-fdw
   - sudo service postgresql restart
   - psql -c 'create database gis;' -U postgres
   - psql -c 'CREATE EXTENSION postgis;' -U postgres -d gis
@@ -28,9 +22,6 @@ language: python
 
 python:
   - "3.6"
-
-install:
-  - pip install -r requirements/local.txt
 
 script:
   - "pytest"
