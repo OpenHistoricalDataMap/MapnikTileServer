@@ -4,6 +4,7 @@ Base settings to build other settings files upon.
 import os
 
 import environ
+from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 ROOT_DIR = (
     environ.Path(__file__) - 3
@@ -301,6 +302,6 @@ os.environ["PGHOST"] = env("POSTGRES_HOST")
 os.environ["PGPORT"] = env("POSTGRES_PORT")
 
 # load default style_xml
-OSM_CARTO_STYLE_XML: str = open(
-    "{}/style.xml".format(env("CARTO_STYLE_PATH")), "r", encoding="utf-8"
-).read()
+OSM_CARTO_STYLE_XML: str = get_style_xml(
+    generate_style_xml=False,
+    carto_sytle_path=env("CARTO_STYLE_PATH"))

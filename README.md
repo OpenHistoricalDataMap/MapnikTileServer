@@ -128,6 +128,7 @@ URL's are setup in `config/urls.py` and `ohdm_django_mapnik/ohdm/urls.py`.
 # only in development mode enabled
 /tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-style-xml/tile.png      # tile url with reload style.xml
 /tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-project-mml/tile.png    # tile url with reload project.mml & style.xml
+/tile/<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png                                                        # tile url with default openstreetmap-carto (no time sensitivity)
 ```
 
 Tile example link (in Berlin): http://example.com/tile/2010/02/16/13/4398/2685/tile.png
@@ -169,7 +170,13 @@ $ docker-compose -f local.yml build
 $ docker-compose -f local.yml up test-database
 ```
 
-**4. start test server**
+**4. generate style.xml**
+
+```bash
+$ docker-compose -f local.yml run --rm django python manage.py create_style_xml
+```
+
+**5. start test server**
 
 ```bash
 $ docker-compose -f local.yml up django celeryworker celerybeat
