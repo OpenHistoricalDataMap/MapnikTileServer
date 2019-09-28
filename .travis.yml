@@ -2,6 +2,7 @@ dist: bionic
 
 services:
   - postgresql
+  - redis-server
 
 addons:
   apt:
@@ -21,7 +22,6 @@ addons:
     - postgresql-11-ogr-fdw
 
 before_script:
-  - sudo service postgresql restart
   - psql -c 'create database gis;' -U postgres
   - psql -c 'CREATE EXTENSION postgis;' -U postgres -d gis
   - psql -c 'CREATE EXTENSION postgis_topology;' -U postgres -d gis
