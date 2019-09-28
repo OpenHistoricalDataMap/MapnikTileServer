@@ -8,7 +8,7 @@ addons:
     sources:
       - ppa:chris-lea/redis-server
       - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main'
-          key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
+        key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
     packages:
     - redis-tools
     - redis-server
