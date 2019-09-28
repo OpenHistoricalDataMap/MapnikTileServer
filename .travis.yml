@@ -22,15 +22,15 @@ addons:
     - postgresql-11-ogr-fdw
 
 before_script:
+  - sudo service postgresql restart
   - psql -c 'create database gis;' -U postgres
   - psql -c 'CREATE EXTENSION postgis;' -U postgres -d gis
   - psql -c 'CREATE EXTENSION postgis_topology;' -U postgres -d gis
 
 env:
   global:
-    - PGPORT=5433
+    - PGPORT=5432
     - PGHOST=localhost
-    - POSTGRES_PORT=5432
     - PGDATABASE=gis
     - PGUSER=postgres
 
