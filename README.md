@@ -222,7 +222,6 @@ for more details.
 ```bash
 $ mkdir ohdm
 $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
-$ git clone https://github.com/linuxluigi/openstreetmap-carto.git
 ```
 
 **2. build images**
@@ -320,10 +319,10 @@ Please make sure to change at least:
 
 Be careful to change ``POSTGRES_USER`` & ``POSTGRES_USER`` it can may broke the tile server.
 
-**4. start test server**
+**4. start production server**
 
 ```bash
-$ docker-compose -f local.yml up -d django celeryworker celerybeat
+$ docker-compose -f production.yml up -d django celeryworker celerybeat traefik
 ```
 
 The server start on ``https://ohdm.net/``
@@ -331,12 +330,18 @@ The server start on ``https://ohdm.net/``
 Also it's possible to start the celery monitor Flower with:
 
 ```bash
-$ docker-compose -f local.yml up -d flower
+$ docker-compose -f production.yml up -d flower
 ```
 
 Flower start on ``https://ohdm.net:5555/``
 
-**5. create admin user**
+**5. create Database**
+
+```bash
+$ docker-compose -f production.yml run --rm django python manage.py migrate
+```
+
+**6. create admin user**
 
 ```bash
 $ docker-compose -f production.yml run --rm django python manage.py createsuperuser
@@ -346,7 +351,7 @@ To visit the admin panel go to http://ohdm.net/geiHZUuftfcy8ZQCsr8qRNG1tXbs9hL2/
 
 The admin panel url depends on the environment var ``DJANGO_ADMIN_URL`` in ``.envs/.production/.django``
 
-**6. Backup**
+**7. Backup**
 
 Go to [cookiecutter-django.readthedocs.io](https://cookiecutter-django.readthedocs.io/en/latest/docker-postgres-backups.html)
 to read how to back up the database. 
