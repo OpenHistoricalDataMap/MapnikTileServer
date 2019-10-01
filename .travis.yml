@@ -4,10 +4,16 @@ services:
   # https://docs.travis-ci.com/user/docker/
   - docker
 
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/pip
+
 addons:
   apt:
     packages:
     - python3-pip
+    - python3-setuptools
 
 before_script:
   # download openstreetmap-carto
@@ -20,7 +26,7 @@ before_script:
   - sudo docker-compose -f local.yml up test-database
 
 install:
-  - sudo pip3 install docker-compose
+  - pip3 install docker-compose
 
 script:
   - sudo docker-compose -f local.yml run django pytest
