@@ -4,6 +4,7 @@
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg) 
 ![https://github.com/pydanny/cookiecutter-django/](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg)
 ![https://github.com/ambv/black](https://img.shields.io/badge/code%20style-black-000000.svg)
+![https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer](https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer.svg?branch=master)
 
 The [OpenHistoricalDataMap](https://github.com/OpenHistoricalDataMap) 
 [MapnikTileServer](https://github.com/OpenHistoricalDataMap/MapnikTileServer) is an 
