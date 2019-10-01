@@ -87,6 +87,10 @@ OHDM MapnikTileServer
 │   │   │   .django                              # custom enviroment vars for django
 │   │   │   .postgres                            # custom enviroment vars for django
 │    
+└───compose                                      # docker build files
+│
+└───config                                       # django settings     
+│  
 └───locale                                       # https://docs.djangoproject.com/en/2.2/topics/i18n/translation/
 │    
 └───ohdm_django_mapnik                           # main project folder
@@ -170,13 +174,14 @@ $ docker-compose -f local.yml build
 $ docker-compose -f local.yml up test-database
 ```
 
-**4. generate style.xml**
+**4. download shapefiles & generate style.xml**
 
 ```bash
+$ docker-compose -f local.yml run --rm django get-shapefiles.sh
 $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
 ```
 
-**5. start test server**
+**6. start test server**
 
 ```bash
 $ docker-compose -f local.yml up django celeryworker celerybeat

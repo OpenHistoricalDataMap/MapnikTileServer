@@ -67,6 +67,9 @@ RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /opt/opens
 COPY ./requirements /requirements
 RUN pip3 install -r /requirements/local.txt
 
+COPY ./compose/local/django/get-shapefiles.sh /get-shapefiles.sh
+RUN chmod +x /get-shapefiles.sh
+
 COPY ./compose/production/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
