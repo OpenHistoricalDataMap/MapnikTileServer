@@ -21,7 +21,7 @@ before_script:
   # build docker images
   - sudo docker-compose -f local.yml build django test-database postgres
   # download shape files
-  - sudo docker-compose -f local.yml run --rm django get-shapefiles.sh
+  - sudo docker-compose -f local.yml run --rm django /get-shapefiles.sh
   # generate style.xml
   - sudo docker-compose -f local.yml run --rm django python manage.py create_style_xml
   # start postgis server
