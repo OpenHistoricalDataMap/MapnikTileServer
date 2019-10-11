@@ -165,6 +165,12 @@ class PlanetOsmLine(models.Model):
     class Meta:
         db_table = "planet_osm_line"
 
+    def __str__(self):
+        if self.name:
+            return "{}: {}".format(self.osm_id, self.name)
+        else:
+            return self.osm_id
+
 
 class PlanetOsmPoint(models.Model):
     """
@@ -212,6 +218,12 @@ class PlanetOsmPoint(models.Model):
 
     class Meta:
         db_table = "planet_osm_point"
+
+    def __str__(self):
+        if self.name:
+            return "{}: {}".format(self.osm_id, self.name)
+        else:
+            return self.osm_id
 
 
 class PlanetOsmPolygon(models.Model):
@@ -277,6 +289,12 @@ class PlanetOsmPolygon(models.Model):
     class Meta:
         db_table = "planet_osm_polygon"
 
+    def __str__(self):
+        if self.name:
+            return "{}: {}".format(self.osm_id, self.name)
+        else:
+            return self.osm_id
+
 
 class PlanetOsmRoads(models.Model):
     """
@@ -340,3 +358,9 @@ class PlanetOsmRoads(models.Model):
 
     class Meta:
         db_table = "planet_osm_roads"
+
+    def __str__(self):
+        if self.name:
+            return "{}: {}".format(self.osm_id, self.name)
+        else:
+            return self.osm_id
