@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.gis.admin import OSMGeoAdmin
 
 from .models import (
     TileCache,
@@ -10,15 +11,30 @@ from .models import (
 
 
 class TileCacheAdmin(admin.ModelAdmin):
-    list_display = ('celery_task_id', 'created', 'celery_task_done')
-    list_filter = ['celery_task_done']
-    search_fields = ['celery_task_id', 'created', 'valid_since', 'valid_until', 'zoom', 'x_pixel', 'y_pixel']
+    list_display = ("celery_task_id", "created", "celery_task_done")
+    list_filter = ["celery_task_done"]
+    search_fields = [
+        "celery_task_id",
+        "created",
+        "valid_since",
+        "valid_until",
+        "zoom",
+        "x_pixel",
+        "y_pixel",
+    ]
 
 
-class PlanetOsmAdmin(admin.ModelAdmin):
-    list_display = ('osm_id', 'boundary', 'natural', 'tags', 'valid_since', 'valid_until')
-    list_filter = ['natural', 'valid_since', 'valid_until']
-    search_fields = ['osm_id']
+class PlanetOsmAdmin(OSMGeoAdmin):
+    list_display = (
+        "osm_id",
+        "boundary",
+        "natural",
+        "tags",
+        "valid_since",
+        "valid_until",
+    )
+    list_filter = ["natural", "valid_since", "valid_until"]
+    search_fields = ["osm_id"]
 
 
 admin.site.register(TileCache, TileCacheAdmin)
