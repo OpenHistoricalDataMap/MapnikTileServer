@@ -90,7 +90,9 @@ def generate_tile_reload_style(
     # generate time sensitive tile and reload style.xml
     tile_gen: TileGenerator = TileGenerator(
         request_date=date(year=int(year), month=int(month), day=int(day)),
-        style_xml_template=get_style_xml(generate_style_xml=False, carto_sytle_path=env("CARTO_STYLE_PATH")),
+        style_xml_template=get_style_xml(
+            generate_style_xml=False, carto_sytle_path=env("CARTO_STYLE_PATH")
+        ),
         zoom=int(zoom),
         x_pixel=float(x_pixel),
         y_pixel=float(y_pixel),
@@ -117,7 +119,9 @@ def generate_tile_reload_project(
 
     tile_gen: TileGenerator = TileGenerator(
         request_date=date(year=int(year), month=int(month), day=int(day)),
-        style_xml_template=get_style_xml(generate_style_xml=True, carto_sytle_path=env("CARTO_STYLE_PATH")),
+        style_xml_template=get_style_xml(
+            generate_style_xml=True, carto_sytle_path=env("CARTO_STYLE_PATH")
+        ),
         zoom=int(zoom),
         x_pixel=float(x_pixel),
         y_pixel=float(y_pixel),
@@ -141,7 +145,9 @@ def generate_osm_tile(
     # generate normal osm tile
     tile_gen: TileGenerator = TileGenerator(
         request_date=date(year=2000, month=1, day=1),
-        style_xml_template=get_style_xml(generate_style_xml=False, carto_sytle_path=env("CARTO_STYLE_PATH_DEBUG")),
+        style_xml_template=get_style_xml(
+            generate_style_xml=False, carto_sytle_path=env("CARTO_STYLE_PATH_DEBUG")
+        ),
         zoom=int(zoom),
         x_pixel=float(x_pixel),
         y_pixel=float(y_pixel),

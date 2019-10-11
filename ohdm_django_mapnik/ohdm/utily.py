@@ -7,9 +7,12 @@ def create_style_xml(carto_sytle_path: str):
     create style.xml through carto project.mml
     :return:
     """
-    subprocess.run("carto project.mml > style.xml".format(carto_sytle_path),
-                   cwd=carto_sytle_path,
-                   shell=True, stderr=subprocess.PIPE)
+    subprocess.run(
+        "carto project.mml > style.xml".format(carto_sytle_path),
+        cwd=carto_sytle_path,
+        shell=True,
+        stderr=subprocess.PIPE,
+    )
 
 
 def get_style_xml(generate_style_xml: bool, carto_sytle_path: str) -> str:
