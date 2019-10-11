@@ -11,8 +11,17 @@ from .models import (
 
 
 class TileCacheAdmin(admin.ModelAdmin):
-    list_display = ("celery_task_id", "created", "celery_task_done")
-    list_filter = ["celery_task_done"]
+    list_display = (
+        "celery_task_id",
+        "created",
+        "celery_task_done",
+        "zoom",
+        "x_pixel",
+        "y_pixel",
+        "valid_since",
+        "valid_until",
+    )
+    list_filter = ["celery_task_done", "zoom", "valid_since", "valid_until"]
     search_fields = [
         "celery_task_id",
         "created",

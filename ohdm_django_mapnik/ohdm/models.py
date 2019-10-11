@@ -101,6 +101,20 @@ class TileCache(models.Model):
                 if line.valid_until < self.valid_until:
                     self.valid_until = line.valid_until
 
+    def delete(self, **kwargs):
+        cache.delete(self.get_cache_key())
+        super(self).delete()
+
+    def __str__(self):
+        return "{0}: {1}-{2} z:{3} x:{4} y:{5}".format(
+            self.pk,
+            self.valid_since.strftime("%Y/%m/%d"),
+            self.valid_until.strftime("%Y/%m/%d"),
+            self.zoom,
+            self.x_pixel,
+            self.y_pixel,
+        )
+
 
 class PlanetOsmLine(models.Model):
     """
