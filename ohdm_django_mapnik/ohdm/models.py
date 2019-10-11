@@ -103,7 +103,7 @@ class TileCache(models.Model):
 
     def delete(self, **kwargs):
         cache.delete(self.get_cache_key())
-        super(self).delete()
+        super().delete()
 
     def __str__(self):
         return "{0}: {1}-{2} z:{3} x:{4} y:{5}".format(
