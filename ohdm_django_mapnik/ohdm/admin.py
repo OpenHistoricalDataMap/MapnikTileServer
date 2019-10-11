@@ -27,6 +27,7 @@ class TileCacheAdmin(admin.ModelAdmin):
 class PlanetOsmAdmin(OSMGeoAdmin):
     list_display = (
         "osm_id",
+        "name",
         "boundary",
         "natural",
         "tags",
@@ -34,7 +35,7 @@ class PlanetOsmAdmin(OSMGeoAdmin):
         "valid_until",
     )
     list_filter = ["natural", "valid_since", "valid_until"]
-    search_fields = ["osm_id"]
+    search_fields = ["osm_id", "name"]
 
 
 admin.site.register(TileCache, TileCacheAdmin)
