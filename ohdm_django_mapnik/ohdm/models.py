@@ -3,7 +3,6 @@ from datetime import date
 
 from celery.result import AsyncResult
 from django.contrib.gis.geos import Polygon
-from django.db import models
 from django.contrib.gis.db import models
 from django.core.cache import cache
 
@@ -14,6 +13,7 @@ class TileCache(models.Model):
     """
     model for every cached tile
     """
+
     created = models.DateTimeField(auto_now_add=True)
     zoom = models.IntegerField()
     x_pixel = models.FloatField()
@@ -107,6 +107,7 @@ class PlanetOsmLine(models.Model):
     """
     osm line model
     """
+
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -163,7 +164,6 @@ class PlanetOsmLine(models.Model):
     valid_until = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "planet_osm_line"
 
 
@@ -171,6 +171,7 @@ class PlanetOsmPoint(models.Model):
     """
     osm point model
     """
+
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -211,7 +212,6 @@ class PlanetOsmPoint(models.Model):
     valid_until = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "planet_osm_point"
 
 
@@ -219,6 +219,7 @@ class PlanetOsmPolygon(models.Model):
     """
     osm polygon model
     """
+
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -275,7 +276,6 @@ class PlanetOsmPolygon(models.Model):
     valid_until = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "planet_osm_polygon"
 
 
@@ -283,6 +283,7 @@ class PlanetOsmRoads(models.Model):
     """
     osm road model
     """
+
     osm_id = models.BigIntegerField(primary_key=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -339,5 +340,4 @@ class PlanetOsmRoads(models.Model):
     valid_until = models.DateField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "planet_osm_roads"
