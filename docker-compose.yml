@@ -5,7 +5,7 @@ services:
   # ssl proxy - let's encrypt
   # https://docs.traefik.io/user-guide/docker-and-lets-encrypt/
   traefik:
-    image: traefik
+    image: traefik:1.7
     restart: always
     # command: --help for all traefik commands
     command: >
