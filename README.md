@@ -61,7 +61,7 @@ $ vim .env
 Download a OSM Datafile like https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf into ``./pbf``
 
 ```bash
-$ wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -P pdf
+$ wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -P pbf
 $ docker-compose up import
 ```
 
