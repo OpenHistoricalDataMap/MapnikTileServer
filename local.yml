@@ -1,0 +1,89 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: ohdm_django_mapnik_local_django
+    depends_on:
+      - postgres
+      - celeryworker
+      - celerybeat
+    volumes:
+      - .:/app
+      - ../openstreetmap-carto:/opt/openstreetmap-carto
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - "0.0.0.0:8000:8000"
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: ohdm_django_mapnik_production_postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.envs/.local/.postgres
+
+  redis:
+    image: redis:5.0
+    ports:
+      - "6379:6379"
+
+  test-database:
+    build:
+      context: .
+      dockerfile: ./compose/local/test-database/Dockerfile
+    depends_on:
+      - postgres
+    env_file:
+      - ./.envs/.local/.postgres
+
+  celeryworker:
+    <<: *django
+    image: ohdm_django_mapnik_local_celeryworker
+    depends_on:
+      - redis
+      - postgres
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: ohdm_django_mapnik_local_celerybeat
+    depends_on:
+      - redis
+      - postgres
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: ohdm_django_mapnik_local_flower
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - "0.0.0.0:5555:5555"
+    command: /start-flower
+
