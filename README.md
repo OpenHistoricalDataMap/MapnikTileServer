@@ -169,16 +169,22 @@ $ cd MapnikTileServer
 $ docker-compose -f local.yml build
 ```
 
-**3. create test database (optional)**
+**3. init database**
+
+```bash
+$ docker-compose -f local.yml run --rm django python manage.py migrate
+```
+
+**4. create test database (optional)**
 
 ```bash
 $ docker-compose -f local.yml up test-database
 ```
 
-**4. download shapefiles & generate style.xml**
+**5. download shapefiles & generate style.xml**
 
 ```bash
-$ docker-compose -f local.yml run --rm django get-shapefiles.sh
+$ docker-compose -f local.yml run --rm django /get-shapefiles.sh
 $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
 ```
 
@@ -217,6 +223,12 @@ $ docker-compose -f local.yml run --rm django python manage.py createsuperuser
 To visit the admin panel go to http://example.com:8000/admin/
 
 For more infos got to https://cookiecutter-django.readthedocs.io/en/latest/developing-locally-docker.html
+
+**7. stop server**
+
+```bash
+$ docker-compose -f local.yml stop
+```
 
 ## Setup Production Server
 
@@ -360,7 +372,13 @@ The admin panel url depends on the environment var ``DJANGO_ADMIN_URL`` in ``.en
 **7. Backup**
 
 Go to [cookiecutter-django.readthedocs.io](https://cookiecutter-django.readthedocs.io/en/latest/docker-postgres-backups.html)
-to read how to back up the database. 
+to read how to back up the database.
+
+**8. stop server**
+
+```bash
+$ docker-compose -f production.yml stop
+```
 
 ## Scale-Up for production
 
