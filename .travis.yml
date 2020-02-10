@@ -1,7 +1,11 @@
 dist: bionic
 
+language: python
+
+os:
+  - linux
+
 services:
-  # https://docs.travis-ci.com/user/docker/
   - docker
 
 cache:
@@ -12,14 +16,14 @@ cache:
 addons:
   apt:
     packages:
-    - python3-pip
-    - python3-setuptools
+      - python3-pip
+      - python3-setuptools
 
 before_script:
   # download openstreetmap-carto
   - git clone https://github.com/linuxluigi/openstreetmap-carto.git ../openstreetmap-carto
   # build docker images
-  - sudo docker-compose -f local.yml build django test-database postgres
+  - sudo docker-compose -f local.yml build
   # download shape files
   - sudo docker-compose -f local.yml run --rm django /get-shapefiles.sh
   # generate style.xml
