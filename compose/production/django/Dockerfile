@@ -1,43 +1,28 @@
-# FROM ubuntu:disco
-FROM ubuntu:bionic
-
-ENV PYTHONUNBUFFERED 1
-
-ENV TZ=Europe/Berlin
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# create builder for openstreetmap-carto && noto fonts
+FROM node:12-buster-slim as openstreetmap-carto-builder
 
 RUN apt-get update \
-  # psycopg2 dependencies
-  && apt-get install -y gcc python3-psycopg2 python-psycopg2 musl-dev \
-  && apt-get install -y libpq-dev \
-  # python3
-  && apt-get install -y python3 python3-pip python3-dev \
-  # Pillow dependencies
-  && apt-get install -y libjpeg8-dev zlib1g-dev libtiff-dev libfreetype6 libfreetype6-dev libwebp-dev libopenjp2-7-dev libopenjp2-7-dev \
-  # CFFI dependencies
-  && apt-get install -y libffi-dev python-cffi cl-cffi \
-  # Translations dependencies
-  && apt-get install -y gettext \
-  # https://docs.djangoproject.com/en/dev/ref/django-admin/#dbshell
-  && apt-get install -y postgresql-client \
-  # https://docs.djangoproject.com/en/2.2/ref/contrib/gis/install/geolibs/
-  && apt-get install -y binutils libproj-dev gdal-bin \
-  # fonts
-  && apt-get install -y fonts-dejavu-core fonts-hanazono fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \
-  && apt-get install -y fonts-noto-hinted fonts-noto-unhinted fontconfig psf-unifont ttf-unifont typecatcher unifont xfonts-unifont \
-  # git
-  && apt-get install -y git \
-  # mapnik
-  && apt-get install -y libmapnik3.0 libmapnik-dev mapnik-utils python3-mapnik \
-  # nodejs
-  && apt-get install -y npm nodejs
+  # install python dependencies
+  && apt-get install -y --no-install-recommends python3 python3-pip python3-dev \
+    python3-setuptools \
+  # install mapnik-utils for openstreetmap-carto
+  && apt-get install -y --no-install-recommends mapnik-utils \
+  # fonts install helper
+  && apt-get install -y --no-install-recommends wget unzip \
+  # git for downloading openstreetmap-carto
+  && apt-get install -y --no-install-recommends git \
+  # cleaning up unused files
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
 
-# install Noto Sans fonts
-RUN git clone https://github.com/googlei18n/noto-emoji.git /opt/noto-emoji && \
-    cp /opt/noto-emoji/fonts/NotoEmoji-Regular.ttf /usr/share/fonts/truetype/noto/NotoEmoji-Regular.ttf && \
-    fc-cache -fv && \
-    fc-list && \
-    rm -r /opt/noto-emoji
+# download fonts that are not included in the repo
+# https://www.google.com/get/noto/
+RUN mkdir /opt/noto-fonts \
+  && cd /opt/noto-fonts \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansBalinese-unhinted.zip \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansSyriacEastern-unhinted.zip \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip \
+  && unzip -o \*.zip
 
 # set python 3.x as default
 RUN ln -sfn /usr/bin/python3 /usr/bin/python
@@ -48,49 +33,84 @@ RUN npm install -g n stable
 # install cartoCSS -> https://github.com/mapbox/carto
 RUN npm install -g carto@0
 
-# install millstone
-RUN npm install -g millstone
+# download openstreetmap-carto & create style.xml
+# https://github.com/linuxluigi/openstreetmap-carto
+RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto && \
+  cd /opt/openstreetmap-carto && \
+  ./scripts/get-shapefiles.py && \
+  carto project.mml > style.xml
 
-# https://github.com/gravitystorm/openstreetmap-carto
-RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto  && \
-    cd /opt/openstreetmap-carto && \
-    ./scripts/get-shapefiles.py && \
-    carto project.mml > style.xml
+# https://hub.docker.com/_/ubuntu/
+FROM ubuntu:20.04
+
+RUN apt-get update \
+  # install python dependencies
+  && apt-get install -y --no-install-recommends python3 python3-pip python3-dev \
+    python3-setuptools \
+  # dependencies for building Python packages
+  && apt-get install -y --no-install-recommends build-essential \
+  # psycopg2 dependencies
+  && apt-get install -y --no-install-recommends libpq-dev \
+  # Translations dependencies
+  && apt-get install -y --no-install-recommends gettext \
+  # mapnik
+  && apt-get install -y --no-install-recommends libmapnik-dev mapnik-utils \
+    python3-mapnik \
+  # fonts for mapnik
+  && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \ 
+    ttf-unifont typecatcher \
+    # noto fonts
+    fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \ 
+    fonts-noto-extra fonts-noto-hinted fonts-noto-mono fonts-noto-ui-core \ 
+    fonts-noto-ui-extra fonts-noto-unhinted \
+  # geodjango https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/geolibs/
+  && apt-get install -y --no-install-recommends binutils libproj-dev gdal-bin \
+  # cleaning up unused files
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
+
+# set python 3.x as default
+RUN ln -sfn /usr/bin/python3 /usr/bin/python
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
-RUN pip3 install --no-cache-dir -r /requirements/production.txt \
-    && rm -rf /requirements
+RUN pip3 install -r /requirements/system.txt \
+  && pip3 install -r /requirements/local.txt
 
+# create user
 RUN groupadd django \
-    && useradd -g django django
+  && useradd -g django django
 
-COPY ./compose/production/django/entrypoint /entrypoint
-RUN sed -i 's/\r$//g' /entrypoint
-RUN chmod +x /entrypoint
-RUN chown django /entrypoint
+COPY --chown=django:django ./compose/production/django/entrypoint /entrypoint
+RUN sed -i 's/\r$//g' /entrypoint \
+  && chmod +x /entrypoint
 
-COPY ./compose/production/django/start /start
-RUN sed -i 's/\r$//g' /start
-RUN chmod +x /start
-RUN chown django /start
-COPY ./compose/production/django/celery/worker/start /start-celeryworker
-RUN sed -i 's/\r$//g' /start-celeryworker
-RUN chmod +x /start-celeryworker
-RUN chown django /start-celeryworker
+COPY --chown=django:django ./compose/production/django/start /start
+RUN sed -i 's/\r$//g' /start \
+  && chmod +x /start
 
-COPY ./compose/production/django/celery/beat/start /start-celerybeat
-RUN sed -i 's/\r$//g' /start-celerybeat
-RUN chmod +x /start-celerybeat
-RUN chown django /start-celerybeat
+COPY --chown=django:django ./compose/production/django/celery/worker/start /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker \
+  && chmod +x /start-celeryworker
 
-COPY ./compose/production/django/celery/flower/start /start-flower
-RUN sed -i 's/\r$//g' /start-flower
-RUN chmod +x /start-flower
-COPY . /app
+COPY --chown=django:django ./compose/production/django/celery/beat/start /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat \
+  && chmod +x /start-celerybeat
 
-RUN chown -R django /app
-RUN chown -R django /opt/openstreetmap-carto/
+COPY --chown=django:django ./compose/production/django/celery/flower/start /start-flower
+RUN sed -i 's/\r$//g' /start-flower \
+  && chmod +x /start-flower
+
+# get openstreetmap-carto from builder
+COPY --from=openstreetmap-carto-builder --chown=django:django /opt/openstreetmap-carto/ /opt/openstreetmap-carto/
+
+# get noto fonts from builder
+COPY --from=openstreetmap-carto-builder --chown=django:django /opt/noto-fonts/*.ttf /usr/share/fonts/truetype/noto/
+
+# add fonts to system
+RUN fc-cache -fv && fc-list
+
+COPY --chown=django:django . /app
 
 USER django
 
