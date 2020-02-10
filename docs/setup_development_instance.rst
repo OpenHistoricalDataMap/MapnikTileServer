@@ -95,7 +95,9 @@ Setup firewall with ``ufw``, for a detail instruction go to
 `Ubuntu Wiki <https://help.ubuntu.com/lts/serverguide/firewall.html>`_
 
     $ sudo apt-get install ufw
+    $ sudo ufw allow ssh
     $ sudo ufw allow 22
+    $ sudo ufw deny 4243
     $ sudo ufw enable
     $ sudo ufw status
 
@@ -178,6 +180,10 @@ fork.::
 
     $ git clone git@github.com:OpenHistoricalDataMap/MapnikTileServer.git ~/MapnikTileServer
 
+Also download the OHDM version of openstreetmap-carto
+
+    $ git clone git@github.com:linuxluigi/openstreetmap-carto.git ~/openstreetmap-carto
+
 Now the server is ready to work :)
 
 Setup VS Code
@@ -215,6 +221,7 @@ Select your configuration file and than setup your host::
         User foo
         LocalForward 127.0.0.1:4243 127.0.0.1:4243
         LocalForward 127.0.0.1:5500 127.0.0.1:5500
+        LocalForward 127.0.0.1:5555 127.0.0.1:5555
         LocalForward 127.0.0.1:8000 127.0.0.1:8000
 
 After saving the file, you can now connect to your host via the remote extension.

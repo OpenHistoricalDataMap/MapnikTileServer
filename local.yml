@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   local_postgres_data: {}
@@ -21,7 +21,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - "0.0.0.0:8000:8000"
+      - "127.0.0.1:8000:8000"
     command: /start
 
   postgres:
@@ -33,14 +33,12 @@ services:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     env_file:
       - ./.envs/.local/.postgres
 
   redis:
     image: redis:5.0
-    ports:
-      - "6379:6379"
 
   test-database:
     build:
@@ -84,6 +82,5 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - "0.0.0.0:5555:5555"
+      - "127.0.0.1:5555:5555"
     command: /start-flower
-
