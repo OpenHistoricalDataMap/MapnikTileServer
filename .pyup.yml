@@ -29,6 +29,7 @@ search: False
 # allowed: list
 requirements:
   - requirements/base.txt:
+  - requirements/docs.txt:
   - requirements/local.txt:
   - requirements/production.txt:
   - requirements/system.txt:
