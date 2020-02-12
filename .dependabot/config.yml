@@ -1,0 +1,31 @@
+version: 1
+update_configs:
+  # django local
+  - package_manager: "docker"
+    directory: "compose/local/django"
+    update_schedule: "weekly"
+
+  # test-database local
+  - package_manager: "docker"
+    directory: "compose/local/test-database"
+    update_schedule: "weekly"
+
+  # django production
+  - package_manager: "docker"
+    directory: "compose/production/django"
+    update_schedule: "weekly"
+
+  # postgres production
+  - package_manager: "docker"
+    directory: "compose/production/postgres"
+    update_schedule: "weekly"
+
+  # redis production
+  - package_manager: "docker"
+    directory: "compose/production/redis"
+    update_schedule: "weekly"
+
+  # traefik production
+  - package_manager: "docker"
+    directory: "compose/production/traefik"
+    update_schedule: "weekly"
