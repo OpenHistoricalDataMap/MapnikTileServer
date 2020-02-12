@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   production_postgres_data: {}
@@ -44,7 +44,10 @@ services:
       - "0.0.0.0:443:443"
 
   redis:
-    image: redis:5.0
+    build:
+      context: .
+      dockerfile: ./compose/production/redis/Dockerfile
+    image: ohdm_django_mapnik_production_redis
 
   celeryworker:
     <<: *django
@@ -62,11 +65,3 @@ services:
     ports:
       - "5555:5555"
     command: /start-flower
-  awscli:
-    build:
-      context: .
-      dockerfile: ./compose/production/aws/Dockerfile
-    env_file:
-      - ./.envs/.production/.django
-    volumes:
-      - production_postgres_data_backups:/backups

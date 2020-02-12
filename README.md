@@ -1,13 +1,15 @@
 # OHDM MapnikTileServer
 
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki](https://img.shields.io/badge/wiki-read-green.svg)
-![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg) 
+![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg)
 ![https://github.com/pydanny/cookiecutter-django/](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg)
 ![https://github.com/ambv/black](https://img.shields.io/badge/code%20style-black-000000.svg)
-![https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer](https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer.svg?branch=master)
+[![Build Status](https://travis-ci.com/linuxluigi/MapnikTileServer.svg?branch=master)](https://travis-ci.com/linuxluigi/MapnikTileServer)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/linuxluigi/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=linuxluigi/MapnikTileServer&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/linuxluigi/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=linuxluigi/MapnikTileServer&utm_campaign=Badge_Coverage)
 
-The [OpenHistoricalDataMap](https://github.com/OpenHistoricalDataMap) 
-[MapnikTileServer](https://github.com/OpenHistoricalDataMap/MapnikTileServer) is an 
+The [OpenHistoricalDataMap](https://github.com/OpenHistoricalDataMap)
+[MapnikTileServer](https://github.com/OpenHistoricalDataMap/MapnikTileServer) is an
 [OpenStreetMap](https://www.openstreetmap.org/) time sensitive fullstack tile server. This means you can go back in time
 on a OpenStreetMap Map and see how your city changed since you was a child or you can go much more back in time, it's
 your choice :)
@@ -23,10 +25,10 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 - work Linux, MacOS, BSD & also should work Windows (Windows not tested), just need Docker & Docker-Compose to work
 - OSM based tile server with time sensitive tiles
 - a development & production configuration
-- tile producer work in extra containers with [celery](http://www.celeryproject.org/) 
+- tile producer work in extra containers with [celery](http://www.celeryproject.org/)
 - caching tiles by date range in redis
 - SSL with Let's Encrypt included
-- generate development database from osm 
+- generate development database from osm
 - include [sentry.io](https://sentry.io/) in production for error tracking
 
 # Dependencies
@@ -51,7 +53,7 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 - a headless server, separate front-end from the back-end maybe with [Ionic](https://ionicframework.com/) and [OpenLayers](https://openlayers.org/)
 - add auto test on each commit with [Travis](https://travis-ci.com/) or [Github Actions](https://github.com/features/actions)
 - auto update dependencies with [pyup.io](https://pyup.io/)
-- update code ``ohdm_django_mapnik/ohdm/tile.py`` to render tile without using deprecated functions like Envelope
+- update code `ohdm_django_mapnik/ohdm/tile.py` to render tile without using deprecated functions like Envelope
 - scale redis cache
 
 # minimum server requirements for developing
@@ -79,7 +81,7 @@ OHDM MapnikTileServer
 │   requirements.txt                             # python production requirements (mostly needed for heroku)
 │   setup.cfg                                    # https://docs.pytest.org/en/latest/customize.html
 │   LICENSE
-│    
+│
 └───.envs
 │   └───.local
 │   │   │   .django                              # default enviroment vars for django
@@ -87,13 +89,13 @@ OHDM MapnikTileServer
 │   └───.production                              # need to create, not there by default
 │   │   │   .django                              # custom enviroment vars for django
 │   │   │   .postgres                            # custom enviroment vars for django
-│    
+│
 └───compose                                      # docker build files
 │
-└───config                                       # django settings     
-│  
+└───config                                       # django settings
+│
 └───locale                                       # https://docs.djangoproject.com/en/2.2/topics/i18n/translation/
-│    
+│
 └───ohdm_django_mapnik                           # main project folder
 │   └───contrib                                  # http://cookiecutter-django.readthedocs.io/en/latest/faq.html#why-is-there-a-django-contrib-sites-directory-in-cookiecutter-django
 │   └───ohdm                                     # ohdm app for django
@@ -112,11 +114,11 @@ OHDM MapnikTileServer
 │   └───static                                   # static files like JS & CSS for website to publish https://docs.djangoproject.com/en/2.2/howto/static-files/
 │   └───templates                                # HTML website templates https://docs.djangoproject.com/en/2.2/topics/templates/
 │   └───users                                    # custom user model by https://github.com/pydanny/cookiecutter-django
-│    
+│
 └───requirements                                 # python requirements https://pip.pypa.io/en/stable/user_guide/#requirements-files
 │   │   base.txt                                 # requirements for dev & productions
 │   │   local.txt                                # requirements for dev
-│   │   production.txt                           # requirements for productions    
+│   │   production.txt                           # requirements for productions
 ```
 
 ## URL Structure
@@ -144,7 +146,7 @@ Tile example link (in Berlin): http://example.com/tile/2010/02/16/13/4398/2685/t
 
 For installing Docker just follow the instructions on [Docker Docs](https://docs.docker.com/install/)
 
-To install Docker-Compose use ``pip``
+To install Docker-Compose use `pip`
 
 ```bash
 $ sudo pip install docker-compose
@@ -212,7 +214,7 @@ To start the Flower server run:
 $ docker-compose -f local.yml up -d flower
 ```
 
-Then you can via http://example.com:5555/ watch the Flower monitor. The login data stored in ``.envs/.local/.django``
+Then you can via http://example.com:5555/ watch the Flower monitor. The login data stored in `.envs/.local/.django`
 
 **6. create admin user**
 
@@ -235,7 +237,7 @@ $ docker-compose -f local.yml stop
 Please read also the doc on [cookiecutter-django](https://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html)
 for more details.
 
-**1. download sourcecode** 
+**1. download sourcecode**
 
 ```bash
 $ mkdir ohdm
@@ -255,7 +257,7 @@ $ docker-compose -f production.yml build
 
 Create 2 environment files
 
-The first is ``.envs/.production/.django``, below is an example how to fill.
+The first is `.envs/.production/.django`, below is an example how to fill.
 
 ```
 # General
@@ -314,7 +316,7 @@ TILE_GENERATOR_SOFT_TIMEOUT=240
 TILE_GENERATOR_HARD_TIMEOUT=360
 ```
 
-The second is ``.envs/.production/.postgres``, also below is an example how to fill it.
+The second is `.envs/.production/.postgres`, also below is an example how to fill it.
 
 ```
 # PostgreSQL
@@ -329,13 +331,13 @@ POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
 
 Please make sure to change at least:
 
-- ``DJANGO_SECRET_KEY``
-- ``DJANGO_ADMIN_URL``
-- ``CELERY_FLOWER_USER``
-- ``CELERY_FLOWER_PASSWORD``
-- ``POSTGRES_PASSWORD``
+- `DJANGO_SECRET_KEY`
+- `DJANGO_ADMIN_URL`
+- `CELERY_FLOWER_USER`
+- `CELERY_FLOWER_PASSWORD`
+- `POSTGRES_PASSWORD`
 
-Be careful to change ``POSTGRES_USER`` & ``POSTGRES_USER`` it can may broke the tile server.
+Be careful to change `POSTGRES_USER` & `POSTGRES_USER` it can may broke the tile server.
 
 **4. start production server**
 
@@ -343,7 +345,7 @@ Be careful to change ``POSTGRES_USER`` & ``POSTGRES_USER`` it can may broke the 
 $ docker-compose -f production.yml up -d django celeryworker celerybeat traefik
 ```
 
-The server start on ``https://ohdm.net/``
+The server start on `https://ohdm.net/`
 
 Also it's possible to start the celery monitor Flower with:
 
@@ -351,7 +353,7 @@ Also it's possible to start the celery monitor Flower with:
 $ docker-compose -f production.yml up -d flower
 ```
 
-Flower start on ``https://ohdm.net:5555/``
+Flower start on `https://ohdm.net:5555/`
 
 **5. create Database**
 
@@ -367,7 +369,7 @@ $ docker-compose -f production.yml run --rm django python manage.py createsuperu
 
 To visit the admin panel go to http://ohdm.net/geiHZUuftfcy8ZQCsr8qRNG1tXbs9hL2/
 
-The admin panel url depends on the environment var ``DJANGO_ADMIN_URL`` in ``.envs/.production/.django``
+The admin panel url depends on the environment var `DJANGO_ADMIN_URL` in `.envs/.production/.django`
 
 **7. Backup**
 
@@ -398,7 +400,7 @@ Don’t try to scale `postgres`, `celerybeat`, or `traefik`!
 
 To read how to run test go to [cookiecutter-django](https://cookiecutter-django.readthedocs.io/en/latest/testing.html)
 
-Or for running test manual use ``docker-compose -f local.yml run django pytest``
+Or for running test manual use `docker-compose -f local.yml run django pytest`
 
 Also the project include a working travis test.
 
@@ -409,5 +411,3 @@ To create the docs use:
 ```bash
 $ docker-compose -f local.yml run django make --directory docs html
 ```
-
-

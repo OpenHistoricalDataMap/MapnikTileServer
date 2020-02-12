@@ -22,6 +22,9 @@ addons:
 before_script:
   # download openstreetmap-carto
   - git clone https://github.com/linuxluigi/openstreetmap-carto.git ../openstreetmap-carto
+  # build docker images production
+  - cp -r .envs/.local/ .envs/.production/
+  - sudo docker-compose -f production.yml build
   # build docker images
   - sudo docker-compose -f local.yml build
   # download shape files
@@ -38,4 +41,8 @@ install:
   - pip3 install docker-compose wheel
 
 script:
-  - sudo docker-compose -f local.yml run django pytest
+  - sudo docker-compose -f local.yml run django coverage run -m pytest
+  # code coverage upload to codacy
+  - printf "\nCODACY_PROJECT_TOKEN=$CODACY_PROJECT_TOKEN" >> .envs/.local/.django
+  - sudo docker-compose -f local.yml run django coverage xml
+  - sudo docker-compose -f local.yml run django python-codacy-coverage -r coverage.xml
