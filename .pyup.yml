@@ -31,6 +31,7 @@ requirements:
   - requirements/base.txt:
   - requirements/local.txt:
   - requirements/production.txt:
+  - requirements/system.txt:
 
 # add a label to pull requests, default is not set
 # requires private repo permissions, even on public repos
