@@ -7,3 +7,7 @@ POSTGRES_USER=docker
 POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
 POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
 PGCONNECT_TIMEOUT=60
+
+# VS-Code
+# ------------------------------------------------------------------------------
+DATABASE_URL=postgres://docker:Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw@postgres:5432/gis

@@ -1,3 +1,42 @@
 {
-  "docker.host": "tcp://localhost:4243"
+  "docker.host": "tcp://localhost:4243",
+  "remote.containers.defaultExtensions": [
+    "mutantdino.resourcemonitor",
+    "jeff-hykin.better-dockerfile-syntax",
+    "njpwerner.autodocstring",
+    "batisteo.vscode-django",
+    "donjayamanne.githistory",
+    "felipecaputo.git-project-manager",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    "ritwickdey.liveserver",
+    "magicstack.magicpython",
+    "alefragnani.numbered-bookmarks",
+    "donjayamanne.python-extension-pack",
+    "littlefoxteam.vscode-python-test-adapter",
+    "lextudio.restructuredtext",
+    "hbenl.vscode-test-explorer",
+    "gruntfuggly.todo-tree",
+    "visualstudioexptteam.vscodeintellicode",
+    "bajdzis.vscode-database",
+    "redhat.vscode-yaml",
+    "henriiik.docker-linter",
+    "formulahendry.docker-explorer",
+    "baterson.copy-django-model-fields",
+    "streetsidesoftware.code-spell-checker"
+  ],
+  "editor.rulers": [80, 120],
+  "todo-tree.general.tags": ["TODO", "FIXME", "todo", "ToDo", "fixme", "FixMe"],
+  "python.formatting.provider": "black",
+  "python.jediEnabled": false,
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": ["--enable=W0614"],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "python.pythonPath": "/bin/python",
+  "python.testing.unittestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.pytestEnabled": true
 }

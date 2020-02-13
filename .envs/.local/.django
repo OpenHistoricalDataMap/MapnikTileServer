@@ -21,3 +21,7 @@ OSM_CARTO_VERSION=09623455a392346996a9340e5a4eba8bca9079c6
 MAPNIK_VERSION=v3.0.22
 TILE_GENERATOR_SOFT_TIMEOUT=240
 TILE_GENERATOR_HARD_TIMEOUT=360
+
+# VS-Code
+# ------------------------------------------------------------------------------
+CELERY_BROKER_URL=redis://redis:6379/0
