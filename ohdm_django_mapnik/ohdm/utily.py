@@ -1,5 +1,5 @@
-import subprocess
 import os.path
+import subprocess
 
 
 def create_style_xml(carto_sytle_path: str):
@@ -8,7 +8,7 @@ def create_style_xml(carto_sytle_path: str):
     :return:
     """
     subprocess.run(
-        "carto project.mml > style.xml".format(carto_sytle_path),
+        "carto project.mml > style.xml",
         cwd=carto_sytle_path,
         shell=True,
         stderr=subprocess.PIPE,

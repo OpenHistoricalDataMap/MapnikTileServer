@@ -1,12 +1,15 @@
-from celery.result import AsyncResult
-from django.http import HttpResponse
 from datetime import date
-from config.settings.base import env, OSM_CARTO_STYLE_XML
-from ohdm_django_mapnik.ohdm.utily import get_style_xml
+from typing import Optional
+
+from celery.result import AsyncResult
+from django.core.cache import cache
+from django.http import HttpResponse
+
+from config.settings.base import OSM_CARTO_STYLE_XML, env
 from ohdm_django_mapnik.ohdm.models import TileCache
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
-from django.core.cache import cache
+from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 
 def generate_tile(
@@ -26,7 +29,7 @@ def generate_tile(
 
     request_date: date = date(year=int(year), month=int(month), day=int(day))
 
-    tile_cache: TileCache = TileCache.objects.filter(
+    tile_cache: Optional[TileCache] = TileCache.objects.filter(
         zoom=zoom,
         x_pixel=x_pixel,
         y_pixel=y_pixel,

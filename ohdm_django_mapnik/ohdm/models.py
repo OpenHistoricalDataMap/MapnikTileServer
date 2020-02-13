@@ -1,8 +1,9 @@
 from datetime import date
+from typing import Any, List, Optional
 
 from celery.result import AsyncResult
-from django.contrib.gis.geos import Polygon
 from django.contrib.gis.db import models
+from django.contrib.gis.geos import Polygon
 from django.core.cache import cache
 
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
@@ -17,8 +18,8 @@ class TileCache(models.Model):
     zoom = models.IntegerField()
     x_pixel = models.FloatField()
     y_pixel = models.FloatField()
-    valid_since = models.DateField()
-    valid_until = models.DateField()
+    valid_since = models.DateField(null=True)
+    valid_until = models.DateField(null=True)
     celery_task_id = models.CharField(blank=True, max_length=256)
     celery_task_done = models.BooleanField(default=False)
 
@@ -44,39 +45,46 @@ class TileCache(models.Model):
         )
         geom = Polygon.from_bbox(tile_generator.get_bbox())
 
-        valid_since: date = self.valid_since
-        valid_until: date = self.valid_until
+        valid_since: Optional[date] = self.valid_since
+        valid_until: Optional[date] = self.valid_until
         self.valid_since = None
         self.valid_until = None
 
-        self.set_valid_date_iterate_objects(
-            PlanetOsmLine.objects.filter(
-                way__bbcontains=geom,
-                valid_since__lte=valid_since,
-                valid_until__gte=valid_until,
-            )
-        )
-        self.set_valid_date_iterate_objects(
-            PlanetOsmPoint.objects.filter(
-                way__bbcontains=geom,
-                valid_since__lte=valid_since,
-                valid_until__gte=valid_until,
-            )
-        )
-        self.set_valid_date_iterate_objects(
-            PlanetOsmPolygon.objects.filter(
-                way__bbcontains=geom,
-                valid_since__lte=valid_since,
-                valid_until__gte=valid_until,
-            )
-        )
-        self.set_valid_date_iterate_objects(
-            PlanetOsmRoads.objects.filter(
-                way__bbcontains=geom,
-                valid_since__lte=valid_since,
-                valid_until__gte=valid_until,
-            )
-        )
+        planet_osm_lines: List[PlanetOsmLine] = []
+        for planet_osm_line in PlanetOsmLine.objects.filter(
+            way__bbcontains=geom,
+            valid_since__lte=valid_since,
+            valid_until__gte=valid_until,
+        ):
+            planet_osm_lines.append(planet_osm_line)
+        self.set_valid_date_iterate_objects(planet_osm_lines)
+
+        planet_osm_points: List[PlanetOsmPoint] = []
+        for planet_osm_point in PlanetOsmPoint.objects.filter(
+            way__bbcontains=geom,
+            valid_since__lte=valid_since,
+            valid_until__gte=valid_until,
+        ):
+            planet_osm_points.append(planet_osm_point)
+        self.set_valid_date_iterate_objects(planet_osm_points)
+
+        planet_osm_polygons: List[PlanetOsmPolygon] = []
+        for planet_osm_polygon in PlanetOsmPolygon.objects.filter(
+            way__bbcontains=geom,
+            valid_since__lte=valid_since,
+            valid_until__gte=valid_until,
+        ):
+            planet_osm_polygons.append(planet_osm_polygon)
+        self.set_valid_date_iterate_objects(planet_osm_polygons)
+
+        planet_osm_roadss: List[PlanetOsmRoads] = []
+        for planet_osm_roads in PlanetOsmRoads.objects.filter(
+            way__bbcontains=geom,
+            valid_since__lte=valid_since,
+            valid_until__gte=valid_until,
+        ):
+            planet_osm_roadss.append(planet_osm_roads)
+        self.set_valid_date_iterate_objects(planet_osm_roadss)
 
         if self.valid_since is None:
             self.valid_since = valid_since
@@ -85,7 +93,7 @@ class TileCache(models.Model):
 
         self.save()
 
-    def set_valid_date_iterate_objects(self, lines: []):
+    def set_valid_date_iterate_objects(self, lines: List[Any]):
         for line in lines:
             # valid_since
             if not self.valid_since:
@@ -106,6 +114,10 @@ class TileCache(models.Model):
         super().delete()
 
     def __str__(self):
+        if not self.valid_since:
+            raise ValueError("valid_since are not set!")
+        if not self.valid_until:
+            raise ValueError("valid_until are not set!")
         return "{0}: {1}-{2} z:{3} x:{4} y:{5}".format(
             self.pk,
             self.valid_since.strftime("%Y/%m/%d"),

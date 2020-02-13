@@ -1,11 +1,9 @@
 import logging
 
 import sentry_sdk
-
+from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
-
 
 from .base import *  # noqa
 from .base import env
@@ -74,7 +72,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # TEMPLATES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#templates
-TEMPLATES[0]["OPTIONS"]["loaders"] = [  # noqa F405
+TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
     (
         "django.template.loaders.cached.Loader",
         [

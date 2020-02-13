@@ -4,6 +4,7 @@ Base settings to build other settings files upon.
 import os
 
 import environ
+
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 ROOT_DIR = (
@@ -66,7 +67,6 @@ DJANGO_APPS = [
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
     "django.contrib.gis",
-    "ohdm_django_mapnik.ohdm",
 ]
 THIRD_PARTY_APPS = [
     "crispy_forms",
@@ -78,8 +78,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "ohdm_django_mapnik.users.apps.UsersConfig",
-    # Your stuff: custom apps go here
+    "ohdm_django_mapnik.ohdm",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -96,12 +95,6 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
-# https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
-AUTH_USER_MODEL = "users.User"
-# https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
-# https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = "account_login"
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -281,10 +274,6 @@ ACCOUNT_AUTHENTICATION_METHOD = "username"
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "ohdm_django_mapnik.users.adapters.AccountAdapter"
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "ohdm_django_mapnik.users.adapters.SocialAccountAdapter"
 
 # Your stuff...
 # ------------------------------------------------------------------------------
@@ -298,5 +287,5 @@ os.environ["PGPORT"] = env("POSTGRES_PORT")
 
 # load default style_xml
 OSM_CARTO_STYLE_XML: str = get_style_xml(
-    generate_style_xml=False,
-    carto_sytle_path=env("CARTO_STYLE_PATH"))
+    generate_style_xml=False, carto_sytle_path=env("CARTO_STYLE_PATH")
+)
