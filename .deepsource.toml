@@ -26,7 +26,7 @@ enabled = true
 [analyzers.meta]
   dockerfile_paths = [
     "compose/local/django/Dockerfile",
-    "compose/local/test-database/Dockerfile,
+    "compose/local/test-database/Dockerfile",
     "compose/production/django/Dockerfile",
     "compose/production/postgres/Dockerfile",
     "compose/production/redis/Dockerfile",
