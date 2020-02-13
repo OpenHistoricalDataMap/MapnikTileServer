@@ -220,6 +220,7 @@ Select your configuration file and than setup your host::
         HostName HostIpAddress
         User foo
         LocalForward 127.0.0.1:4243 127.0.0.1:4243
+        LocalForward 127.0.0.1:5432 127.0.0.1:5432
         LocalForward 127.0.0.1:5500 127.0.0.1:5500
         LocalForward 127.0.0.1:5555 127.0.0.1:5555
         LocalForward 127.0.0.1:8000 127.0.0.1:8000
