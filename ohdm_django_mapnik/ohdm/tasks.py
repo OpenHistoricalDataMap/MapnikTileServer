@@ -1,8 +1,11 @@
-from django.core.cache import cache
-from config.celery_app import app
 from datetime import date
-from ohdm_django_mapnik.ohdm.tile import TileGenerator
+from time import sleep
+
+from django.core.cache import cache
+
+from config.celery_app import app
 from config.settings.base import env
+from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 
 @app.task(
@@ -48,3 +51,14 @@ def async_generate_tile(
     )
 
     return cache_key
+
+
+@app.task()
+def auto_done_task(seconds: int = 0):
+    """
+    Test task witch auto finish in x seconds
+    
+    Keyword Arguments:
+        seconds {int} -- time to sleep (default: {0})
+    """
+    sleep(seconds)

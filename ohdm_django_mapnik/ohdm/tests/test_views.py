@@ -2,7 +2,7 @@ import pytest
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.test import RequestFactory
-from django.urls import reverse, resolve
+from django.urls import reverse
 
 from ohdm_django_mapnik.ohdm.views import generate_tile
 

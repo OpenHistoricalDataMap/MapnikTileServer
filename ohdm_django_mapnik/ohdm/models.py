@@ -1,4 +1,5 @@
 from datetime import date
+from time import sleep
 from typing import Any, List, Optional
 
 from celery.result import AsyncResult
@@ -11,7 +12,7 @@ from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 class TileCache(models.Model):
     """
-    model for every cached tile
+    Model for mapnik tile cache
     """
 
     created = models.DateTimeField(auto_now_add=True)
@@ -24,20 +25,39 @@ class TileCache(models.Model):
     celery_task_done = models.BooleanField(default=False)
 
     def get_cache_key(self) -> str:
+        """
+        get cache key
+
+        Returns:
+            str -- cache key to get the tile from the cache
+        """
         return "t{}".format(self.pk)
 
-    def get_tile_from_cache_or_delete(self):
+    def get_tile_from_cache_or_delete(self) -> Optional[bytes]:
+        """
+        Get cached tile from the cache server, if the request cache does not
+        exists -> delete the cache object from the database
+        
+        Returns:
+            Optional[bytes] -- Tile PNG as bytes if exists
+        """
+
+        # wait to finish celery task
         if not self.celery_task_done:
             tile_process: AsyncResult = AsyncResult(id=self.celery_task_id)
             while tile_process.ready() is False:
-                pass
+                sleep(0.1)
+                # todo add max wait time
 
-        tile = cache.get(self.get_cache_key())
-        if tile is None:
+        # get tile from cache as bytes PNG
+        tile: Optional[bytes] = cache.get(self.get_cache_key())
+
+        # if cache file does not exists -> delete TileCache
+        if not tile:
             self.delete()
-            return None
-        else:
-            return tile
+
+        # return tile as bytes PNG
+        return tile
 
     def set_valid_date(self):
         tile_generator: TileGenerator = TileGenerator(
