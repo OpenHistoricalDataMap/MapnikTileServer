@@ -3,18 +3,9 @@ import os
 from datetime import date
 from typing import Optional, Tuple
 
+import mapnik
 from django.core.cache import cache
 from jinja2 import Template
-from mapnik import (
-    Coord,
-    Envelope,
-    Image,
-    Map,
-    Projection,
-    load_map_from_string,
-    render,
-    render_to_file,
-)
 
 
 class TileGenerator:
@@ -76,8 +67,11 @@ class TileGenerator:
         convert request_date to string
         :return: string %Y-%m-%d
         """
+
+        # todo add real exception
         if not self.request_date:
-            raise ValueError("request_date is not set!")
+            raise ValueError("request_date does not exists")
+
         return self.request_date.strftime("%Y-%m-%d")
 
     def generate_date_style_xml(self) -> str:
@@ -92,8 +86,8 @@ class TileGenerator:
 
         return current_style_xml
 
-    def get_bbox(self) -> Envelope:
-        prj: Projection = Projection(
+    def get_bbox(self) -> mapnik.Envelope:
+        prj: mapnik.Projection = mapnik.Projection(
             "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
         )
 
@@ -103,10 +97,10 @@ class TileGenerator:
         p1 = self.from_px_to_ll(
             (self.width * (self.x_pixel + 1), self.height * self.y_pixel), self.zoom
         )
-        c0 = prj.forward(Coord(p0[0], p0[1]))
-        c1 = prj.forward(Coord(p1[0], p1[1]))
+        c0 = prj.forward(mapnik.Coord(p0[0], p0[1]))
+        c1 = prj.forward(mapnik.Coord(p1[0], p1[1]))
 
-        return Envelope(c0.x, c0.y, c1.x, c1.y)
+        return mapnik.Envelope(c0.x, c0.y, c1.x, c1.y)
 
     def render_tile(self) -> bytes:
         """
@@ -117,25 +111,28 @@ class TileGenerator:
             self.request_date_to_string(), self.zoom, self.x_pixel, self.y_pixel
         )
 
+        # todo add real exception
         if not self.osm_cato_path:
-            raise ValueError("osm_cato_path is not set!")
-        os.chdir(self.osm_cato_path)
-        mapnik_map: Map = Map(self.width, self.height)
+            raise ValueError("osm_cato_path does not exists")
 
+        os.chdir(self.osm_cato_path)
+        map: mapnik.Map = mapnik.Map(self.width, self.height)
+
+        style_xml: str = ""
         if self.use_cache:
             style_key: str = "{}-style.xml".format(self.request_date_to_string())
-            style_xml: str = cache.get_or_set(style_key, self.generate_date_style_xml())
+            style_xml = cache.get_or_set(style_key, self.generate_date_style_xml())
         else:
             style_xml = self.generate_date_style_xml()
 
-        load_map_from_string(mapnik_map, style_xml)
+        mapnik.load_map_from_string(map, style_xml)
 
-        mapnik_map.zoom_to_box(self.get_bbox())
-        image: Image = Image(self.width, self.height)
-        render(map, image)
+        map.zoom_to_box(self.get_bbox())
+        image: mapnik.Image = mapnik.Image(self.width, self.height)
+        mapnik.render(map, image)
 
         # todo generate tile without save it to hdd
-        render_to_file(mapnik_map, tile_name)
+        mapnik.render_to_file(map, tile_name)
         tile_content: bytes = open(tile_name, "rb").read()
         os.remove(tile_name)
 

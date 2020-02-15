@@ -1,4 +1,4 @@
-{% load static i18n compress %}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -15,75 +15,12 @@
 
   <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
 
-    {% block css %}
-
-      <!-- Your stuff: Third-party CSS libraries go here -->
-
-      <!-- bootstrap 4 theme Minty by https://bootswatch.com/minty/ -->
-      <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/minty/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-9NlqO4dP5KfioUGS568UFwM3lbWf3Uj3Qb7FBHuIuhLoDp3ZgAqPE1/MYLEBPZYM" crossorigin="anonymous">
-
-        {% block extra_css %}{% endblock %}
-
-        {% compress css %}
-          <!-- This file stores project-specific CSS -->
-          <link href="{% static 'css/project.css' %}" rel="stylesheet">
-
-        {% endcompress %}
-    {% endblock %}
-
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-md navbar-light bg-light">
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-          data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-          aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <a class="navbar-brand" href="{% url 'home' %}">
-    <img class="navbar-brand-img" src="{% static 'images/logo.png' %}" alt="OHDM">
-  </a>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'about' %}">About</a>
-      </li>
-        {% if request.user.is_authenticated %}
-          <li class="nav-item">
-              {# URL provided by django-allauth/account/urls.py #}
-            <a class="nav-link" href="{% url 'users:detail' request.user.username %}">{% trans "My Profile" %}</a>
-          </li>
-          <li class="nav-item">
-              {# URL provided by django-allauth/account/urls.py #}
-            <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
-          </li>
-        {% endif %}
-      <li class="nav-item">
-        <a id="log-in-link" class="nav-link" target="_blank"
-           href="https://github.com/OpenHistoricalDataMap/MapnikTileServer">{% trans "Source Code" %}</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-        {% block navbar_form %}{% endblock navbar_form %}
-    </form>
-  </div>
-</nav>
 
 <div {% block content_class %}class="container"{% endblock content_class %}>
-    {% if messages %}
-        {% for message in messages %}
-          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                    aria-hidden="true">&times;</span></button>
-          </div>
-        {% endfor %}
-    {% endif %}
 
     {% block content %}
       <p>Use this document as a way to quick start any new project.</p>
@@ -91,32 +28,6 @@
 
 </div> <!-- /container -->
 
-{% block modal %}{% endblock modal %}
-
-<!-- Le javascript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-{% block javascript %}
-
-  <!-- Bootstrap JS and its dependencies-->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-          integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-          crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-          crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-          integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-          crossorigin="anonymous"></script>
-
-    {% block extra_js %}{% endblock %}
-
-  <!-- place project specific Javascript in this file -->
-    {% compress js %}
-      <script src="{% static 'js/project.js' %}"></script>
-    {% endcompress %}
-
-{% endblock javascript %}
 </body>
 </html>
 
