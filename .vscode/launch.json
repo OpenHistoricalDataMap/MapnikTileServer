@@ -13,6 +13,47 @@
                 "runserver_plus"
             ],
             "django": true
+        },
+        {
+            "name": "Python: Django - Makemigrations",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "makemigrations"
+            ],
+            "django": true
+        },
+        {
+            "name": "Python: Django - Migrate",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "migrate"
+            ],
+            "django": true
+        },
+        {
+            "name": "mypy",
+            "type": "python",
+            "request": "launch",
+            "program": "/usr/local/bin/mypy",
+            "args": [
+                "/app"
+            ],
+            "django": false
+        },
+        {
+            "name": "Pytest",
+            "type": "python",
+            "request": "launch",
+            "program": "/usr/local/bin/pytest",
+            "args": [
+                "-s",
+                "/app"
+            ],
+            "django": false
         }
     ]
 }
