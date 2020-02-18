@@ -1,6 +1,6 @@
 # https://github.com/kartoza/docker-postgis
-# PostgreSQL 11.0, PostGIS 2.5
-FROM kartoza/postgis:11.0-2.5
+# PostgreSQL 12.0, PostGIS 3
+FROM kartoza/postgis:12.0
 
 COPY ./compose/production/postgres/maintenance /usr/local/bin/maintenance
 RUN chmod +x /usr/local/bin/maintenance/*
