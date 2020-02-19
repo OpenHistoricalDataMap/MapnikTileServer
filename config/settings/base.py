@@ -4,6 +4,7 @@ Base settings to build other settings files upon.
 import os
 
 import environ
+import mapnik
 
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
@@ -18,6 +19,9 @@ READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(ROOT_DIR.path(".env")))
+
+# print mapnik version
+print("Mapnik version: {}".format(mapnik.mapnik_version()))
 
 # GENERAL
 # ------------------------------------------------------------------------------

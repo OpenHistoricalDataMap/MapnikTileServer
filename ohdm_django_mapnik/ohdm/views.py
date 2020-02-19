@@ -38,7 +38,7 @@ def generate_tile(
     ).last()
 
     if tile_cache:
-        tile: bytes = tile_cache.get_tile_from_cache_or_delete()
+        tile: Optional[bytes] = tile_cache.get_tile_from_cache_or_delete()
 
     if tile_cache and tile:
         return HttpResponse(tile, content_type="image/jpeg")

@@ -1,8 +1,9 @@
+from django.conf import settings
 from django.urls import path, register_converter
 
 from ohdm_django_mapnik.ohdm import converters
+
 from . import views
-from django.conf import settings
 
 register_converter(converters.FloatConverter, "float")
 
@@ -22,7 +23,7 @@ if settings.DEBUG:
         path(
             "<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-style-xml/tile.png",
             views.generate_tile_reload_style,
-            name="ohdm-tile-reload-style.xml",
+            name="ohdm-tile-reload-style",
         ),
         # tile generate with reload project.mml & style.xml
         path(

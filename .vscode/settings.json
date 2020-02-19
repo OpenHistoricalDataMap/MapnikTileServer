@@ -40,12 +40,17 @@
   "python.testing.nosetestsEnabled": false,
   "python.testing.pytestEnabled": true,
   "cSpell.words": [
+    "CARTO",
+    "Jochen",
+    "Ramm",
+    "Topf",
     "chdir",
     "mapnik",
     "noqa",
     "ohdm",
     "pytest",
     "strftime",
-    "strptime"
+    "strptime",
+    "tobytes"
   ]
 }

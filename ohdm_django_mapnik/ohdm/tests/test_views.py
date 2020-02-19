@@ -10,12 +10,12 @@ from ohdm_django_mapnik.ohdm.views import generate_tile
 @pytest.mark.django_db()
 class TestViews:
     def test_generate_tile(self):
-        year: int = 2019
-        month: int = 10
-        day: int = 10
-        zoom: int = 13
-        x_pixel: float = 4398
-        y_pixel: float = 2685
+        year: int = 2020
+        month: int = 1
+        day: int = 1
+        zoom: int = 0
+        x_pixel: float = 0
+        y_pixel: float = 0
 
         path: str = reverse(
             "ohdm-tile",
