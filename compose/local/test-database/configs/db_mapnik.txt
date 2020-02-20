@@ -1,5 +1,5 @@
 servername:PGHOST
-portnumber:PGHOST
+portnumber:PGPORT
 username:PGUSER
 pwd:PGPASSWORD
 dbname:PGDATABASE
