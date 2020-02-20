@@ -56,7 +56,7 @@ psql -f /ohdm/sql/delete-schema.sql
 psql -f /ohdm/sql/create-schema.sql
 
 # load osm file into db
-java -jar /ohdm/OHDMConverter.jar -o /ohdm/berlin-latest.osm -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
+java -jar /ohdm/OHDMConverter.jar -o /ohdm/bremen-latest.osm -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
 
 # create rendering tables
 java -jar /ohdm/OHDMConverter.jar -d /ohdm/configs/db_ohdm.txt -r /ohdm/configs/db_rendinerng.txt

@@ -19,8 +19,8 @@ RUN mkdir /ohdm
 WORKDIR /ohdm
 
 # download demo dataset
-RUN wget http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2  \
-    && bunzip2 berlin-latest.osm.bz2
+RUN wget http://download.geofabrik.de/europe/germany/bremen-latest.osm.bz2  \
+    && bunzip2 bremen-latest.osm.bz2
 
 # download OHDMConverter
 RUN wget https://github.com/OpenHistoricalDataMap/OSMImportUpdate/releases/download/0.1/OHDMConverter.jar
