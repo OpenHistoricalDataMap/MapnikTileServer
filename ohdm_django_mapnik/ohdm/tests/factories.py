@@ -10,6 +10,8 @@ class PlanetOsmLineFactory(DjangoModelFactory):
         model = "ohdm.PlanetOsmLine"
         django_get_or_create = ["osm_id"]
 
+    # url http://127.0.0.1:8000/2020/1/1/15/17595/10743/reload-style-xml/tile.png
+
     osm_id = 10
     highway = "tertiary"
     name = "Test Line"
@@ -24,6 +26,8 @@ class PlanetOsmPointFactory(DjangoModelFactory):
         model = "ohdm.PlanetOsmPoint"
         django_get_or_create = ["osm_id"]
 
+    # url http://127.0.0.1:8000/2020/1/1/15/17594/10743/reload-style-xml/tile.png
+
     osm_id = 20
     name = "Test Point"
     shop = "books"
@@ -36,6 +40,8 @@ class PlanetOsmPolygonFactory(DjangoModelFactory):
     class Meta:
         model = "ohdm.PlanetOsmPolygon"
         django_get_or_create = ["osm_id"]
+
+    # url http://127.0.0.1:8000/2020/1/1/15/17594/10742/reload-style-xml/tile.png
 
     osm_id = 30
     man_made = "bridge"
@@ -51,13 +57,15 @@ class PlanetOsmRoadsFactory(DjangoModelFactory):
         model = "ohdm.PlanetOsmRoads"
         django_get_or_create = ["osm_id"]
 
+    # url http://127.0.0.1:800/2123/03/16/18/140759/85950/reload-style-xml/tile.png
+
     osm_id = 40
-    highway = "secondary"
+    highway = "primary"
     name = "Test Road"
     oneway = "yes"
     surface = "asphalt"
     z_order = 350
-    way = "0102000020110F00000500000069F0AD56F297364162C55F3B9C505A4169F0AD56F29736419D5FB9EE5C505A4180C1248745993641A5C9FBF556505A4180C124874599364177C311DEBE505A41FC726619A3983641C84B6DCA7A505A41"
+    way = "010200000002000000AE1FAC30E49836416ED53F8574505A4141D7BE0805993641E9A9C49368505A41"
     valid_since = datetime(2020, 1, 1)
     valid_until = datetime(2020, 12, 31)
 
