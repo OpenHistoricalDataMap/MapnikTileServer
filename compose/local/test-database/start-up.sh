@@ -7,7 +7,7 @@ if [ -z "${POSTGRES_USER}" ]; then
 fi
 
 postgres_ready() {
-python << END
+python3 << END
 import sys
 
 import psycopg2
@@ -36,16 +36,35 @@ export PGUSER=$POSTGRES_USER
 export PGPASSWORD=$POSTGRES_PASSWORD
 export PGDATABASE=$POSTGRES_DB
 export PGHOST=$POSTGRES_HOST
+export PGPORT=$POSTGRES_PORT
 
-# create dev Database
-psql -f /sql/drop-osm.sql
+# delete old configs
+rm /ohdm/configs/db_*.txt
+cp /ohdm/configs-template/db_*.txt /ohdm/configs/
 
-osm2pgsql -G --hstore --drop --slim --multi-geometry --style /opt/openstreetmap-carto/openstreetmap-carto.style --tag-transform-script /opt/openstreetmap-carto/openstreetmap-carto.lua --username $PGUSER --database $PGDATABASE --host $POSTGRES_HOST /opt/pbf/*.pbf
+# set postgres data
+sed -i -e "s/PGUSER/$PGUSER/g" /ohdm/configs/db_*.txt
+sed -i -e "s/PGPASSWORD/$PGPASSWORD/g" /ohdm/configs/db_*.txt
+sed -i -e "s/PGDATABASE/$PGDATABASE/g" /ohdm/configs/db_*.txt
+sed -i -e "s/PGHOST/$PGHOST/g" /ohdm/configs/db_*.txt
+sed -i -e "s/PGPORT/$PGPORT/g" /ohdm/configs/db_*.txt
 
-# Create indexes
-scripts/indexes.py
+# delete old schema
+psql -f /ohdm/sql/delete-schema.sql
 
-# create dev Database
-psql -f /sql/update.sql
+# create schema
+psql -f /ohdm/sql/create-schema.sql
+
+# load osm file into db
+java -jar /ohdm/OHDMConverter.jar -o /ohdm/berlin-latest.osm -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
+
+# create rendering tables
+java -jar /ohdm/OHDMConverter.jar -d /ohdm/configs/db_ohdm.txt -r /ohdm/configs/db_rendinerng.txt
+
+# fill mapnik tables
+java -jar /ohdm/OHDMConverter.jar -r /ohdm/configs/db_rendinerng.txt -m /ohdm/configs/db_mapnik.txt
+
+# delete schema
+psql -f /ohdm/sql/delete-schema.sql
 
 exec "$@"

@@ -1,0 +1,6 @@
+servername:PGHOST
+portnumber:PGHOST
+username:PGUSER
+pwd:PGPASSWORD
+dbname:PGDATABASE
+schema:osm

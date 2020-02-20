@@ -1,43 +1,41 @@
-# https://hub.docker.com/_/ubuntu
-# get Ubuntu 18.04
-FROM ubuntu:bionic
+# https://hub.docker.com/_/openjdk
+FROM openjdk:15-jdk-alpine3.11
 
-# setup timezone for tzdata
-ARG TIMEZONE
-ENV TZ=$TIMEZONE
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# Update cache and install dependencies
-RUN apt-get update -y && apt-get install -y \
+# find new packges use latest branch (not edge!) -> https://pkgs.alpinelinux.org/packages
+# install git & bash
+RUN apk add --no-cache \
+    # wget -> download demo dataset & OHDMConverter
     wget \
-    git \
-    osm2pgsql \
-    python2.7-minimal \
-    python-yaml \
-    gcc python3-psycopg2 python-psycopg2 musl-dev \
-    libpq-dev postgresql-contrib
+    # bash -> run a shell
+    bash \
+    # python -> check if posgres is reachable
+    python3 musl-dev gcc python3-dev musl-dev \
+    postgresql-dev postgresql-client
 
-# Set the osm2pgsql import cache size in MB.
-ENV OSM_IMPORT_CACHE 40
+RUN pip3 install psycopg2
 
-# https://github.com/linuxluigi/openstreetmap-carto
-RUN mkdir -p /opt/pbf/
-RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto
+RUN mkdir /ohdm
+
+WORKDIR /ohdm
+
+# download demo dataset
+RUN wget http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2  \
+    && bunzip2 berlin-latest.osm.bz2
+
+# download OHDMConverter
+RUN wget https://github.com/OpenHistoricalDataMap/OSMImportUpdate/releases/download/0.1/OHDMConverter.jar
 
 # copy run script
 COPY ./compose/local/test-database/start-up.sh /start-up.sh
 RUN chmod +x /start-up.sh
 
 # copy sql scripts
-COPY ./compose/local/test-database/sql/ /sql
+COPY ./compose/local/test-database/sql/ /ohdm/sql
 
-COPY ./compose/production/django/entrypoint /entrypoint
-RUN sed -i 's/\r$//g' /entrypoint
-RUN chmod +x /entrypoint
+# copy configs
+COPY ./compose/local/test-database/configs/ /ohdm/configs-template
+RUN mkdir /ohdm/configs
 
 WORKDIR /opt/openstreetmap-carto
-
-# Download Demo Database
-RUN wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -O /opt/pbf/berlin-latest.osm.pbf
 
 CMD ["/start-up.sh"]
