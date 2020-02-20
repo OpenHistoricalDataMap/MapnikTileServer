@@ -153,7 +153,7 @@ class PlanetOsmLine(models.Model):
     osm line model
     """
 
-    osm_id = models.BigIntegerField(primary_key=True)
+    osm_id = models.BigIntegerField()
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -223,7 +223,7 @@ class PlanetOsmPoint(models.Model):
     osm point model
     """
 
-    osm_id = models.BigIntegerField(primary_key=True)
+    osm_id = models.BigIntegerField()
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -277,7 +277,7 @@ class PlanetOsmPolygon(models.Model):
     osm polygon model
     """
 
-    osm_id = models.BigIntegerField(primary_key=True)
+    osm_id = models.BigIntegerField()
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -347,7 +347,7 @@ class PlanetOsmRoads(models.Model):
     osm road model
     """
 
-    osm_id = models.BigIntegerField(primary_key=True)
+    osm_id = models.BigIntegerField()
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
