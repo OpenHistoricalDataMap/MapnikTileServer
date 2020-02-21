@@ -153,7 +153,7 @@ class PlanetOsmLine(models.Model):
     osm line model
     """
 
-    osm_id = models.BigIntegerField()
+    osm_id = models.BigIntegerField(blank=True, null=True))
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -223,7 +223,7 @@ class PlanetOsmPoint(models.Model):
     osm point model
     """
 
-    osm_id = models.BigIntegerField()
+    osm_id = models.BigIntegerField(blank=True, null=True))
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -277,7 +277,7 @@ class PlanetOsmPolygon(models.Model):
     osm polygon model
     """
 
-    osm_id = models.BigIntegerField()
+    osm_id = models.BigIntegerField(blank=True, null=True))
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -347,7 +347,7 @@ class PlanetOsmRoads(models.Model):
     osm road model
     """
 
-    osm_id = models.BigIntegerField()
+    osm_id = models.BigIntegerField(blank=True, null=True))
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
     addr_housenumber = models.TextField(
@@ -410,3 +410,192 @@ class PlanetOsmRoads(models.Model):
             return "{}: {}".format(self.osm_id, self.name)
         else:
             return self.osm_id
+
+
+class OhdmClassification(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    class_field = models.CharField(db_column='class', max_length=-1, blank=True, null=True)  # Field renamed because it was a Python reserved word.
+    subclassname = models.CharField(max_length=-1, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'classification'
+
+
+class OhdmContent(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=-1, blank=True, null=True)
+    value = models.BinaryField()
+    mimetype = models.CharField(max_length=-1, blank=True, null=True)
+    source_user_id = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'content'
+
+
+class OhdmExternalSystems(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=-1, blank=True, null=True)
+    description = models.CharField(max_length=-1, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'external_systems'
+
+
+class OhdmExternalUsers(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    userid = models.BigIntegerField(blank=True, null=True)
+    username = models.CharField(max_length=-1, blank=True, null=True)
+    external_system_id = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'external_users'
+
+
+class OhdmGeoobject(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=-1, blank=True, null=True)
+    source_user_id = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'geoobject'
+
+
+class OhdmGeoobjectContent(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    valid_since_offset = models.BigIntegerField(blank=True, null=True)
+    valid_until_offset = models.BigIntegerField(blank=True, null=True)
+    geoobject_id = models.BigIntegerField()
+    content_id = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'geoobject_content'
+
+
+class OhdmGeoobjectGeometry(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    id_target = models.BigIntegerField(blank=True, null=True)
+    type_target = models.IntegerField(blank=True, null=True)
+    id_geoobject_source = models.BigIntegerField()
+    role = models.CharField(max_length=-1, blank=True, null=True)
+    classification_id = models.BigIntegerField()
+    tags = models.TextField(blank=True, null=True)  # This field type is a guess.
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    valid_since_offset = models.BigIntegerField(blank=True, null=True)
+    valid_until_offset = models.BigIntegerField(blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'geoobject_geometry'
+
+
+class OhdmGeoobjectUrl(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    geoobject_id = models.BigIntegerField()
+    url_id = models.BigIntegerField()
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    valid_since_offset = models.BigIntegerField(blank=True, null=True)
+    valid_until_offset = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'geoobject_url'
+
+
+class OhdmImportUpdates(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    externalsystemid = models.BigIntegerField(blank=True, null=True)
+    initial = models.DateField(blank=True, null=True)
+    lastupdate = models.DateField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'import_updates'
+
+
+class OhdmLayer(models.Model):
+    topology = models.OneToOneField('Topology', models.DO_NOTHING, primary_key=True)
+    layer_id = models.IntegerField()
+    schema_name = models.CharField(max_length=-1)
+    table_name = models.CharField(max_length=-1)
+    feature_column = models.CharField(max_length=-1)
+    feature_type = models.IntegerField()
+    level = models.IntegerField()
+    child_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'layer'
+        unique_together = (('topology', 'layer_id'), ('schema_name', 'table_name', 'feature_column'),)
+
+
+class OhdmLines(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    line = models.GeometryField(srid=0, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'lines'
+
+
+class OhdmPoints(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    point = models.GeometryField(srid=0, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'points'
+
+
+class OhdmPolygons(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    polygon = models.GeometryField(srid=0, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'polygons'
+
+
+class OhdmSubsequentGeomUser(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    target_id = models.BigIntegerField()
+    point_id = models.BigIntegerField(blank=True, null=True)
+    line_id = models.BigIntegerField(blank=True, null=True)
+    polygon_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'subsequent_geom_user'
+
+class OhdmTopology(models.Model):
+    name = models.CharField(unique=True, max_length=-1)
+    srid = models.IntegerField()
+    precision = models.FloatField()
+    hasz = models.BooleanField()
+
+    class Meta:
+        managed = False
+        db_table = 'topology'
+
+
+class OhdmUrl(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    url = models.CharField(max_length=-1, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'url'
