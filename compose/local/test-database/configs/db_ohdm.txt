@@ -3,4 +3,4 @@ portnumber:PGPORT
 username:PGUSER
 pwd:PGPASSWORD
 dbname:PGDATABASE
-schema:ohdm
+schema:public

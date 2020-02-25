@@ -56,13 +56,10 @@ psql -f /ohdm/sql/delete-schema.sql
 psql -f /ohdm/sql/create-schema.sql
 
 # load osm file into db
-java -jar /ohdm/OHDMConverter.jar -o /ohdm/bremen-latest.osm -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
+java -jar /ohdm/OHDMConverter.jar -o /ohdm/bremen-latest.osm -i /ohdm/configs/db_inter.txt
 
-# create rendering tables
-java -jar /ohdm/OHDMConverter.jar -d /ohdm/configs/db_ohdm.txt -r /ohdm/configs/db_rendinerng.txt
-
-# fill mapnik tables
-java -jar /ohdm/OHDMConverter.jar -r /ohdm/configs/db_rendinerng.txt -m /ohdm/configs/db_mapnik.txt
+# load convert osm database into a ohdm database
+java -jar /ohdm/OHDMConverter.jar -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
 
 # delete schema
 psql -f /ohdm/sql/delete-schema.sql
