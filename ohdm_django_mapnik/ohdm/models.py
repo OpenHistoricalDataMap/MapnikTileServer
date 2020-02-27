@@ -160,8 +160,13 @@ class OhdmClassification(models.Model):
     subclassname = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "classification"
+
+    def get_value(self) -> Tuple[str, Optional[str]]:
+        if self.subclassname == "undefined":
+            self.subclassname = None
+        return self.class_field, self.subclassname
 
 
 class OhdmContent(models.Model):
@@ -172,7 +177,7 @@ class OhdmContent(models.Model):
     source_user_id = models.BigIntegerField()
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "content"
 
 
@@ -182,7 +187,7 @@ class OhdmExternalSystems(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "external_systems"
         # db_table = "ohdm"."external_systems"
 
@@ -200,7 +205,7 @@ class OhdmExternalUsers(models.Model):
     )
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "external_users"
 
 
@@ -210,7 +215,7 @@ class OhdmGeoobject(models.Model):
     source_user_id = models.BigIntegerField()
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "geoobject"
 
     def __str__(self):
@@ -242,7 +247,7 @@ class OhdmGeoobjectContent(models.Model):
     )
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "geoobject_content"
 
 
@@ -268,13 +273,16 @@ class OhdmGeoobjectGeometry(models.Model):
         db_column="id_geoobject_source",
     )
     role = models.CharField(max_length=255, blank=True, null=True)
-    classification_id = models.ForeignKey(
-        OhdmClassification,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        db_column="classification_id",
+    classification_id = models.BigIntegerField(
+        blank=True, null=True, db_column="classification_id"
     )
+    # classification_id = models.ForeignKey(
+    #     OhdmClassification,
+    #     on_delete=models.CASCADE,
+    #     blank=True,
+    #     null=True,
+    #     db_column="classification_id",
+    # )
     tags = HStoreField(blank=True, null=True)  # This field type is a guess.
     valid_since = models.DateField()
     valid_until = models.DateField()
@@ -293,97 +301,49 @@ class OhdmGeoobjectGeometry(models.Model):
             self.type_target == self.GEOMETRY_TYPE.POINT_0
             or self.type_target == self.GEOMETRY_TYPE.POINT_1
         ):
+            try:
+                point: OhdmPoints = OhdmPoints.objects.get(id=self.id_target)
+            except OhdmPoints.DoesNotExist:
+                return None
+
             return PlanetOsmPoint(
                 geoobject=self.id_geoobject_source,
-                way=OhdmPoints.objects.get(id=self.id_target).point,
+                way=point.point,
                 tags=self.tags,
                 valid_since=self.valid_since,
                 valid_until=self.valid_until,
             )
-        elif self.type_target == self.GEOMETRY_TYPE.LINE:
+        if self.type_target == self.GEOMETRY_TYPE.LINE:
+            try:
+                line: OhdmLines = OhdmLines.objects.get(id=self.id_target)
+            except OhdmLines.DoesNotExist:
+                return None
+
             return PlanetOsmLine(
                 geoobject=self.id_geoobject_source,
-                way=OhdmLines.objects.get(id=self.id_target).line,
+                way=line.line,
                 tags=self.tags,
                 valid_since=self.valid_since,
                 valid_until=self.valid_until,
             )
         elif self.type_target == self.GEOMETRY_TYPE.POLYGON:
+            try:
+                polygon: OhdmPolygons = OhdmPolygons.objects.get(id=self.id_target)
+            except OhdmPolygons.DoesNotExist:
+                return None
+
             return PlanetOsmPolygon(
                 geoobject=self.id_geoobject_source,
-                way=OhdmPolygons.objects.get(id=self.id_target).polygon,
+                way=polygon.polygon,
                 tags=self.tags,
                 valid_since=self.valid_since,
                 valid_until=self.valid_until,
             )
-        return None
-
-    # def get_or_create_planet_object(self) -> Optional[Any]:
-    #     if self.type_target == self.GEOMETRY_TYPE.POINT_0:
-    #         planet_object, created = PlanetOsmPoint.objects.get_or_create(
-    #             geoobject=self.id_geoobject_source,
-    #         )
-
-    #         try:
-    #             planet_object.setAttribute(
-    #                 self.classification_id.class_field,
-    #                 self.classification_id.subclassname,
-    #             )
-    #         except AttributeError:
-    #             print(
-    #                 "Field does not exists: {}".format(
-    #                     self.classification_id.class_field
-    #                 )
-    #             )
-
-    #         if not planet_object.way:
-    #             try:
-    #                 planet_object.way = OhdmPoints.objects.get(id=self.id_target).point
-    #             except OhdmPoints.DoesNotExist:
-    #                 print("Point {} does not exists!".format(planet_object.id))
-    #                 return
-
-    #     elif self.type_target == self.GEOMETRY_TYPE.LINE:
-    #         planet_object, created = PlanetOsmLine.objects.get_or_create(
-    #             geoobject=self.id_geoobject_source,
-    #         )
-
-    #         if not planet_object.way:
-    #             try:
-    #                 planet_object.way = OhdmLines.objects.get(id=self.id_target).line
-    #             except OhdmLines.DoesNotExist:
-    #                 print("Line {} does not exists!".format(planet_object.id))
-    #                 return
-
-    #     elif self.type_target == self.GEOMETRY_TYPE.POLYGON:
-    #         planet_object, created = PlanetOsmPolygon.objects.get_or_create(
-    #             geoobject=self.id_geoobject_source,
-    #         )
-
-    #         if not planet_object.way:
-    #             try:
-    #                 planet_object.way = OhdmPolygons.objects.get(
-    #                     id=self.id_target
-    #                 ).polygon
-    #             except OhdmPolygons.DoesNotExist:
-    #                 print("Polygon {} does not exists!".format(planet_object.id))
-    #                 return
-
-    #     else:
-    #         return None
-
-    #     if created:
-    #         # fill default values for planet_object
-    #         planet_object.name = self.id_geoobject_source.name
-    #         planet_object.tags = self.tags
-    #         planet_object.valid_since = self.valid_since
-    #         planet_object.valid_until = self.valid_until
-
-    #     planet_object.save()
-    #     return planet_object
+        else:
+            return None
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "geoobject_geometry"
 
 
@@ -397,7 +357,7 @@ class OhdmGeoobjectUrl(models.Model):
     valid_until_offset = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "geoobject_url"
 
 
@@ -408,7 +368,7 @@ class OhdmImportUpdates(models.Model):
     lastupdate = models.DateField(blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "import_updates"
 
 
@@ -423,7 +383,7 @@ class OhdmLayer(models.Model):
     child_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "layer"
         unique_together = (
             ("topology", "layer_id"),
@@ -443,7 +403,7 @@ class OhdmLines(models.Model):
     )
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "lines"
 
 
@@ -459,7 +419,7 @@ class OhdmPoints(models.Model):
     )
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "points"
 
 
@@ -475,7 +435,7 @@ class OhdmPolygons(models.Model):
     )
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "polygons"
 
 
@@ -503,7 +463,7 @@ class OhdmSubsequentGeomUser(models.Model):
     )
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "subsequent_geom_user"
 
 
@@ -514,7 +474,7 @@ class OhdmTopology(models.Model):
     hasz = models.BooleanField()
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "topology"
 
 
@@ -524,7 +484,7 @@ class OhdmUrl(models.Model):
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        # managed = False
+        managed = False
         db_table = "url"
 
 
