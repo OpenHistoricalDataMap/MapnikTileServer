@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 
 volumes:
   local_postgres_data: {}
@@ -36,6 +36,9 @@ services:
       - "127.0.0.1:5432:5432"
     env_file:
       - ./.envs/.local/.postgres
+    restart: on-failure
+    healthcheck:
+      test: "exit 0"
 
   redis:
     image: redis:5.0
