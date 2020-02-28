@@ -2,7 +2,9 @@ import time
 from multiprocessing.dummy import Pool as ThreadPool
 from typing import Any, List
 
-from django.db import connection
+from django.db import connections
+
+from config.settings.base import env
 
 from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
                      PlanetOsmPolygon, PlanetOsmRoads, TileCache)
@@ -44,7 +46,7 @@ class Ohdm2Mapnik:
             int -- counted rows
         """
 
-        with connection.cursor() as cursor:
+        with connections['ohdm'].cursor() as cursor:
 
             cursor.execute(self.generate_sql_query(geo_type=geo_type, count=True))
             return cursor.fetchone()[0]
@@ -130,12 +132,12 @@ class Ohdm2Mapnik:
             return """
                 SELECT 
                     COUNT({0}s.id)
-                FROM public.{0}s
-                INNER JOIN public.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
-                INNER JOIN public.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
-                INNER JOIN public.classification ON geoobject_geometry.classification_id=classification.id
+                FROM {2}.{0}s
+                INNER JOIN {2}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
+                INNER JOIN {2}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+                INNER JOIN {2}.classification ON geoobject_geometry.classification_id=classification.id
                 WHERE {1};
-            """.format(geo_type, where_statement)
+            """.format(geo_type, where_statement, env.str("OHDM_SCHEMA"))
 
         return """
                 SELECT 
@@ -149,13 +151,13 @@ class Ohdm2Mapnik:
                     geoobject_geometry.valid_since,
                     geoobject_geometry.valid_until,
                     {0}s.{0} as way
-                FROM public.{0}s
-                INNER JOIN public.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
-                INNER JOIN public.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
-                INNER JOIN public.classification ON geoobject_geometry.classification_id=classification.id
+                FROM {4}.{0}s
+                INNER JOIN {4}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
+                INNER JOIN {4}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+                INNER JOIN {4}.classification ON geoobject_geometry.classification_id=classification.id
                 WHERE {3}
                 LIMIT {1} OFFSET {2};
-            """.format(geo_type, self.sql_chunk_size, offset, where_statement)
+            """.format(geo_type, self.sql_chunk_size, offset, where_statement, env.str("OHDM_SCHEMA"))
 
     def convert(self, offset: int):
         """
@@ -169,7 +171,7 @@ class Ohdm2Mapnik:
         """
         planet_object_cache: List[Any] = []
 
-        for ohdm_object in OhdmGeoobjectWay.objects.raw(
+        for ohdm_object in OhdmGeoobjectWay.objects.using('ohdm').raw(
             self.generate_sql_query(geo_type=self.geo_type ,offset=offset)
         ):
             if self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:

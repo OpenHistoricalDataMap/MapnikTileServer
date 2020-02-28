@@ -1,4 +1,4 @@
-# PostgreSQL
+# Default PostgreSQL
 # ------------------------------------------------------------------------------
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
@@ -7,6 +7,17 @@ POSTGRES_USER=docker
 POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
 POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
 PGCONNECT_TIMEOUT=60
+
+# OHDM PostgreSQL
+# ------------------------------------------------------------------------------
+OHDM_POSTGRES_HOST=postgres
+OHDM_POSTGRES_PORT=5432
+OHDM_POSTGRES_DB=gis
+OHDM_POSTGRES_USER=docker
+OHDM_POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
+OHDM_POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
+OHDM_PGCONNECT_TIMEOUT=60
+OHDM_SCHEMA=public
 
 # VS-Code
 # ------------------------------------------------------------------------------
