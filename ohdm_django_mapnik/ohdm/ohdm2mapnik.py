@@ -1,32 +1,10 @@
-import multiprocessing
 import time
 from multiprocessing.dummy import Pool as ThreadPool
 from typing import Any, List, Optional, Tuple
 
-from ohdm_django_mapnik.ohdm.models import (
-    OhdmClassification,
-    OhdmLines,
-    OhdmPoints,
-    OhdmPolygons,
-)
-
-from .models import (
-    OhdmGeoobject,
-    OhdmGeoobjectGeometry,
-    PlanetOsmLine,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRoads,
-    TileCache,
-)
-
-
-def drop_planet_tables():
-    PlanetOsmLine.objects.all().delete()
-    PlanetOsmPoint.objects.all().delete()
-    PlanetOsmPolygon.objects.all().delete()
-    PlanetOsmRoads.objects.all().delete()
-    TileCache.objects.all().delete()
+from .models import (OhdmClassification, OhdmGeoobjectWay, OhdmLines,
+                     OhdmPoints, OhdmPolygons, PlanetOsmLine, PlanetOsmPoint,
+                     PlanetOsmPolygon, PlanetOsmRoads, TileCache)
 
 
 class OhdmClassificationCache:
@@ -40,6 +18,15 @@ class OhdmClassificationCache:
         ] = OhdmClassification.objects.all()
 
     def get_value(self, classification_id: int) -> Tuple[str, Optional[str]]:
+        """
+        Get OHDM classifications based on the classifications_id
+        
+        Arguments:
+            classification_id {int} -- the request classification
+        
+        Returns:
+            Tuple[str, Optional[str]] -- class, subclassname
+        """
         return self.classifications[classification_id].get_value()
 
 
@@ -50,27 +37,17 @@ class Ohdm2Mapnik:
     -> https://wiki.openstreetmap.org/wiki/Osm2pgsql/schema
     """
 
-    def __init__(self, bulk_amount: int = 1000, sql_chunk_size: int = 1000):
+    def __init__(self, sql_chunk_size: int = 1000000):
         """
         setup Ohdm2Mapnik class
         
         Keyword Arguments:
-            bulk_amount {int} -- how many new objects will be saved at once (default: {100000})
             sql_chunk_size {int} -- how many entries will be load at once from database (default: {100000})
         """
-        self.bulk_amount: int = bulk_amount
         self.sql_chunk_size: int = sql_chunk_size
-
-        # PlanetOsm object cache
-        self.planet_points: List[PlanetOsmPoint] = []
-        self.planet_line: List[PlanetOsmLine] = []
-        self.planet_polygon: List[PlanetOsmPolygon] = []
 
         # OhdmClassificationCache
         self.classification_cache: OhdmClassificationCache = OhdmClassificationCache()
-
-        # count how many rows converted
-        self.row: int = 0
 
         # estimate total amount ob mapnik objects
         self.estimate_total_rows: int = 0
@@ -78,8 +55,8 @@ class Ohdm2Mapnik:
         # process start time
         self.start_time: float = 0
 
-        # already added objects ids (useful to not add double objects)
-        self.done_objects: List[int] = []
+        # current geo_type
+        self.geo_type: str = OhdmGeoobjectWay.GEOMETRY_TYPE.POINT
 
     def drop_planet_tables(self):
         """
@@ -118,171 +95,150 @@ class Ohdm2Mapnik:
             )
         return planet_object
 
-    def planet_object_to_cache(self, planet_object: Any):
-        """add planet_object to cache
-        
-        Arguments:
-            planet_object {Any} -- PlanetOsmLine, PlanetOsmPoint or PlanetOsmPolygon object witch should be saved
-        """
-        if isinstance(planet_object, PlanetOsmPoint):
-            self.planet_points.append(planet_object)
-        elif isinstance(planet_object, PlanetOsmLine):
-            self.planet_line.append(planet_object)
-        else:
-            self.planet_polygon.append(planet_object)
-
-    def save_planet_object_cache(self):
+    def save_planet_object_cache(self, planet_object_cache: List[Any]):
         """
         save planet_object_cache to database
         """
-        PlanetOsmPoint.objects.bulk_create(self.planet_points)
-        self.planet_points.clear()
-        PlanetOsmLine.objects.bulk_create(self.planet_line)
-        self.planet_line.clear()
-        PlanetOsmPolygon.objects.bulk_create(self.planet_polygon)
-        self.planet_polygon.clear()
 
-        print("--- {} objects saved into database --- ".format(self.row))
+        if self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
+            PlanetOsmPoint.objects.bulk_create(planet_object_cache)
+        elif self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
+            PlanetOsmLine.objects.bulk_create(planet_object_cache)
+        else:
+            PlanetOsmPolygon.objects.bulk_create(planet_object_cache)
+
+        print("--- {} objects saved into database --- ".format(len(planet_object_cache)))
 
     def display_process_time(self):
         """
         display process time
         """
 
-        self.row = (
+        row: int = (
             PlanetOsmLine.objects.all().count()
             + PlanetOsmPoint.objects.all().count()
             + PlanetOsmPolygon.objects.all().count()
         )
 
         process_time: float = time.time() - self.start_time
-        percent: float = self.row / self.estimate_total_rows * 100
+        percent: float = row / self.estimate_total_rows * 100
 
         if process_time <= 360:  # 6 minutes
             print(
                 "--- {} rows of {} ({:.3f}%) in {:4.3f} seconds ---".format(
-                    self.row, self.estimate_total_rows, percent, process_time
+                    row, self.estimate_total_rows, percent, process_time
                 )
             )
         elif process_time <= 7200:  # 120 minutes
             print(
                 "--- {} rows of {} ({:.3f}%) in {:4.3f} minutes ---".format(
-                    self.row, self.estimate_total_rows, percent, process_time / 60
+                    row, self.estimate_total_rows, percent, process_time / 60
                 )
             )
         else:
             print(
                 "--- {} rows of {} ({:.3f}%) in {:4.3f} hours ---".format(
-                    self.row, self.estimate_total_rows, percent, process_time / 360
+                    row, self.estimate_total_rows, percent, process_time / 360
                 )
             )
 
-    def count_row(self, planet_object: Any):
+    def generate_sql_query(self, offset: int) -> str:
         """
-        Count rows & saved planet_object_cache to database
-
+        Generate SQL Query to fetch the request geo objects
+        
         Arguments:
-            planet_object {Any} -- PlanetOsmLine, PlanetOsmPoint or PlanetOsmPolygon object witch should be added to cache & db
+            offset {int} -- query offset
+        
+        Returns:
+            str -- SQL query as string
         """
-        # self.row += 1
 
-        # self.planet_object_to_cache(planet_object=planet_object)
-        planet_object.save()
+        if self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
+            where_statement: str = "geoobject_geometry.type_target = 0 or geoobject_geometry.type_target = 1"
+        elif self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
+            where_statement: str = "geoobject_geometry.type_target = 2"
+        else:
+            where_statement: str = "geoobject_geometry.type_target = 3"
 
-        # if self.row % self.bulk_amount == 0:
-        #     self.save_planet_object_cache()
+        return """
+                SELECT 
+                    {0}s.id as way_id,
+                    geoobject_geometry.id_geoobject_source as geoobject_id,
+                    geoobject.name,
+                    geoobject_geometry.role,
+                    geoobject_geometry.classification_id,
+                    geoobject_geometry.tags,
+                    geoobject_geometry.valid_since,
+                    geoobject_geometry.valid_until,
+                    {0}s.{0} as way
+                FROM public.{0}s
+                INNER JOIN public.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
+                INNER JOIN public.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+                WHERE {3}
+                GROUP BY way_id, geoobject_id, name, role, classification_id, tags, valid_since, valid_until, way
+                LIMIT {1} OFFSET {2};
+            """.format(self.geo_type, self.sql_chunk_size, offset, where_statement)
 
-        # print(self.row)
+    def convert(self, offset: int):
+        """
+        Convert OHDM Database into mapnik readable schema
 
-        # if self.row % 1000 == 0:
-        #     self.display_process_time()
+        it will read all entries of the current object type beginning by
+        range_begin and a limit of self.sql_chunk_size
+        
+        Arguments:
+            offset {int} -- sql query offset
+        """
+        planet_object_cache: List[Any] = []
 
-    def convert(self, range_begin: int):
-        for geoobject in OhdmGeoobject.objects.all()[
-            range_begin : range_begin + self.sql_chunk_size
-        ]:
-            if not geoobject.name:
-
-                # load all geoobject_geometry for geoobject
-                for geoobject_geometry in OhdmGeoobjectGeometry.objects.filter(
-                    id_geoobject_source=geoobject
-                ):
-                    # jump already added objects
-                    if geoobject_geometry.id in self.done_objects:
-                        return
-
-                    planet_object: Optional[
-                        Any
-                    ] = geoobject_geometry.get_planet_object()
-
-                    # continue if planet_object not exists
-                    if not planet_object:
-                        print("{} is no valid geometry object!".format(geoobject.id))
-                        return
-
-                    planet_object.name = geoobject.name
-                    planet_object.geoobject = geoobject
-
-                    if (
-                        OhdmGeoobjectGeometry.objects.filter(
-                            id_target=geoobject_geometry.id_target,
-                            type_target=geoobject_geometry.type_target,
-                        ).count()
-                        > 1
-                    ):
-                        for (
-                            geoobject_geometry_sub
-                        ) in OhdmGeoobjectGeometry.objects.filter(
-                            id_target=geoobject_geometry.id_target,
-                            type_target=geoobject_geometry.type_target,
-                        ):
-                            self.done_objects.append(geoobject_geometry_sub.id)
-                            planet_object = self.set_classification(
-                                planet_object=planet_object,
-                                classification_id=geoobject_geometry_sub.classification_id,
-                            )
-                    else:
-                        planet_object = self.set_classification(
-                            planet_object=planet_object,
-                            classification_id=geoobject_geometry.classification_id,
-                        )
-
-                    self.count_row(planet_object=planet_object)
-
+        for ohdm_object in OhdmGeoobjectWay.objects.raw(
+            self.generate_sql_query(offset=offset)
+        ):
+            if self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
+                planet_object: Any = PlanetOsmPoint(
+                    name=ohdm_object.name,
+                    # geoobject=ohdm_object.geoobject_id,
+                    tags=ohdm_object.tags,
+                    valid_since=ohdm_object.valid_since,
+                    valid_until=ohdm_object.valid_until,
+                    way=ohdm_object.way
+                )
+            elif self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
+                planet_object: Any = PlanetOsmLine(
+                    name=ohdm_object.name,
+                    # geoobject=ohdm_object.geoobject_id,
+                    tags=ohdm_object.tags,
+                    valid_since=ohdm_object.valid_since,
+                    valid_until=ohdm_object.valid_until,
+                    way=ohdm_object.way
+                )
             else:
-                geoobjects_geometry: List[
-                    OhdmGeoobjectGeometry
-                ] = OhdmGeoobjectGeometry.objects.filter(id_geoobject_source=geoobject)
+                planet_object: Any = PlanetOsmPolygon(
+                    name=ohdm_object.name,
+                    # geoobject=ohdm_object.geoobject_id,
+                    tags=ohdm_object.tags,
+                    valid_since=ohdm_object.valid_since,
+                    valid_until=ohdm_object.valid_until,
+                    way=ohdm_object.way
+                )
 
-                # get planet_object like PlanetOsmPoint, PlanetOsmLine, PlanetOsmPolygon
-                planet_object: Optional[Any] = geoobjects_geometry[
-                    0
-                ].get_planet_object()
-
-                # continue if planet_object not exists
-                if not planet_object:
-                    print(
-                        "{} {} is no valid geometry object!".format(
-                            geoobject.id, geoobject.name
+            planet_object = self.set_classification(
+                            planet_object=planet_object,
+                            classification_id=ohdm_object.classification_id,
                         )
-                    )
-                    return
 
-                # fill planet_object with base values
-                planet_object.name = geoobject.name
-                planet_object.geoobject = geoobject
+            if not planet_object.way.valid:
+                print("{} has invalid geometry -> {}".format(
+                    planet_object.name,
+                    planet_object.way.valid_reason
+                ))
+            else:
+                planet_object_cache.append(planet_object)
 
-                for geoobject_geometry in geoobjects_geometry:
-                    planet_object = self.set_classification(
-                        planet_object=planet_object,
-                        classification_id=geoobject_geometry.classification_id,
-                    )
-
-                self.count_row(planet_object=planet_object)
-
+        self.save_planet_object_cache(planet_object_cache=planet_object_cache)
         self.display_process_time()
 
-    def run(self, threads: int = multiprocessing.cpu_count()):
+    def run(self, threads: int = 4):
         """
         convert ohdm database to mapnik readable tables
         
@@ -290,8 +246,6 @@ class Ohdm2Mapnik:
             threads {int} -- how many threads should use for processing (default: number of CPU cores of host system)
         """
         self.start_time = time.time()
-
-        self.done_objects.clear()
 
         print("Delete old mapnik tables!")
         self.drop_planet_tables()
@@ -306,15 +260,26 @@ class Ohdm2Mapnik:
         print("Start converting of {} entries!".format(self.estimate_total_rows))
 
         # iterate through every ohdm entry
-        rows: int = OhdmGeoobject.objects.all().count()
-        work_ids: List[int] = []
-        for row in range(0, rows, self.sql_chunk_size):
-            work_ids.append(row)
+        for geometry in OhdmGeoobjectWay.GEOMETRY_TYPE.TYPES:
+            print("Start to convert {} objects".format(geometry))
+            self.geo_type = geometry
 
-        pool: ThreadPool = ThreadPool(threads)
-        pool.map(self.convert, work_ids)
-        pool.close()
-        pool.join()
+            if geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
+                rows: int = OhdmPoints.objects.all().count()
+            elif geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
+                rows: int = OhdmLines.objects.all().count()
+            else:
+                rows: int = OhdmPolygons.objects.all().count()
 
-        # save last objects
-        # self.save_planet_object_cache()
+            work_ids: List[int] = []
+            for row in range(0, rows, self.sql_chunk_size):
+                work_ids.append(row)
+
+            pool: ThreadPool = ThreadPool(threads * 2)
+            pool.map(self.convert, work_ids)
+            pool.close()
+            pool.join()
+
+            print("{} is done!".format(geometry))
+
+        print("All data are converted!")

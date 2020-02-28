@@ -487,6 +487,27 @@ class OhdmUrl(models.Model):
         managed = False
         db_table = "url"
 
+class OhdmGeoobjectWay(models.Model):
+    way_id = models.BigIntegerField(primary_key=True)
+    geoobject_id = models.BigIntegerField()
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=255)
+    classification_id = models.IntegerField()
+    tags = HStoreField()
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    way = models.TextField()
+
+    class Meta:
+        managed = False
+
+    class GEOMETRY_TYPE:
+        POINT = "point"
+        LINE = "line"
+        POLYGON = "polygon"
+
+        TYPES = [POINT, LINE, POLYGON]
+
 
 class PlanetOsmLine(models.Model):
     """
