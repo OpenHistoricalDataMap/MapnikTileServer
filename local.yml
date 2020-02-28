@@ -28,9 +28,10 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
+      shm_size: "4g"
     image: ohdm_django_mapnik_production_postgres
     volumes:
-      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data:/var/lib/postgresql
       - local_postgres_data_backups:/backups
     ports:
       - "127.0.0.1:5432:5432"
