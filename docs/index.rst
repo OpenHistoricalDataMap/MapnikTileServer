@@ -10,6 +10,7 @@ Welcome to MapnikTileServer's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   commands/index
    setup_development_instance
    troubleshooting
 
