@@ -73,7 +73,7 @@ Log into your new user::
     $ cd
 
 Add to ``~/.ssh/authorized_keys`` your ssh public key. If you don't have a SSH
-key, go to `Ubuntu Wiki <https://help.ubuntu.com/community/SSH/OpenSSH/Keys>`_
+key, go to `Ubuntu Wiki OpenSSH <https://help.ubuntu.com/community/SSH/OpenSSH/Keys>`_
 to see how to create one.::
 
     $ mkdir ~/.ssh
@@ -92,7 +92,7 @@ After changing the file, reload the ``SSH`` service::
     $ sudo /etc/init.d/ssh reload
 
 Setup firewall with ``ufw``, for a detail instruction go to
-`Ubuntu Wiki <https://help.ubuntu.com/lts/serverguide/firewall.html>`_
+`Ubuntu Wiki firewall <https://help.ubuntu.com/lts/serverguide/firewall.html>`_
 
     $ sudo apt-get install ufw
     $ sudo ufw allow ssh
@@ -127,7 +127,7 @@ Test if docker works::
 
     $ sudo docker run hello-world
 
-Install `docker compose <https://docs.docker.com/compose/install/>`_::
+`Install docker compose <https://docs.docker.com/compose/install/>`_::
 
     $ sudo pip3 install docker-compose
 
@@ -171,8 +171,7 @@ Add your new generated key to github.com::
 
     $ cat ~/.ssh/id_rsa.pub
 
-Add the content of ``~/.ssh/id_rsa.pub`` to `github.com/settings/keys
-<https://github.com/settings/keys`_.
+Add the content of ``~/.ssh/id_rsa.pub`` to https://github.com/settings/keys.
 
 At last, download the git repo via ``SSH``. You can use the offical repo
 ``git@github.com:OpenHistoricalDataMap/MapnikTileServer.git`` or use you own
@@ -192,7 +191,7 @@ Setup VS Code
 At first download & install `VS Code <https://code.visualstudio.com/>`_ for your
 desktop OS.
 
-To work on a remote server, install the offical `Remote Development
+To work on a remote server, install the offical `Remote Development app
 <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack&ssr=false#review-details>`_.
 Next configure the access to the remote host, for that open in VS Code. For that
 click in the left bottom of VS Code on the remote extension.
