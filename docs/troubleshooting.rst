@@ -52,3 +52,11 @@ ignore it :) ::
     celeryworker_1   | Mapnik LOG> 2020-02-10 12:17:53: warning: unable to find face-name 'unifont Medium' in FontSet 'fontset-0'
     celeryworker_1   | Mapnik LOG> 2020-02-10 12:17:53: warning: unable to find face-name 'unifont Medium' in FontSet 'fontset-1'
     celeryworker_1   | Mapnik LOG> 2020-02-10 12:17:53: warning: unable to find face-name 'unifont Medium' in FontSet 'fontset-2'
+
+How to delte just all django ohdm tables
+----------------------------------------
+
+To just delete django ``OHDM`` tables and not the other django tables like users
+use::
+
+    $ docker-compose -f local.yml run --rm django python manage.py migrate ohdm zero
