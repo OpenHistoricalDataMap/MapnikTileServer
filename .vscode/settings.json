@@ -65,7 +65,8 @@
     "pytest",
     "strftime",
     "strptime",
-    "tobytes"
+    "tobytes",
+    "zordering"
   ],
   "files.watcherExclude": {
     "**/.git/objects/**": true,

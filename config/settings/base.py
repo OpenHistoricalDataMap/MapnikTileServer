@@ -48,10 +48,7 @@ LOCALE_PATHS = [ROOT_DIR.path("locale")]
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {
-    "default": env.db("DATABASE_URL"),
-    "ohdm": env.db("OHDM_DATABASE_URL")
-}
+DATABASES = {"default": env.db("DATABASE_URL"), "ohdm": env.db("OHDM_DATABASE_URL")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 DATABASES["ohdm"]["ATOMIC_REQUESTS"] = True

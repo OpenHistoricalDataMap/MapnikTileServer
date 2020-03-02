@@ -150,6 +150,7 @@ class TileCache(models.Model):
             self.y_pixel,
         )
 
+
 class OhdmGeoobjectWay(models.Model):
     way_id = models.BigIntegerField(primary_key=True)
     geoobject_id = models.BigIntegerField()

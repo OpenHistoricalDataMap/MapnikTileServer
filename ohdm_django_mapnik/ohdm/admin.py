@@ -1,8 +1,13 @@
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 
-from .models import (PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon,
-                     PlanetOsmRoads, TileCache)
+from .models import (
+    PlanetOsmLine,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRoads,
+    TileCache,
+)
 
 
 class TileCacheAdmin(admin.ModelAdmin):
