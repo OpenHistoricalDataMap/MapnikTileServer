@@ -228,6 +228,7 @@ class Ohdm2Mapnik:
         Returns:
             Any -- unsaved planet object
         """
+
         if geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
             return PlanetOsmPoint(
                 name=name,
@@ -247,7 +248,7 @@ class Ohdm2Mapnik:
                 way=way,
             )
 
-        return PlanetOsmPolygon(
+        planet_object: PlanetOsmPolygon = PlanetOsmPolygon(
             name=name,
             geoobject=geoobject,
             tags=tags,
@@ -255,6 +256,13 @@ class Ohdm2Mapnik:
             valid_until=valid_until,
             way=way,
         )
+
+        # add way_area, the area of the polygon
+        # https://wiki.openstreetmap.org/wiki/Osm2pgsql/Key:way_area
+        planet_object.way_area = planet_object.way.area
+
+        return planet_object
+
 
     def convert(self, offset: int):
         """
@@ -339,15 +347,12 @@ class Ohdm2Mapnik:
             return planet_object
 
         try:
-            setattr(
-                planet_object, classification_class, classification_subclassname,
-            )
-        except AttributeError:
-            print(
-                "{} has no attribute {}!".format(
-                    type(planet_object), classification_class,
+            if not getattr(planet_object, classification_class):
+                setattr(
+                    planet_object, classification_class, classification_subclassname,
                 )
-            )
+        except AttributeError:
+            pass
 
         return planet_object
 
@@ -389,6 +394,10 @@ class Ohdm2Mapnik:
 
             for x in range(1, len(tags), 4):
                 try:
+                    # convert tags to classification
+                    planet_object = self.add_classification(planet_object=planet_object, classification_class=tags[x], classification_subclassname=tags[x + 2])
+
+                    # calc z_order level
                     z_order += self.zordering_tags[tags[x]][tags[x + 2]][0]
                     if self.zordering_tags[tags[x]][tags[x + 2]][1] == 1:
                         add_roads = True
@@ -399,7 +408,7 @@ class Ohdm2Mapnik:
             planet_object.z_order = z_order
 
         if add_roads and self.geo_type == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
-            roads: PlanetOsmPolygon = PlanetOsmPolygon(
+            roads: PlanetOsmRoads = PlanetOsmRoads(
                 name=planet_object.name,
                 # geoobject=planet_object.geoobject_id,
                 tags=planet_object.tags,
@@ -419,7 +428,7 @@ class Ohdm2Mapnik:
 
         return planet_object, None
 
-    def run(self, threads: int = 4):
+    def run(self, threads: int = 1):
         """
         convert ohdm database to mapnik readable tables
         
