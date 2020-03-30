@@ -53,13 +53,6 @@ services:
     env_file:
       - ./.envs/.local/.postgres
 
-  # https://hub.docker.com/r/openmaptiles/openmaptiles-tools
-  # download germany -> docker-compose -f local.yml run --rm download-osm-map download-osm geofabrik germany
-  download-osm-map:
-    image: openmaptiles/openmaptiles-tools:4.0.0
-    volumes:
-      - ./osm-map:/tileset
-
   celeryworker:
     <<: *django
     image: ohdm_django_mapnik_local_celeryworker
