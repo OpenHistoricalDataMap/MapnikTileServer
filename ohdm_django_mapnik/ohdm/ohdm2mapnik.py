@@ -6,7 +6,14 @@ from typing import Any, List
 from config.settings.base import env
 from django.db import connections
 
-from .models import OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRoads, TileCache
+from .models import (
+    OhdmGeoobjectWay,
+    PlanetOsmLine,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRoads,
+    TileCache,
+)
 
 
 class Ohdm2Mapnik:

@@ -1,6 +1,6 @@
+from config.settings.base import env
 from django.core.management.base import BaseCommand
 
-from config.settings.base import env
 from ohdm_django_mapnik.ohdm.utily import create_style_xml
 
 

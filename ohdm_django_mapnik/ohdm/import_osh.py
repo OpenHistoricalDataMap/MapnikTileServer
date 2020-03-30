@@ -12,14 +12,32 @@ from django.core.cache import cache
 from osmium import SimpleHandler
 from osmium._osmium import InvalidLocationError
 from osmium.geom import WKTFactory
-from osmium.osm._osm import (Area, Changeset, Location, Node, NodeRef,
-                             Relation, RelationMember, RelationMemberList, Tag,
-                             TagList, Way, WayNodeList)
+from osmium.osm._osm import (
+    Area,
+    Changeset,
+    Location,
+    Node,
+    NodeRef,
+    Relation,
+    RelationMember,
+    RelationMemberList,
+    Tag,
+    TagList,
+    Way,
+    WayNodeList,
+)
 from osmium.replication.server import ReplicationServer
 
-from .models import (PlanetOsmLine, PlanetOsmNodes, PlanetOsmPoint,
-                     PlanetOsmPolygon, PlanetOsmRels, PlanetOsmRoads,
-                     PlanetOsmWays, TileCache)
+from .models import (
+    PlanetOsmLine,
+    PlanetOsmNodes,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRels,
+    PlanetOsmRoads,
+    PlanetOsmWays,
+    TileCache,
+)
 
 
 class OSMHandler(SimpleHandler):
@@ -89,7 +107,7 @@ class OSMHandler(SimpleHandler):
         PlanetOsmRels.objects.all().delete()
         PlanetOsmWays.objects.all().delete()
 
-    def save_cache(self): 
+    def save_cache(self):
         print("saving cache ...")
         PlanetOsmNodes.objects.bulk_create(self.node_cache)
         PlanetOsmWays.objects.bulk_create(self.way_cache)
@@ -110,16 +128,15 @@ class OSMHandler(SimpleHandler):
 
     def node(self, node: Node):
         node_db: PlanetOsmNodes = PlanetOsmNodes(
-            osm_id=node.id,
-            version=node.version,
+            osm_id=node.id, version=node.version,
         )
 
         if node.deleted:
-            node_db.delete=node.timestamp
+            node_db.delete = node.timestamp
         else:
-            node_db.timestamp=node.timestamp
-            node_db.point=Point(node.location.lat, node.location.lon)
-            node_db.tags=self.tags2dict(tags=node.tags)
+            node_db.timestamp = node.timestamp
+            node_db.point = Point(node.location.lat, node.location.lon)
+            node_db.tags = self.tags2dict(tags=node.tags)
 
         self.node_cache.append(node_db)
 
@@ -127,18 +144,17 @@ class OSMHandler(SimpleHandler):
 
     def way(self, way: Way):
         way_db: PlanetOsmWays = PlanetOsmWays(
-            osm_id=way.id,
-            version=way.version,
+            osm_id=way.id, version=way.version,
         )
 
         if way.deleted:
-            way_db.delete=way.timestamp
+            way_db.delete = way.timestamp
         else:
-            way_db.timestamp=way.timestamp
-            way_db.tags=self.tags2dict(tags=way.tags)
-            way_db.way=GEOSGeometry(
-                    self.wkt_fab.create_linestring(way), srid=self.wkt_fab.epsg
-                )
+            way_db.timestamp = way.timestamp
+            way_db.tags = self.tags2dict(tags=way.tags)
+            way_db.way = GEOSGeometry(
+                self.wkt_fab.create_linestring(way), srid=self.wkt_fab.epsg
+            )
 
         self.way_cache.append(way_db)
 
@@ -157,22 +173,22 @@ class OSMHandler(SimpleHandler):
                     outer_members.append(member.ref)
 
         rel_db: PlanetOsmRels = PlanetOsmRels(
-            osm_id=rel.id,
-            version=rel.version,
+            osm_id=rel.id, version=rel.version,
         )
 
         if rel.deleted:
-            rel_db.delete=rel.timestamp
+            rel_db.delete = rel.timestamp
         else:
-            rel_db.timestamp=rel.timestamp
-            rel_db.tags=self.tags2dict(tags=rel.tags)
-            rel_db.role=rel.role
-            rel_db.inner_members=inner_members
-            rel_db.outer_members=outer_members
+            rel_db.timestamp = rel.timestamp
+            rel_db.tags = self.tags2dict(tags=rel.tags)
+            rel_db.role = rel.role
+            rel_db.inner_members = inner_members
+            rel_db.outer_members = outer_members
 
         self.rel_cache.append(rel_db)
 
         self.count_rel()
+
 
 def run_import():
     osmhandler = OSMHandler()
