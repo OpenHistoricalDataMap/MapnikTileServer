@@ -3,12 +3,10 @@ from datetime import datetime
 from multiprocessing.pool import ThreadPool
 from typing import Any, List
 
+from config.settings.base import env
 from django.db import connections
 
-from config.settings.base import env
-
-from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
-                     PlanetOsmPolygon, PlanetOsmRoads, TileCache)
+from .models import OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRoads, TileCache
 
 
 class Ohdm2Mapnik:
@@ -263,7 +261,6 @@ class Ohdm2Mapnik:
 
         return planet_object
 
-
     def convert(self, offset: int):
         """
         Convert OHDM Database into mapnik readable schema
@@ -281,23 +278,23 @@ class Ohdm2Mapnik:
             self.generate_sql_query(geo_type=self.geo_type, offset=offset)
         ):
             planet_object: Any = self.create_planet_object(
-                    name=ohdm_object.name,
-                    geoobject=ohdm_object.geoobject_id,
-                    tags=ohdm_object.tags,
-                    valid_since=ohdm_object.valid_since,
-                    valid_until=ohdm_object.valid_until,
-                    way=ohdm_object.way,
-                    geo_type=self.geo_type
-                )
+                name=ohdm_object.name,
+                geoobject=ohdm_object.geoobject_id,
+                tags=ohdm_object.tags,
+                valid_since=ohdm_object.valid_since,
+                valid_until=ohdm_object.valid_until,
+                way=ohdm_object.way,
+                geo_type=self.geo_type,
+            )
 
             # check if way is a valid geo object
-            if not planet_object.way.valid:
-                print(
-                    "{} has invalid geometry -> {}".format(
-                        planet_object.name, planet_object.way.valid_reason
-                    )
-                )
-                continue
+            # if not planet_object.way.valid:
+            #     print(
+            #         "{} has invalid geometry -> {}".format(
+            #             planet_object.name, planet_object.way.valid_reason
+            #         )
+            #     )
+            #     continue
 
             # set classification attribute
             planet_object = self.add_classification(
@@ -318,9 +315,14 @@ class Ohdm2Mapnik:
                 if planet_objects[1]:
                     planet_roads_cache.append(planet_objects[1])
 
-            planet_object_cache.append(planet_object)
+            try:
+                planet_object.save()
+            except:
+                pass
 
-        self.save_planet_object_cache(planet_object_cache=planet_object_cache)
+            # planet_object_cache.append(planet_object)
+
+        # self.save_planet_object_cache(planet_object_cache=planet_object_cache)
         PlanetOsmRoads.objects.bulk_create(planet_roads_cache)
         self.display_process_time()
 
@@ -343,6 +345,7 @@ class Ohdm2Mapnik:
         """
 
         # if classification_subclassname has no valid value -> return planet_object without edit
+        # todo check if this it needed
         if classification_subclassname == "undefined":
             return planet_object
 
@@ -395,7 +398,11 @@ class Ohdm2Mapnik:
             for x in range(1, len(tags), 4):
                 try:
                     # convert tags to classification
-                    planet_object = self.add_classification(planet_object=planet_object, classification_class=tags[x], classification_subclassname=tags[x + 2])
+                    planet_object = self.add_classification(
+                        planet_object=planet_object,
+                        classification_class=tags[x],
+                        classification_subclassname=tags[x + 2],
+                    )
 
                     # calc z_order level
                     z_order += self.zordering_tags[tags[x]][tags[x + 2]][0]
@@ -427,6 +434,25 @@ class Ohdm2Mapnik:
             return planet_object, roads
 
         return planet_object, None
+
+    def repair_table(self, table: str):
+        """
+        Use Postgis repair function to repair broken geoobjects
+        
+        Arguments:
+            table {str} -- table to repair
+        """
+        with connections["ohdm"].cursor() as cursor:
+            cursor.execute(
+                """
+            UPDATE {}
+            SET way = ST_MakeValid(way)
+            WHERE not ST_IsValid(way); 
+            """.format(
+                    table
+                )
+            )
+            return cursor.fetchone()[0]
 
     def run(self, threads: int = 1):
         """
@@ -468,6 +494,11 @@ class Ohdm2Mapnik:
             pool.map(self.convert, work_ids)
             pool.close()
             pool.join()
+
+            self.repair_table(table="planet_osm_point")
+            self.repair_table(table="planet_osm_line")
+            self.repair_table(table="planet_osm_polygon")
+            self.repair_table(table="planet_osm_roads")
 
             print("{} is done!".format(geometry))
 

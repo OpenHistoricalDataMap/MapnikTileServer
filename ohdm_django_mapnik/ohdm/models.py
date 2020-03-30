@@ -7,7 +7,7 @@ from typing import Any, List, Optional
 from celery.result import AsyncResult
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Polygon
-from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.fields import ArrayField, HStoreField
 from django.core.cache import cache
 
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
@@ -180,6 +180,9 @@ class PlanetOsmLine(models.Model):
     """
 
     osm_id = models.BigIntegerField(blank=True, null=True)
+    version = models.IntegerField(blank=True, null=True)
+    changeset = models.IntegerField(blank=True, null=True)
+    visible = models.BooleanField(blank=True, null=True)
     geoobject = models.BigIntegerField(blank=True, null=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -245,6 +248,9 @@ class PlanetOsmPoint(models.Model):
     """
 
     osm_id = models.BigIntegerField(blank=True, null=True)
+    version = models.IntegerField(blank=True, null=True)
+    changeset = models.IntegerField(blank=True, null=True)
+    visible = models.BooleanField(blank=True, null=True)
     geoobject = models.BigIntegerField(blank=True, null=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -294,6 +300,9 @@ class PlanetOsmPolygon(models.Model):
     """
 
     osm_id = models.BigIntegerField(blank=True, null=True)
+    version = models.IntegerField(blank=True, null=True)
+    changeset = models.IntegerField(blank=True, null=True)
+    visible = models.BooleanField(blank=True, null=True)
     geoobject = models.BigIntegerField(blank=True, null=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -359,6 +368,9 @@ class PlanetOsmRoads(models.Model):
     """
 
     osm_id = models.BigIntegerField(blank=True, null=True)
+    version = models.IntegerField(blank=True, null=True)
+    changeset = models.IntegerField(blank=True, null=True)
+    visible = models.BooleanField(blank=True, null=True)
     geoobject = models.BigIntegerField(blank=True, null=True)
     access = models.TextField(blank=True, null=True)
     addr_housename = models.TextField(db_column="addr:housename", blank=True, null=True)
@@ -409,10 +421,48 @@ class PlanetOsmRoads(models.Model):
     waterway = models.TextField(blank=True, null=True)
     way_area = models.FloatField(blank=True, null=True)
     z_order = models.IntegerField(blank=True, null=True)
-    tags = models.TextField(blank=True, null=True)
+    tags = HStoreField(blank=True, null=True)
     way = models.LineStringField(srid=3857, blank=True, null=True)
     valid_since = models.DateField(blank=True, null=True)
     valid_until = models.DateField(blank=True, null=True)
 
     class Meta:
         db_table = "planet_osm_roads"
+
+
+class PlanetOsmNodes(models.Model):
+    osm_id = models.BigIntegerField()
+    version = models.IntegerField()
+    point = models.PointField(srid=3857)
+    timestamp = models.DateField(blank=True, null=True)
+    deleted = models.DateField(blank=True, null=True)
+    tags = HStoreField()
+
+    class Meta:
+        db_table = "planet_osm_nodes"
+
+
+class PlanetOsmWays(models.Model):
+    osm_id = models.BigIntegerField()
+    version = models.IntegerField()
+    way = models.LineStringField(srid=3857)
+    timestamp = models.DateField(blank=True, null=True)
+    deleted = models.DateField(blank=True, null=True)
+    tags = HStoreField()
+
+    class Meta:
+        db_table = "planet_osm_ways"
+
+
+class PlanetOsmRels(models.Model):
+    osm_id = models.BigIntegerField()
+    version = models.IntegerField()
+    tags = HStoreField()
+    timestamp = models.DateField(blank=True, null=True)
+    deleted = models.DateField(blank=True, null=True)
+    inner_members = ArrayField(ArrayField(models.CharField(max_length=256)))
+    outer_members = ArrayField(ArrayField(models.CharField(max_length=256)))
+    role = models.CharField(max_length=256)
+
+    class Meta:
+        db_table = "planet_osm_rels"
