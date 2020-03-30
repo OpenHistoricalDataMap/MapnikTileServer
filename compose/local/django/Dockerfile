@@ -1,11 +1,14 @@
-# https://hub.docker.com/_/ubuntu/
-FROM ubuntu:20.04
+# https://hub.docker.com/_/debian/
+FROM debian:bullseye-slim
 
 RUN apt-get update \
+  # install helper
+  && apt-get install -y --no-install-recommends wget unzip fontconfig gnupg \
   # install node
-  && apt-get install -y --no-install-recommends nodejs npm \
+  && apt-get install -y nodejs npm \
+  && npm i -g npm@^6 \
   # install python dependencies
-  && apt-get install -y --no-install-recommends python3 python3-pip python3-dev \
+  && apt-get install -y --no-install-recommends python3-pip python3-dev \
     python3-setuptools \
   # install mapnik-utils for openstreetmap-carto
   && apt-get install -y --no-install-recommends mapnik-utils \
@@ -15,22 +18,21 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends libpq-dev \
   # Translations dependencies
   && apt-get install -y --no-install-recommends gettext \
-  # mapnik
-  && apt-get install -y --no-install-recommends libmapnik-dev mapnik-utils \
-    python3-mapnik \
-  # fonts install helper
-  && apt-get install -y --no-install-recommends wget unzip \
   # fonts for mapnik
   && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \ 
-    ttf-unifont typecatcher \
+    ttf-unifont \
     # noto fonts
     fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \ 
-    fonts-noto-extra fonts-noto-hinted fonts-noto-mono fonts-noto-ui-core \ 
-    fonts-noto-ui-extra fonts-noto-unhinted \
+    fonts-noto-hinted fonts-noto-mono \ 
+    fonts-noto-unhinted \
+    fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra \
   # geodjango https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/geolibs/
   && apt-get install -y --no-install-recommends binutils libproj-dev gdal-bin \
   # git for downloading openstreetmap-carto
   && apt-get install -y --no-install-recommends git \
+  # mapnik
+  && apt-get install -y --no-install-recommends libmapnik-dev libmapnik3.0 mapnik-utils \
+    python3-mapnik \
   # cleaning up unused files
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
