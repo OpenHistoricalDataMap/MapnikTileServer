@@ -228,7 +228,7 @@ def run_import(file_path: str, db_cache_size: int):
     print()
     osmhandler.show_import_status()
     osmhandler.apply_file(
-        filename=file_path, locations=False, idx="dense_file_array,mapnik.nodecache",
+        filename=file_path, locations=True, idx="dense_file_array,mapnik.nodecache",
     )
     osmhandler.show_import_status()
     osmhandler.save_cache()
