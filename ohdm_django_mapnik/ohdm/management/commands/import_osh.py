@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
+
 from ohdm_django_mapnik.ohdm.import_osh import (OSMHandler, import_diff,
                                                 run_import)
 from ohdm_django_mapnik.ohdm.rel2pgsql import Rel2pgsql
@@ -16,6 +17,15 @@ class Command(BaseCommand):
             '--drop_current_data',
             action='store_true',
             help='Drop all current data.',
+        )
+
+        # osm object cache size for saving
+        parser.add_argument(
+            '--cache',
+            nargs='?',
+            type=int,
+            help="Amount of object witch will be saved into Database at once!",
+            default=10000000
         )
 
         # path to the planet file
@@ -42,14 +52,14 @@ class Command(BaseCommand):
                 print("Planet file does not exists!")
                 exit(1)
             print("Start planet import!")
-            run_import(file_path=options['planet'])
+            run_import(file_path=options['planet'], db_cache_size=options['cache'])
 
         if options['diffs']:
             if not Path(options['diffs']).is_dir():
                 print("Diff folder does not exists!")
                 exit(1)
             print("Start diff import!")
-            import_diff(diff_folder=options['diffs'])
+            import_diff(diff_folder=options['diffs'], db_cache_size=options['cache'])
 
         # drop all old data
         if options['rel2pgsql']:

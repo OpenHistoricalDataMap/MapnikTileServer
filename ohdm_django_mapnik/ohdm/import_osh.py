@@ -24,7 +24,7 @@ from .models import (DiffImportFiles, PlanetOsmLine, PlanetOsmNodes,
 
 
 class OSMHandler(SimpleHandler):
-    def __init__(self):
+    def __init__(self, db_cache_size: int):
         SimpleHandler.__init__(self)
 
         # A global factory that creates WKB from a osmium geometry
@@ -37,6 +37,8 @@ class OSMHandler(SimpleHandler):
         self.node_counter: int = 0
         self.way_counter: int = 0
         self.rel_counter: int = 0
+
+        self.db_cache_size: int = db_cache_size
 
         print("starting import ...")
 
@@ -55,7 +57,7 @@ class OSMHandler(SimpleHandler):
         )  # delete last terminal output
 
     def check_cache_save(self):
-        if (self.node_counter + self.way_counter + self.rel_counter) % 100000 == 0:
+        if (self.node_counter + self.way_counter + self.rel_counter) % self.db_cache_size == 0:
             self.save_cache()
 
     def count_node(self):
@@ -211,17 +213,17 @@ class OSMHandler(SimpleHandler):
 
         self.count_rel()
 
-def import_diff(diff_folder: str):
+def import_diff(diff_folder: str, db_cache_size: int):
     diff_files: List[str] = glob.glob("{}[0-9][0-9][0-9]/[0-9][0-9][0-9]/[0-9][0-9][0-9].osc.gz".format(diff_folder))
     diff_files.sort()
 
     for diff in diff_files:
         if not DiffImportFiles.objects.filter(file_name=diff[-18:]).exists():
-            run_import(file_path=diff)
+            run_import(file_path=diff, db_cache_size=db_cache_size)
             DiffImportFiles.objects.create(file_name=diff[-18:])
 
-def run_import(file_path: str):
-    osmhandler = OSMHandler()
+def run_import(file_path: str, db_cache_size: int):
+    osmhandler = OSMHandler(db_cache_size=db_cache_size)
     print("import {}".format(file_path))
     print()
     osmhandler.show_import_status()
@@ -230,3 +232,4 @@ def run_import(file_path: str):
     )
     osmhandler.show_import_status()
     osmhandler.save_cache()
+    print("import done!")
