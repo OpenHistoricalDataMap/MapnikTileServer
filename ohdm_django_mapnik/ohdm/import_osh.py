@@ -1,3 +1,4 @@
+import glob
 from datetime import datetime, timedelta
 from subprocess import call
 from time import sleep
@@ -12,32 +13,14 @@ from django.core.cache import cache
 from osmium import SimpleHandler
 from osmium._osmium import InvalidLocationError
 from osmium.geom import WKTFactory
-from osmium.osm._osm import (
-    Area,
-    Changeset,
-    Location,
-    Node,
-    NodeRef,
-    Relation,
-    RelationMember,
-    RelationMemberList,
-    Tag,
-    TagList,
-    Way,
-    WayNodeList,
-)
+from osmium.osm._osm import (Area, Changeset, Location, Node, NodeRef,
+                             Relation, RelationMember, RelationMemberList, Tag,
+                             TagList, Way, WayNodeList)
 from osmium.replication.server import ReplicationServer
 
-from .models import (
-    PlanetOsmLine,
-    PlanetOsmNodes,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRels,
-    PlanetOsmRoads,
-    PlanetOsmWays,
-    TileCache,
-)
+from .models import (DiffImportFiles, PlanetOsmLine, PlanetOsmNodes,
+                     PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRels,
+                     PlanetOsmRoads, PlanetOsmWays, TileCache)
 
 
 class OSMHandler(SimpleHandler):
@@ -72,7 +55,7 @@ class OSMHandler(SimpleHandler):
         )  # delete last terminal output
 
     def check_cache_save(self):
-        if (self.node_counter + self.way_counter + self.rel_counter) % 10000000 == 0:
+        if (self.node_counter + self.way_counter + self.rel_counter) % 100000 == 0:
             self.save_cache()
 
     def count_node(self):
@@ -93,10 +76,12 @@ class OSMHandler(SimpleHandler):
 
         self.show_import_status()
 
-    def drop_planet_tables(self):
+    @staticmethod
+    def drop_planet_tables():
         """
         Drop all data from mapnik tables and tile cache
         """
+        print("drop data")
         PlanetOsmLine.objects.all().delete()
         PlanetOsmPoint.objects.all().delete()
         PlanetOsmPolygon.objects.all().delete()
@@ -106,6 +91,8 @@ class OSMHandler(SimpleHandler):
         PlanetOsmNodes.objects.all().delete()
         PlanetOsmRels.objects.all().delete()
         PlanetOsmWays.objects.all().delete()
+
+        DiffImportFiles.objects.all().delete()
 
     def save_cache(self):
         print("saving cache ...")
@@ -127,34 +114,58 @@ class OSMHandler(SimpleHandler):
         return tag_dict
 
     def node(self, node: Node):
+        # node_db: PlanetOsmNodes = PlanetOsmNodes(
+        #     osm_id=node.id, version=node.version,
+        # )
+
+        # if node.deleted:
+        #     node_db.delete = node.timestamp
+        # else:
+        #     node_db.timestamp = node.timestamp
+        #     node_db.point = Point(node.location.lat, node.location.lon)
+        #     node_db.tags = self.tags2dict(tags=node.tags)
+
         node_db: PlanetOsmNodes = PlanetOsmNodes(
-            osm_id=node.id, version=node.version,
+            osm_id=node.id, 
+            version=node.version,
+            visible=node.visible,
+            timestamp=node.timestamp,
+            tags=self.tags2dict(tags=node.tags)
         )
 
-        if node.deleted:
-            node_db.delete = node.timestamp
-        else:
-            node_db.timestamp = node.timestamp
+        if node.location.valid():
             node_db.point = Point(node.location.lat, node.location.lon)
-            node_db.tags = self.tags2dict(tags=node.tags)
 
         self.node_cache.append(node_db)
 
         self.count_node()
 
     def way(self, way: Way):
-        way_db: PlanetOsmWays = PlanetOsmWays(
-            osm_id=way.id, version=way.version,
-        )
+        # way_db: PlanetOsmWays = PlanetOsmWays(
+        #     osm_id=way.id, version=way.version,
+        # )
 
-        if way.deleted:
-            way_db.delete = way.timestamp
-        else:
-            way_db.timestamp = way.timestamp
-            way_db.tags = self.tags2dict(tags=way.tags)
-            way_db.way = GEOSGeometry(
-                self.wkt_fab.create_linestring(way), srid=self.wkt_fab.epsg
-            )
+        # if way.deleted:
+        #     way_db.delete = way.timestamp
+        # else:
+        #     way_db.timestamp = way.timestamp
+        #     way_db.tags = self.tags2dict(tags=way.tags)
+        #     way_db.way = GEOSGeometry(
+        #         self.wkt_fab.create_linestring(way), srid=self.wkt_fab.epsg
+        #     )
+
+        modes: List[int] = []
+        for node in way.nodes:
+            modes.append(node.ref)
+
+        way_db: PlanetOsmWays = PlanetOsmWays(
+            osm_id=way.id, 
+            version=way.version,
+            visible=way.visible,
+            timestamp=way.timestamp,
+            tags=self.tags2dict(tags=way.tags),
+            nodes=modes
+        )
 
         self.way_cache.append(way_db)
 
@@ -172,32 +183,50 @@ class OSMHandler(SimpleHandler):
                 if member.role == "outer":
                     outer_members.append(member.ref)
 
-        rel_db: PlanetOsmRels = PlanetOsmRels(
-            osm_id=rel.id, version=rel.version,
-        )
+        # rel_db: PlanetOsmRels = PlanetOsmRels(
+        #     osm_id=rel.id, version=rel.version,
+        # )
 
-        if rel.deleted:
-            rel_db.delete = rel.timestamp
-        else:
-            rel_db.timestamp = rel.timestamp
-            rel_db.tags = self.tags2dict(tags=rel.tags)
-            rel_db.role = rel.role
-            rel_db.inner_members = inner_members
-            rel_db.outer_members = outer_members
+        # if rel.deleted:
+        #     rel_db.delete = rel.timestamp
+        # else:
+        #     rel_db.timestamp = rel.timestamp
+        #     rel_db.tags = self.tags2dict(tags=rel.tags)
+        #     rel_db.role = rel.role
+        #     rel_db.inner_members = inner_members
+        #     rel_db.outer_members = outer_members
+
+        rel_db: PlanetOsmRels = PlanetOsmRels(
+            osm_id=rel.id,
+            version=rel.version,
+            visible=rel.visible,
+            timestamp=rel.timestamp,
+            tags=self.tags2dict(tags=rel.tags),
+            role=rel.role,
+            inner_members=inner_members,
+            outer_members=outer_members
+        )
 
         self.rel_cache.append(rel_db)
 
         self.count_rel()
 
+def import_diff(diff_folder: str):
+    diff_files: List[str] = glob.glob("{}[0-9][0-9][0-9]/[0-9][0-9][0-9]/[0-9][0-9][0-9].osc.gz".format(diff_folder))
+    diff_files.sort()
 
-def run_import():
+    for diff in diff_files:
+        if not DiffImportFiles.objects.filter(file_name=diff[-18:]).exists():
+            run_import(file_path=diff)
+            DiffImportFiles.objects.create(file_name=diff[-18:])
+
+def run_import(file_path: str):
     osmhandler = OSMHandler()
-    osmhandler.drop_planet_tables()
-
+    print("import {}".format(file_path))
+    print()
     osmhandler.show_import_status()
     osmhandler.apply_file(
-        filename="/app/planet-120912.osm.bz2", locations=True, idx="flex_mem",
+        filename=file_path, locations=False, idx="dense_file_array,mapnik.nodecache",
     )
-
     osmhandler.show_import_status()
     osmhandler.save_cache()

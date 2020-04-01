@@ -433,10 +433,11 @@ class PlanetOsmRoads(models.Model):
 class PlanetOsmNodes(models.Model):
     osm_id = models.BigIntegerField()
     version = models.IntegerField()
-    point = models.PointField(srid=3857)
+    visible = models.BooleanField()
+    point = models.PointField(srid=3857, blank=True, null=True)
     timestamp = models.DateField(blank=True, null=True)
     deleted = models.DateField(blank=True, null=True)
-    tags = HStoreField()
+    tags = HStoreField(blank=True, null=True)
 
     class Meta:
         db_table = "planet_osm_nodes"
@@ -445,10 +446,12 @@ class PlanetOsmNodes(models.Model):
 class PlanetOsmWays(models.Model):
     osm_id = models.BigIntegerField()
     version = models.IntegerField()
-    way = models.LineStringField(srid=3857)
+    visible = models.BooleanField()
+    nodes = ArrayField(ArrayField(models.IntegerField()), blank=True, null=True)
+    way = models.LineStringField(srid=3857, blank=True, null=True)
     timestamp = models.DateField(blank=True, null=True)
     deleted = models.DateField(blank=True, null=True)
-    tags = HStoreField()
+    tags = HStoreField(blank=True, null=True)
 
     class Meta:
         db_table = "planet_osm_ways"
@@ -457,12 +460,17 @@ class PlanetOsmWays(models.Model):
 class PlanetOsmRels(models.Model):
     osm_id = models.BigIntegerField()
     version = models.IntegerField()
-    tags = HStoreField()
+    visible = models.BooleanField()
+    tags = HStoreField(blank=True, null=True)
     timestamp = models.DateField(blank=True, null=True)
     deleted = models.DateField(blank=True, null=True)
-    inner_members = ArrayField(ArrayField(models.CharField(max_length=256)))
-    outer_members = ArrayField(ArrayField(models.CharField(max_length=256)))
-    role = models.CharField(max_length=256)
+    inner_members = ArrayField(ArrayField(models.CharField(max_length=256)), blank=True, null=True)
+    outer_members = ArrayField(ArrayField(models.CharField(max_length=256)), blank=True, null=True)
+    role = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:
         db_table = "planet_osm_rels"
+
+class DiffImportFiles(models.Model):
+    imported = models.DateField(auto_now=True)
+    file_name = models.CharField(max_length=256)
