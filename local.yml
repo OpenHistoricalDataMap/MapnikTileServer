@@ -17,6 +17,7 @@ services:
     volumes:
       - .:/app
       - ../openstreetmap-carto:/opt/openstreetmap-carto
+      - ../osm-files:/osm-files
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
