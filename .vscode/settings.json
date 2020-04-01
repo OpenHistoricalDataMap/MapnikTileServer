@@ -25,24 +25,12 @@
     "baterson.copy-django-model-fields",
     "streetsidesoftware.code-spell-checker"
   ],
-  "editor.rulers": [
-    80,
-    120
-  ],
-  "todo-tree.general.tags": [
-    "TODO",
-    "FIXME",
-    "todo",
-    "ToDo",
-    "fixme",
-    "FixMe"
-  ],
+  "editor.rulers": [80, 120],
+  "todo-tree.general.tags": ["TODO", "FIXME", "todo", "ToDo", "fixme", "FixMe"],
   "python.formatting.provider": "black",
   "python.jediEnabled": false,
   "python.linting.pylintEnabled": true,
-  "python.linting.pylintArgs": [
-    "--enable=W0614"
-  ],
+  "python.linting.pylintArgs": ["--enable=W0614"],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
@@ -74,6 +62,6 @@
     "**/.git/subtree-cache/**": true,
     "**/node_modules/*/**": true,
     "**/venv/**": true,
-    "**/__pycache__/**": true,
+    "**/__pycache__/**": true
   }
 }
