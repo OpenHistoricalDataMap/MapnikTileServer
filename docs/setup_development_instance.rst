@@ -49,6 +49,8 @@ Tested server hoster
 +-------------------------------------------------------------------+--------------------------+
 | `Hetzner Cloud <https://www.hetzner.com/cloud>`_                  | Works fine               |
 +-------------------------------------------------------------------+--------------------------+
+| `Netcup.de <https://netcup.de>`_                                  | Works fine               |
++-------------------------------------------------------------------+--------------------------+
 
 Setup server
 ^^^^^^^^^^^^
@@ -92,7 +94,7 @@ After changing the file, reload the ``SSH`` service::
     $ sudo /etc/init.d/ssh reload
 
 Setup firewall with ``ufw``, for a detail instruction go to
-`Ubuntu Wiki firewall <https://help.ubuntu.com/lts/serverguide/firewall.html>`_
+`Ubuntu Wiki firewall <https://help.ubuntu.com/lts/serverguide/firewall.html>`_ ::
 
     $ sudo apt-get install ufw
     $ sudo ufw allow ssh
