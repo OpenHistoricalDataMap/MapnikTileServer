@@ -20,7 +20,7 @@ docker support, it is design to work out of the box with Docker.
 
 The current version of this project based on a fork of [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/).
 
-# Features
+## Features
 
 - work out of the box, no special configuration is need
 - work Linux, MacOS, BSD & also should work Windows (Windows not tested), just need Docker & Docker-Compose to work
@@ -32,9 +32,9 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 - generate development database from osm
 - include [sentry.io](https://sentry.io/) in production for error tracking
 
-# Dependencies
+## Dependencies
 
-## Tile Server
+### Tile Server
 
 - a custom fork of [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/) for tile styles and SQL
 - [https://mapnik.org/](https://mapnik.org/)
@@ -42,13 +42,13 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 - tile rendering code by [wiki.openstreetmap.org](https://wiki.openstreetmap.org/wiki/Howto_real_time_tiles_rendering_with_mapnik_and_mod_python)
 - Project boilerplate by [cookiecutter-django](https://github.com/pydanny/cookiecutter-django/)
 
-## Front-End
+### Front-End
 
 - [Bootstrap 4](https://getbootstrap.com/) Theme by [bootswatch.com](https://bootswatch.com/minty/)
 - [Leaflet](https://leafletjs.com/) for map view
 - [Bootstrap Datepicker](https://github.com/uxsolutions/bootstrap-datepicker)
 
-# Roadmap
+## Roadmap
 
 - integrate complete test of tile producer, website & [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/)
 - a headless server, separate front-end from the back-end maybe with [Ionic](https://ionicframework.com/) and [OpenLayers](https://openlayers.org/)
@@ -57,12 +57,12 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 - update code `ohdm_django_mapnik/ohdm/tile.py` to render tile without using deprecated functions like Envelope
 - scale redis cache
 
-# minimum server requirements for developing
+## minimum server requirements for developing
 
 - 3 GB of RAM
 - 30 GB of free disk space
 
-# Project Structure
+## Project Structure
 
 ```
 OHDM MapnikTileServer
@@ -122,7 +122,7 @@ OHDM MapnikTileServer
 │   │   production.txt                           # requirements for productions
 ```
 
-## URL Structure
+### URL Structure
 
 URL's are setup in `config/urls.py` and `ohdm_django_mapnik/ohdm/urls.py`.
 
@@ -141,9 +141,9 @@ URL's are setup in `config/urls.py` and `ohdm_django_mapnik/ohdm/urls.py`.
 
 Tile example link (in Berlin): http://example.com/tile/2010/02/16/13/4398/2685/tile.png
 
-# Setup
+## Setup
 
-## Install Docker & Docker-Compose
+### Install Docker & Docker-Compose
 
 For installing Docker just follow the instructions on [Docker Docs](https://docs.docker.com/install/)
 
@@ -153,7 +153,7 @@ To install Docker-Compose use `pip`
 $ sudo pip install docker-compose
 ```
 
-## Setup Development Server
+### Setup Development Server
 
 **1. download sourcecode**
 
@@ -233,7 +233,7 @@ For more infos got to https://cookiecutter-django.readthedocs.io/en/latest/devel
 $ docker-compose -f local.yml stop
 ```
 
-## Setup Production Server
+### Setup Production Server
 
 Please read also the doc on [cookiecutter-django](https://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html)
 for more details.
@@ -383,7 +383,7 @@ to read how to back up the database.
 $ docker-compose -f production.yml stop
 ```
 
-## Scale-Up for production
+### Scale-Up for production
 
 A tile server need a lot of resources and a big database. So for a better performance use a beefy server or use docker
 swarm / kubernetes for scaling.
@@ -397,7 +397,7 @@ $ docker-compose -f production.yml scale celeryworker=2
 
 Don’t try to scale `postgres`, `celerybeat`, or `traefik`!
 
-# Testing
+## Testing
 
 To read how to run test go to [cookiecutter-django](https://cookiecutter-django.readthedocs.io/en/latest/testing.html)
 
@@ -405,7 +405,7 @@ Or for running test manual use `docker-compose -f local.yml run django pytest`
 
 Also the project include a working travis test.
 
-# Docs
+## Docs
 
 To create the docs use:
 
