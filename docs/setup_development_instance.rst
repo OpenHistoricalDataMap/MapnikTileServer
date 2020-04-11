@@ -97,6 +97,7 @@ Setup firewall with ``ufw``, for a detail instruction go to
 `Ubuntu Wiki firewall <https://help.ubuntu.com/lts/serverguide/firewall.html>`_ ::
 
     $ sudo apt-get install ufw
+    $ sudo ufw default allow    
     $ sudo ufw allow ssh
     $ sudo ufw allow 22
     $ sudo ufw deny 4243
