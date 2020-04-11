@@ -1,26 +1,14 @@
-import glob
-from datetime import datetime, timedelta
-from subprocess import call
-from time import sleep
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List
 
-import shapely.wkb as wkblib
-from django.contrib.gis.gdal import CoordTransform, SpatialReference
-from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
-from django.contrib.gis.geos.point import Point
-from django.core.cache import cache
 from osmium import SimpleHandler
 from osmium._osmium import InvalidLocationError
 from osmium.geom import WKTFactory
-from osmium.osm._osm import (Area, Changeset, Location, Node, NodeRef,
-                             Relation, RelationMember, RelationMemberList, Tag,
-                             TagList, Way, WayNodeList)
-from osmium.replication.server import ReplicationServer
+from osmium.osm._osm import Node, Relation, Tag, TagList, Way
 
-from .models import (DiffImportFiles, PlanetOsmLine, PlanetOsmNodes,
-                     PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRels,
-                     PlanetOsmRoads, PlanetOsmWays, TileCache)
+from .models import PlanetOsmNodes, PlanetOsmRels, PlanetOsmWays
+from .tags2mapnik import cleanup_tags
+from .utily import delete_last_terminal_line
 
 
 class OSMHandler(SimpleHandler):
@@ -43,192 +31,195 @@ class OSMHandler(SimpleHandler):
         print("starting import ...")
 
     def show_import_status(self):
+        """
+        Show import status for every 10000 objects
+        """
         if (self.node_counter + self.way_counter + self.rel_counter) % 10000 == 0:
-            self.delete_last_terminal_line()
+            delete_last_terminal_line()
             print(
                 "Nodes: {} | Ways: {} | Rel: {}".format(
                     self.node_counter, self.way_counter, self.rel_counter
                 )
             )
 
-    def delete_last_terminal_line(self):
-        print(
-            "\033[A                                   \033[A"
-        )  # delete last terminal output
-
     def check_cache_save(self):
-        if (self.node_counter + self.way_counter + self.rel_counter) % self.db_cache_size == 0:
+        """
+        Check if chuck_size is succeed & save cached geo-objects
+        """
+        if (
+            self.node_counter + self.way_counter + self.rel_counter
+        ) % self.db_cache_size == 0:
             self.save_cache()
 
     def count_node(self):
+        """
+        Count Node, check for save cache & show import status
+        """
         self.node_counter += 1
         self.check_cache_save()
 
         self.show_import_status()
 
     def count_way(self):
+        """
+        Count Way, check for save cache & show import status
+        """
         self.way_counter += 1
         self.check_cache_save()
 
         self.show_import_status()
 
     def count_rel(self):
+        """
+        Count Relation, check for save cache & show import status
+        """
         self.rel_counter += 1
         self.check_cache_save()
 
         self.show_import_status()
 
-    @staticmethod
-    def drop_planet_tables():
-        """
-        Drop all data from mapnik tables and tile cache
-        """
-        print("drop data")
-        PlanetOsmLine.objects.all().delete()
-        PlanetOsmPoint.objects.all().delete()
-        PlanetOsmPolygon.objects.all().delete()
-        PlanetOsmRoads.objects.all().delete()
-        TileCache.objects.all().delete()
-
-        PlanetOsmNodes.objects.all().delete()
-        PlanetOsmRels.objects.all().delete()
-        PlanetOsmWays.objects.all().delete()
-
-        DiffImportFiles.objects.all().delete()
-
     def save_cache(self):
+        """
+        Save cached geo-objects into database & clear cache
+        """
         print("saving cache ...")
-        PlanetOsmNodes.objects.bulk_create(self.node_cache)
-        PlanetOsmWays.objects.bulk_create(self.way_cache)
-        PlanetOsmRels.objects.bulk_create(self.rel_cache)
-        self.delete_last_terminal_line()
+        if self.node_cache:
+            PlanetOsmNodes.objects.bulk_create(self.node_cache)
+            self.node_cache.clear()
+        if self.way_cache:
+            PlanetOsmWays.objects.bulk_create(self.way_cache)
+            self.way_cache.clear()
+        if self.rel_cache:
+            PlanetOsmRels.objects.bulk_create(self.rel_cache)
+            self.rel_cache.clear()
 
-        self.node_cache.clear()
-        self.way_cache.clear()
-        self.rel_cache.clear()
+        delete_last_terminal_line()
 
     def tags2dict(self, tags: TagList) -> dict:
+        """
+        Convert osmium TagList into python dict
+        
+        Arguments:
+            tags {TagList} -- osmium TagList for a geo-object
+        
+        Returns:
+            dict -- tags in a python dict
+        """
         tag_dict: dict = {}
 
         for tag in tags:
             tag_dict[tag.k] = tag.v
 
-        return tag_dict
+        return cleanup_tags(tags=tag_dict)
 
     def node(self, node: Node):
-        # node_db: PlanetOsmNodes = PlanetOsmNodes(
-        #     osm_id=node.id, version=node.version,
-        # )
-
-        # if node.deleted:
-        #     node_db.delete = node.timestamp
-        # else:
-        #     node_db.timestamp = node.timestamp
-        #     node_db.point = Point(node.location.lat, node.location.lon)
-        #     node_db.tags = self.tags2dict(tags=node.tags)
-
+        """
+        Import OSM node into database as node
+        
+        Arguments:
+            node {Node} -- osmium node object
+        """
         node_db: PlanetOsmNodes = PlanetOsmNodes(
-            osm_id=node.id, 
+            osm_id=node.id,
             version=node.version,
             visible=node.visible,
             timestamp=node.timestamp,
-            tags=self.tags2dict(tags=node.tags)
         )
 
         if node.location.valid():
-            node_db.point = Point(node.location.lat, node.location.lon)
+            node_db.point = GEOSGeometry(
+                self.wkt_fab.create_point(node), srid=self.wkt_fab.epsg
+            )
+            node_db.tags = self.tags2dict(tags=node.tags)
 
         self.node_cache.append(node_db)
 
         self.count_node()
 
     def way(self, way: Way):
-        # way_db: PlanetOsmWays = PlanetOsmWays(
-        #     osm_id=way.id, version=way.version,
-        # )
-
-        # if way.deleted:
-        #     way_db.delete = way.timestamp
-        # else:
-        #     way_db.timestamp = way.timestamp
-        #     way_db.tags = self.tags2dict(tags=way.tags)
-        #     way_db.way = GEOSGeometry(
-        #         self.wkt_fab.create_linestring(way), srid=self.wkt_fab.epsg
-        #     )
-
+        """
+        Import OSM way into database as way
+        
+        Arguments:
+            way {Way} -- osmium way object
+        """
         modes: List[int] = []
         for node in way.nodes:
             modes.append(node.ref)
 
         way_db: PlanetOsmWays = PlanetOsmWays(
-            osm_id=way.id, 
+            osm_id=way.id,
             version=way.version,
             visible=way.visible,
             timestamp=way.timestamp,
-            tags=self.tags2dict(tags=way.tags),
-            nodes=modes
         )
+
+        try:
+            way_db.way = GEOSGeometry(
+                self.wkt_fab.create_linestring(way), srid=self.wkt_fab.epsg
+            )
+            way_db.tags = (self.tags2dict(tags=way.tags),)
+        except (RuntimeError, InvalidLocationError):
+            pass
 
         self.way_cache.append(way_db)
 
         self.count_way()
 
     def relation(self, rel: Relation):
-        # if rel.tags.get("type") == "multipolygon" or rel.tags.get("type") == "border":
-
-        inner_members: List[str] = []
-        outer_members: List[str] = []
-        for member in rel.members:
-            if member.type == "w":
-                if member.role == "inner":
-                    inner_members.append(member.ref)
-                if member.role == "outer":
-                    outer_members.append(member.ref)
-
-        # rel_db: PlanetOsmRels = PlanetOsmRels(
-        #     osm_id=rel.id, version=rel.version,
-        # )
-
-        # if rel.deleted:
-        #     rel_db.delete = rel.timestamp
-        # else:
-        #     rel_db.timestamp = rel.timestamp
-        #     rel_db.tags = self.tags2dict(tags=rel.tags)
-        #     rel_db.role = rel.role
-        #     rel_db.inner_members = inner_members
-        #     rel_db.outer_members = outer_members
+        """
+        Import OSM relation into database as relation
+        
+        Arguments:
+            rel {Relation} -- osmium relation object
+        """
 
         rel_db: PlanetOsmRels = PlanetOsmRels(
             osm_id=rel.id,
             version=rel.version,
             visible=rel.visible,
             timestamp=rel.timestamp,
-            tags=self.tags2dict(tags=rel.tags),
-            role=rel.role,
-            inner_members=inner_members,
-            outer_members=outer_members
+            rel_type=rel.tags.get("type"),
         )
+
+        if rel.visible:
+            rel_db.tags = self.tags2dict(tags=rel.tags)
+            inner_members: List[str] = []
+            outer_members: List[str] = []
+            for member in rel.members:
+                if not member.type == "w":
+                    continue
+                if member.role == "inner":
+                    inner_members.append(member.ref)
+                if member.role == "outer":
+                    outer_members.append(member.ref)
+            rel_db.inner_members = inner_members
+            rel_db.outer_members = outer_members
 
         self.rel_cache.append(rel_db)
 
         self.count_rel()
 
-def import_diff(diff_folder: str, db_cache_size: int):
-    diff_files: List[str] = glob.glob("{}[0-9][0-9][0-9]/[0-9][0-9][0-9]/[0-9][0-9][0-9].osc.gz".format(diff_folder))
-    diff_files.sort()
 
-    for diff in diff_files:
-        if not DiffImportFiles.objects.filter(file_name=diff[-18:]).exists():
-            run_import(file_path=diff, db_cache_size=db_cache_size)
-            DiffImportFiles.objects.create(file_name=diff[-18:])
-
-def run_import(file_path: str, db_cache_size: int):
+def run_import(file_path: str, db_cache_size: int, cache2file: bool):
+    """
+    start import of a osh (OpenStreetMap history file) into relation tables
+    
+    Arguments:
+        file_path {str} -- path to a osh file
+        db_cache_size {int} -- chunk size for import
+    """
     osmhandler = OSMHandler(db_cache_size=db_cache_size)
     print("import {}".format(file_path))
     print()
     osmhandler.show_import_status()
+
+    cache_system: str = "flex_mem"
+    if cache2file:
+        cache_system = "dense_file_array,osmium.nodecache"
+
     osmhandler.apply_file(
-        filename=file_path, locations=True, idx="dense_file_array,mapnik.nodecache",
+        filename=file_path, locations=True, idx=cache_system,
     )
     osmhandler.show_import_status()
     osmhandler.save_cache()

@@ -337,3 +337,6 @@ ohdm_django_mapnik/media/
 *style.mml
 *project.xml
 *style.xml
+
+# psmium 
+osmium.nodecache
