@@ -96,10 +96,6 @@ The code of the converter is mostly in `ohdm2mapnik.py
 Usage
 -----
 
-.. note::
-    Right now there is not possible params, but there will be in future. So
-    check the page page in the near future for more options 🤓
-
 For production instance use ::
 
     $ docker-compose -f production.yml run --rm django python manage.py ohdm2mapnik
@@ -107,6 +103,20 @@ For production instance use ::
 For local instance use ::
 
     $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik
+
+To clear the mapnik tables befor import, use ``--clear_mapnik_db`::
+
+Optional parameters
+...................
+
+To clear the mapnik tables befor import, use ``--clear_mapnik_db`.::
+
+    $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik --clear_mapnik_db
+
+To set the cache size ``--cache 100000``, the size how many entries will be saved in RAM bevor adding
+them to the database, default value is ``100000``.::
+
+    $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik --cache 100000
 
 .. hint::
     To reset just the mapnik tables (``planet_osm_*``) use 
