@@ -4,10 +4,8 @@ import pytest
 from django.core.cache import cache
 
 from ohdm_django_mapnik.ohdm.models import TileCache
-from ohdm_django_mapnik.ohdm.tests.factories import (
-    FinishTileCacheFactory,
-    RunningTileCacheFactory,
-)
+from ohdm_django_mapnik.ohdm.tests.factories import (FinishTileCacheFactory,
+                                                     RunningTileCacheFactory)
 
 
 @pytest.mark.django_db()

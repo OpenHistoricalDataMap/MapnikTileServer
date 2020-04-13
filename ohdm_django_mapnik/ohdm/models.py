@@ -165,8 +165,8 @@ class OhdmGeoobjectWay(models.Model):
     valid_until = models.DateField()
     way = models.TextField()
 
-    class Meta:
-        managed = False
+    # class Meta:
+    #     managed = False
 
     class GEOMETRY_TYPE:
         POINT = "point"
@@ -235,7 +235,7 @@ class PlanetOsmRoads(models.Model):
     waterway = models.TextField(blank=True, null=True)
     way_area = models.FloatField(blank=True, null=True)
     z_order = models.IntegerField(blank=True, null=True)
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
     way = models.LineStringField(srid=3857, blank=True, null=True)
     valid_since = models.DateField(blank=True, null=True)
     valid_until = models.DateField(blank=True, null=True)
@@ -349,7 +349,7 @@ class PlanetOsmLine(models.Model):
     waterway = models.TextField(blank=True, null=True)
     way_area = models.FloatField(blank=True, null=True)
     z_order = models.IntegerField(blank=True, null=True)
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
     way = models.LineStringField(srid=3857, blank=True, null=True)
     valid_since = models.DateField(blank=True, null=True)
     valid_until = models.DateField(blank=True, null=True)
@@ -492,7 +492,7 @@ class PlanetOsmPoint(models.Model):
     tourism = models.TextField(blank=True, null=True)
     water = models.TextField(blank=True, null=True)
     waterway = models.TextField(blank=True, null=True)
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
     way = models.PointField(srid=3857, blank=True, null=True)
     valid_since = models.DateField(blank=True, null=True)
     valid_until = models.DateField(blank=True, null=True)
@@ -606,7 +606,7 @@ class PlanetOsmPolygon(models.Model):
     waterway = models.TextField(blank=True, null=True)
     way_area = models.FloatField(blank=True, null=True)
     z_order = models.IntegerField(blank=True, null=True)
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
     way = models.GeometryField(srid=3857, blank=True, null=True)
     valid_since = models.DateField(blank=True, null=True)
     valid_until = models.DateField(blank=True, null=True)
@@ -622,7 +622,7 @@ class PlanetOsmNodes(models.Model):
     visible = models.BooleanField()
     point = models.PointField(srid=3857, blank=True, null=True)
     timestamp = models.DateField(blank=True, null=True)
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
 
     class Meta:
         db_table = "planet_osm_nodes"
@@ -635,7 +635,7 @@ class PlanetOsmWays(models.Model):
     visible = models.BooleanField()
     way = models.LineStringField(srid=3857, blank=True, null=True)
     timestamp = models.DateField(blank=True, null=True)
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
 
     class Meta:
         db_table = "planet_osm_ways"
@@ -646,7 +646,7 @@ class PlanetOsmRels(models.Model):
     osm_id = models.BigIntegerField()
     version = models.IntegerField()
     visible = models.BooleanField()
-    tags = HStoreField(blank=True, null=True)
+    tags = HStoreField(default=dict)
     timestamp = models.DateField(blank=True, null=True)
     inner_members = ArrayField(models.BigIntegerField(), blank=True, null=True)
     outer_members = ArrayField(models.BigIntegerField(), blank=True, null=True)
@@ -656,6 +656,58 @@ class PlanetOsmRels(models.Model):
         db_table = "planet_osm_rels"
 
 
-class DiffImportFiles(models.Model):
-    imported = models.DateField(auto_now=True)
-    file_name = models.CharField(max_length=256)
+class Points(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    point = models.GeometryField(srid=0, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'points'
+
+class Lines(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    line = models.GeometryField(srid=0, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'lines'
+
+class Polygons(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    polygon = models.GeometryField(srid=0, blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'polygons'
+class GeoobjectGeometry(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    id_target = models.BigIntegerField(blank=True, null=True)
+    type_target = models.IntegerField(blank=True, null=True)
+    id_geoobject_source = models.BigIntegerField()
+    role = models.CharField(max_length=255, blank=True, null=True)
+    classification_id = models.BigIntegerField()
+    tags = models.TextField(blank=True, null=True)  # This field type is a guess.
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    valid_since_offset = models.BigIntegerField(blank=True, null=True)
+    valid_until_offset = models.BigIntegerField(blank=True, null=True)
+    source_user_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'geoobject_geometry'
+
+class Geoobject(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    source_user_id = models.BigIntegerField()
+
+    class Meta:
+        db_table = 'geoobject'
+
+class Classification(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    class_field = models.CharField(db_column='class', max_length=255, blank=True, null=True)  # Field renamed because it was a Python reserved word.
+    subclassname = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        db_table = 'classification'
