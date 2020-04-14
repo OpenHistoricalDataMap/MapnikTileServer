@@ -37,6 +37,9 @@ RUN apt-get update \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
 
+# download osm test area -> https://www.openstreetmap.org/#map=17/53.07300/8.80780
+RUN wget 'https://www.openstreetmap.org/api/0.6/map?bbox=8.80616%2C53.07173%2C8.81218%2C53.07477' --output-document '/map.osm'
+
 # install fonts that are not included in the repo
 # https://www.google.com/get/noto/
 RUN mkdir /opt/noto-fonts \

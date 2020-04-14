@@ -6,14 +6,25 @@ from typing import Any, List
 from django.db import connections
 
 from config.settings.base import env
-from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
-                                                   set_polygon_way_area)
-from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
-                                                 get_z_order, is_road)
+from ohdm_django_mapnik.ohdm.postgis_utily import (
+    make_polygon_valid,
+    set_polygon_way_area,
+)
+from ohdm_django_mapnik.ohdm.tags2mapnik import (
+    cleanup_tags,
+    fill_osm_object,
+    get_z_order,
+    is_road,
+)
 from ohdm_django_mapnik.ohdm.utily import delete_last_terminal_line
 
-from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
-                     PlanetOsmPolygon, PlanetOsmRoads)
+from .models import (
+    OhdmGeoobjectWay,
+    PlanetOsmLine,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRoads,
+)
 
 
 class Ohdm2Mapnik:

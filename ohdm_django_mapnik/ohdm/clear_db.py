@@ -1,5 +1,4 @@
 from .models import (
-    DiffImportFiles,
     PlanetOsmLine,
     PlanetOsmNodes,
     PlanetOsmPoint,
@@ -19,8 +18,6 @@ def clear_rel_tables():
     PlanetOsmNodes.objects.all().delete()
     PlanetOsmRels.objects.all().delete()
     PlanetOsmWays.objects.all().delete()
-
-    DiffImportFiles.objects.all().delete()
 
 
 def clear_mapnik_tables():

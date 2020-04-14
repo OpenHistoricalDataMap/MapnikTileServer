@@ -662,7 +662,8 @@ class Points(models.Model):
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        db_table = 'points'
+        db_table = "points"
+
 
 class Lines(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -670,7 +671,8 @@ class Lines(models.Model):
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        db_table = 'lines'
+        db_table = "lines"
+
 
 class Polygons(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -678,7 +680,9 @@ class Polygons(models.Model):
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        db_table = 'polygons'
+        db_table = "polygons"
+
+
 class GeoobjectGeometry(models.Model):
     id = models.BigAutoField(primary_key=True)
     id_target = models.BigIntegerField(blank=True, null=True)
@@ -694,7 +698,8 @@ class GeoobjectGeometry(models.Model):
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        db_table = 'geoobject_geometry'
+        db_table = "geoobject_geometry"
+
 
 class Geoobject(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -702,12 +707,15 @@ class Geoobject(models.Model):
     source_user_id = models.BigIntegerField()
 
     class Meta:
-        db_table = 'geoobject'
+        db_table = "geoobject"
+
 
 class Classification(models.Model):
     id = models.BigAutoField(primary_key=True)
-    class_field = models.CharField(db_column='class', max_length=255, blank=True, null=True)  # Field renamed because it was a Python reserved word.
+    class_field = models.CharField(
+        db_column="class", max_length=255, blank=True, null=True
+    )  # Field renamed because it was a Python reserved word.
     subclassname = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        db_table = 'classification'
+        db_table = "classification"
