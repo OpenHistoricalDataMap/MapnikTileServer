@@ -40,34 +40,57 @@ RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstr
   ./scripts/get-shapefiles.py && \
   carto project.mml > style.xml
 
-# https://hub.docker.com/_/ubuntu/
-FROM ubuntu:20.04
+# https://hub.docker.com/_/debian/
+FROM debian:bullseye-slim
 
 RUN apt-get update \
+  # install helper
+  && apt-get install -y --no-install-recommends wget unzip fontconfig gnupg \
   # install python dependencies
-  && apt-get install -y --no-install-recommends python3 python3-pip python3-dev \
+  && apt-get install -y --no-install-recommends python3-pip python3-dev \
     python3-setuptools \
+  # install mapnik-utils for openstreetmap-carto
+  && apt-get install -y --no-install-recommends mapnik-utils \
   # dependencies for building Python packages
   && apt-get install -y --no-install-recommends build-essential \
   # psycopg2 dependencies
   && apt-get install -y --no-install-recommends libpq-dev \
   # Translations dependencies
   && apt-get install -y --no-install-recommends gettext \
-  # mapnik
-  && apt-get install -y --no-install-recommends libmapnik-dev mapnik-utils \
-    python3-mapnik \
   # fonts for mapnik
   && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \ 
-    ttf-unifont typecatcher \
+    ttf-unifont \
     # noto fonts
     fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \ 
-    fonts-noto-extra fonts-noto-hinted fonts-noto-mono fonts-noto-ui-core \ 
-    fonts-noto-ui-extra fonts-noto-unhinted \
+    fonts-noto-hinted fonts-noto-mono \ 
+    fonts-noto-unhinted \
+    fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra \
   # geodjango https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/geolibs/
   && apt-get install -y --no-install-recommends binutils libproj-dev gdal-bin \
+  # git for downloading openstreetmap-carto
+  && apt-get install -y --no-install-recommends git \
+  # mapnik
+  && apt-get install -y --no-install-recommends libmapnik-dev libmapnik3.0 mapnik-utils \
+    python3-mapnik \
   # cleaning up unused files
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
+
+# download osm test area -> https://www.openstreetmap.org/#map=17/53.07300/8.80780
+RUN wget 'https://www.openstreetmap.org/api/0.6/map?bbox=8.80616%2C53.07173%2C8.81218%2C53.07477' --output-document '/map.osm'
+
+# install fonts that are not included in the repo
+# https://www.google.com/get/noto/
+RUN mkdir /opt/noto-fonts \
+  && cd /opt/noto-fonts \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansBalinese-unhinted.zip \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansSyriacEastern-unhinted.zip \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip \
+  && unzip -o \*.zip \
+  && cp ./*.ttf /usr/share/fonts/truetype/noto/ \
+  && fc-cache -fv \
+  && fc-list \
+  && rm -r /opt/noto-fonts
 
 # set python 3.x as default
 RUN ln -sfn /usr/bin/python3 /usr/bin/python
@@ -76,6 +99,12 @@ RUN ln -sfn /usr/bin/python3 /usr/bin/python
 COPY ./requirements /requirements
 RUN pip3 install -r /requirements/system.txt \
   && pip3 install -r /requirements/local.txt
+
+# download openstreetmap-carto
+# https://github.com/linuxluigi/openstreetmap-carto
+RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto && \
+  cd /opt/openstreetmap-carto && \
+  ./scripts/get-shapefiles.py
 
 # create user
 RUN groupadd django \
@@ -103,12 +132,6 @@ RUN sed -i 's/\r$//g' /start-flower \
 
 # get openstreetmap-carto from builder
 COPY --from=openstreetmap-carto-builder --chown=django:django /opt/openstreetmap-carto/ /opt/openstreetmap-carto/
-
-# get noto fonts from builder
-COPY --from=openstreetmap-carto-builder --chown=django:django /opt/noto-fonts/*.ttf /usr/share/fonts/truetype/noto/
-
-# add fonts to system
-RUN fc-cache -fv && fc-list
 
 COPY --chown=django:django . /app
 
