@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Dict, List, Optional, Tuple
 
 from django.contrib.gis.geos.collections import MultiPolygon
@@ -7,15 +7,9 @@ from django.contrib.gis.geos.polygon import Polygon
 from django.utils import timezone
 from shapely.geometry import Polygon as ShapelyPolygon
 
-from .models import (
-    PlanetOsmLine,
-    PlanetOsmNodes,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRels,
-    PlanetOsmRoads,
-    PlanetOsmWays,
-)
+from .models import (PlanetOsmLine, PlanetOsmNodes, PlanetOsmPoint,
+                     PlanetOsmPolygon, PlanetOsmRels, PlanetOsmRoads,
+                     PlanetOsmWays)
 from .postgis_utily import make_polygon_valid, set_polygon_way_area
 from .tags2mapnik import fill_osm_object, get_z_order, is_linestring, is_road
 from .utily import delete_last_terminal_line
@@ -37,13 +31,14 @@ class NodeVersion:
             self.nodes.append(node)
         else:
             return self.convert2pgsql()
+        return None
 
     def convert2pgsql(self) -> List[PlanetOsmPoint]:
-        previous_timestamp: datetime = self.timestamp
+        previous_timestamp: date = self.timestamp
         node: PlanetOsmNodes
         points: List[PlanetOsmPoint] = []
         for node in self.nodes:
-            if not node.visible:
+            if not node.visible and node.timestamp:
                 previous_timestamp = node.timestamp
                 continue
             if node.tags:
@@ -57,7 +52,8 @@ class NodeVersion:
                 )
                 point = fill_osm_object(osm_object=point)
                 points.append(point)
-            previous_timestamp = node.timestamp
+            if node.timestamp:
+                previous_timestamp = node.timestamp
 
         self.nodes.clear()
         self.osm_id = None
@@ -82,17 +78,18 @@ class WayVersion:
             self.ways.append(way)
         else:
             return self.convert2pgsql()
+        return None
 
     def convert2pgsql(
         self,
     ) -> Tuple[List[PlanetOsmLine], List[PlanetOsmRoads], List[PlanetOsmPolygon]]:
-        previous_timestamp: datetime = self.timestamp
+        previous_timestamp: date = self.timestamp
         way: PlanetOsmWays
         lines: List[PlanetOsmLine] = []
         roads: List[PlanetOsmRoads] = []
         polygons: List[PlanetOsmPolygon] = []
         for way in self.ways:
-            if not way.visible:
+            if not way.visible and way.timestamp:
                 previous_timestamp = way.timestamp
                 continue
             if way.tags and way.way:
@@ -132,7 +129,8 @@ class WayVersion:
                 if is_road(tags=way.tags):
                     roads.append(line.to_road())
 
-            previous_timestamp = way.timestamp
+            if way.timestamp:
+                previous_timestamp = way.timestamp
 
         self.ways.clear()
         self.osm_id = None
@@ -153,11 +151,12 @@ class RelationVersion:
             self.rels.append(rel)
         else:
             return self.convert2pgsql()
+        return None
 
     def convert2pgsql(self) -> List[PlanetOsmPolygon]:
         # https://wiki.openstreetmap.org/wiki/Relation:multipolygon/Algorithm
 
-        previous_timestamp: datetime = self.timestamp
+        previous_timestamp: date = self.timestamp
         rel: PlanetOsmRels
         multipolygons: List[PlanetOsmPolygon] = []
         for rel in self.rels:
@@ -167,7 +166,8 @@ class RelationVersion:
                 or not rel.inner_members
                 or not rel.tags
             ):
-                previous_timestamp = rel.timestamp
+                if rel.timestamp:
+                    previous_timestamp = rel.timestamp
                 continue
 
             if rel.rel_type != "multipolygon" and rel.rel_type != "boundary":
