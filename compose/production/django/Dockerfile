@@ -98,7 +98,7 @@ RUN ln -sfn /usr/bin/python3 /usr/bin/python
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
 RUN pip3 install -r /requirements/system.txt \
-  && pip3 install -r /requirements/local.txt
+  && pip3 install -r /requirements/production.txt
 
 # download openstreetmap-carto
 # https://github.com/linuxluigi/openstreetmap-carto

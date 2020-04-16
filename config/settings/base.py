@@ -76,10 +76,6 @@ DJANGO_APPS = [
     "django.contrib.postgres",
 ]
 THIRD_PARTY_APPS = [
-    "crispy_forms",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
     "rest_framework",
     "django_celery_beat",
 ]
@@ -100,7 +96,6 @@ MIGRATION_MODULES = {"sites": "ohdm_django_mapnik.contrib.sites.migrations"}
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 # PASSWORDS
@@ -272,15 +267,6 @@ CELERY_TASK_TIME_LIMIT = 5 * 60
 CELERY_TASK_SOFT_TIME_LIMIT = 60
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#beat-scheduler
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-# django-allauth
-# ------------------------------------------------------------------------------
-ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_AUTHENTICATION_METHOD = "username"
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_REQUIRED = True
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 # Your stuff...
 # ------------------------------------------------------------------------------

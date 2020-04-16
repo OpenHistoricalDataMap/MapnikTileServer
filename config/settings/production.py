@@ -95,23 +95,6 @@ EMAIL_SUBJECT_PREFIX = env(
     "DJANGO_EMAIL_SUBJECT_PREFIX", default="[OHDM Django Mapnik]"
 )
 
-# ADMIN
-# ------------------------------------------------------------------------------
-# Django Admin URL regex.
-ADMIN_URL = env("DJANGO_ADMIN_URL")
-
-# Anymail (Mailgun)
-# ------------------------------------------------------------------------------
-# https://anymail.readthedocs.io/en/stable/installation/#installing-anymail
-INSTALLED_APPS += ["anymail"]  # noqa F405
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-# https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
-ANYMAIL = {
-    "MAILGUN_API_KEY": env("MAILGUN_API_KEY"),
-    "MAILGUN_SENDER_DOMAIN": env("MAILGUN_DOMAIN"),
-    "MAILGUN_API_URL": env("MAILGUN_API_URL", default="https://api.mailgun.net/v3"),
-}
-
 # WhiteNoise
 # ------------------------------------------------------------------------------
 # http://whitenoise.evans.io/en/latest/django.html#enable-whitenoise
@@ -158,17 +141,21 @@ LOGGING = {
 
 # Sentry
 # ------------------------------------------------------------------------------
-SENTRY_DSN = env("SENTRY_DSN")
-SENTRY_LOG_LEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
+SENTRY_DSN = env("SENTRY_DSN", default=None)
+if SENTRY_DSN:
+    SENTRY_DSN = env("SENTRY_DSN")
+    SENTRY_LOG_LEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
 
-sentry_logging = LoggingIntegration(
-    level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
-    event_level=logging.ERROR,  # Send errors as events
-)
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    integrations=[sentry_logging, DjangoIntegration(), CeleryIntegration()],
-)
+    sentry_logging = LoggingIntegration(
+        level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
+        event_level=logging.ERROR,  # Send errors as events
+    )
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[sentry_logging, DjangoIntegration(), CeleryIntegration()],
+    )
+else:
+    print("Sentry is not enabled!")
 
 # Your stuff...
 # ------------------------------------------------------------------------------
