@@ -46,12 +46,17 @@ RUN mkdir /opt/noto-fonts \
   && cd /opt/noto-fonts \
   && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansBalinese-unhinted.zip \
   && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansSyriacEastern-unhinted.zip \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoColorEmoji-unhinted.zip \
   && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip \
   && unzip -o \*.zip \
   && cp ./*.ttf /usr/share/fonts/truetype/noto/ \
   && fc-cache -fv \
   && fc-list \
   && rm -r /opt/noto-fonts
+
+#   'Noto Sans Balinese Regular' in FontSet 'fontset-2'
+# celeryworker_1  | Mapnik LOG> 2020-04-16 17:18:06: warning: unable to find face-name 'Noto Sans Syriac Eastern Regular' in FontSet 'fontset-2'
+# celeryworker_1  | Mapnik LOG> 2020-04-16 17:18:06: warning: unable to find face-name 'Noto Emoji Regular' in FontSet 'fontset-2'
 
 # set python 3.x as default
 RUN ln -sfn /usr/bin/python3 /usr/bin/python

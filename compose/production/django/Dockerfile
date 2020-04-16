@@ -15,15 +15,6 @@ RUN apt-get update \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
 
-# download fonts that are not included in the repo
-# https://www.google.com/get/noto/
-RUN mkdir /opt/noto-fonts \
-  && cd /opt/noto-fonts \
-  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansBalinese-unhinted.zip \
-  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansSyriacEastern-unhinted.zip \
-  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip \
-  && unzip -o \*.zip
-
 # set python 3.x as default
 RUN ln -sfn /usr/bin/python3 /usr/bin/python
 
@@ -85,6 +76,7 @@ RUN mkdir /opt/noto-fonts \
   && cd /opt/noto-fonts \
   && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansBalinese-unhinted.zip \
   && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansSyriacEastern-unhinted.zip \
+  && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoColorEmoji-unhinted.zip \
   && wget https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip \
   && unzip -o \*.zip \
   && cp ./*.ttf /usr/share/fonts/truetype/noto/ \
