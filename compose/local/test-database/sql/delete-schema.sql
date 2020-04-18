@@ -1,2 +1,0 @@
---inter schema
-DROP SCHEMA IF EXISTS osm CASCADE;

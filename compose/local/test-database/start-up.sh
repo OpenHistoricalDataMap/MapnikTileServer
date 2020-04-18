@@ -49,9 +49,6 @@ sed -i -e "s/PGDATABASE/$PGDATABASE/g" /ohdm/configs/db_*.txt
 sed -i -e "s/PGHOST/$PGHOST/g" /ohdm/configs/db_*.txt
 sed -i -e "s/PGPORT/$PGPORT/g" /ohdm/configs/db_*.txt
 
-# delete old schema
-psql -f /ohdm/sql/delete-schema.sql
-
 # create schema
 psql -f /ohdm/sql/create-schema.sql
 
@@ -60,8 +57,5 @@ java -jar /ohdm/OHDMConverter.jar -o /ohdm/bremen-latest.osm -i /ohdm/configs/db
 
 # load convert osm database into a ohdm database
 java -jar /ohdm/OHDMConverter.jar -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
-
-# delete schema
-psql -f /ohdm/sql/delete-schema.sql
 
 exec "$@"
