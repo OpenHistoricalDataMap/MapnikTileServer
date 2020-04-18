@@ -9,14 +9,25 @@ from django.db.models import Q
 
 from config.settings.base import env
 from ohdm_django_mapnik.ohdm.models import GeoobjectGeometry
-from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
-                                                   set_polygon_way_area)
-from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
-                                                 get_z_order, is_road)
+from ohdm_django_mapnik.ohdm.postgis_utily import (
+    make_polygon_valid,
+    set_polygon_way_area,
+)
+from ohdm_django_mapnik.ohdm.tags2mapnik import (
+    cleanup_tags,
+    fill_osm_object,
+    get_z_order,
+    is_road,
+)
 from ohdm_django_mapnik.ohdm.utily import delete_last_terminal_line
 
-from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
-                     PlanetOsmPolygon, PlanetOsmRoads)
+from .models import (
+    OhdmGeoobjectWay,
+    PlanetOsmLine,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRoads,
+)
 
 
 class Ohdm2Mapnik:
@@ -57,23 +68,11 @@ class Ohdm2Mapnik:
         process_time: float = time.time() - self.start_time
 
         if process_time <= 360:  # 6 minutes
-            print(
-                "--- {} rows in {:4.3f} seconds ---".format(
-                    row, process_time
-                )
-            )
+            print("--- {} rows in {:4.3f} seconds ---".format(row, process_time))
         elif process_time <= 7200:  # 120 minutes
-            print(
-                "--- {} rows in {:4.3f} minutes ---".format(
-                    row, process_time / 60
-                )
-            )
+            print("--- {} rows in {:4.3f} minutes ---".format(row, process_time / 60))
         else:
-            print(
-                "--- {} rows in {:4.3f} hours ---".format(
-                    row, process_time / 360
-                )
-            )
+            print("--- {} rows in {:4.3f} hours ---".format(row, process_time / 360))
 
     def show_status(self):
         if (self.point_counter + self.line_counter + self.point_counter) % 10000 == 0:
@@ -112,8 +111,7 @@ class Ohdm2Mapnik:
         print("Set way_area for all polygons!")
         set_polygon_way_area()
 
-    def generate_sql_query(
-        self, geo_type: str, offset: int = 0) -> str:
+    def generate_sql_query(self, geo_type: str, offset: int = 0) -> str:
         """
         Generate SQL Query to fetch the request geo objects
         
