@@ -104,12 +104,12 @@ For local instance use ::
 
     $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik
 
-To clear the mapnik tables befor import, use ``--clear_mapnik_db`::
+To clear the mapnik tables befor import, use ``--clear_mapnik_db``::
 
 Optional parameters
 ...................
 
-To clear the mapnik tables befor import, use ``--clear_mapnik_db`.::
+To clear the mapnik tables befor import, use ``--clear_mapnik_db``.::
 
     $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik --clear_mapnik_db
 
