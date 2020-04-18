@@ -1,11 +1,14 @@
+import ast
 import time
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
 from typing import Any, List
 
 from django.db import connections
+from django.db.models import Q
 
 from config.settings.base import env
+from ohdm_django_mapnik.ohdm.models import GeoobjectGeometry
 from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
                                                    set_polygon_way_area)
 from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
@@ -41,9 +44,6 @@ class Ohdm2Mapnik:
         self.line_counter: int = 0
         self.polygon_counter: int = 0
 
-        # estimate total amount ob mapnik objects
-        self.total_rows: int = 0
-
         # process start time
         self.start_time: float = 0
 
@@ -52,31 +52,26 @@ class Ohdm2Mapnik:
         display process time
         """
 
-        row: int = (
-            PlanetOsmLine.objects.all().count()
-            + PlanetOsmPoint.objects.all().count()
-            + PlanetOsmPolygon.objects.all().count()
-        )
+        row: int = self.point_counter + self.line_counter + self.polygon_counter
 
         process_time: float = time.time() - self.start_time
-        percent: float = row / self.total_rows * 100
 
         if process_time <= 360:  # 6 minutes
             print(
-                "--- {} rows of {} ({:.3f}%) in {:4.3f} seconds ---".format(
-                    row, self.total_rows, percent, process_time
+                "--- {} rows in {:4.3f} seconds ---".format(
+                    row, process_time
                 )
             )
         elif process_time <= 7200:  # 120 minutes
             print(
-                "--- {} rows of {} ({:.3f}%) in {:4.3f} minutes ---".format(
-                    row, self.total_rows, percent, process_time / 60
+                "--- {} rows in {:4.3f} minutes ---".format(
+                    row, process_time / 60
                 )
             )
         else:
             print(
-                "--- {} rows of {} ({:.3f}%) in {:4.3f} hours ---".format(
-                    row, self.total_rows, percent, process_time / 360
+                "--- {} rows in {:4.3f} hours ---".format(
+                    row, process_time / 360
                 )
             )
 
@@ -118,15 +113,13 @@ class Ohdm2Mapnik:
         set_polygon_way_area()
 
     def generate_sql_query(
-        self, geo_type: str, offset: int = 0, count: bool = False
-    ) -> str:
+        self, geo_type: str, offset: int = 0) -> str:
         """
         Generate SQL Query to fetch the request geo objects
         
         Arguments:
             offset {int} -- geo_type as string like point, line or polygon
             offset {int} -- query offset (default: {0})
-            count {bool} -- if true, create a counting query (default: {False})
         
         Returns:
             str -- SQL query as string
@@ -140,25 +133,11 @@ class Ohdm2Mapnik:
         else:
             where_statement = "geoobject_geometry.type_target = 3"
 
-        if count:
-            return """
-                SELECT 
-                    COUNT({0}s.id)
-                FROM {2}.{0}s
-                INNER JOIN {2}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
-                INNER JOIN {2}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
-                INNER JOIN {2}.classification ON geoobject_geometry.classification_id=classification.id
-                WHERE {1};
-            """.format(
-                geo_type, where_statement, env.str("OHDM_SCHEMA")
-            )
-
         return """
                 SELECT 
                     {0}s.id as way_id,
                     geoobject_geometry.id_geoobject_source as geoobject_id,
                     geoobject.name,
-                    geoobject_geometry.role,
                     classification.class as classification_class,
 	                classification.subclassname as classification_subclassname,
                     geoobject_geometry.tags,
@@ -174,23 +153,6 @@ class Ohdm2Mapnik:
             """.format(
             geo_type, self.chunk_size, offset, where_statement, env.str("OHDM_SCHEMA"),
         )
-
-    def count_rows(self, geo_type: str) -> int:
-        """
-        Count OHDM points, lines & polygons objects
-
-        Keyword Arguments:
-            geo_type {str} -- set geotype like point, line or polygon
-
-        Returns:
-            int -- counted rows
-        """
-        print("Counting {} rows ...".format(geo_type))
-
-        with connections["ohdm"].cursor() as cursor:
-
-            cursor.execute(self.generate_sql_query(geo_type=geo_type, count=True))
-            return cursor.fetchone()[0]
 
     def convert_points(self, offset: int, geometry: str):
 
@@ -304,30 +266,35 @@ class Ohdm2Mapnik:
         convert ohdm database to mapnik readable tables
         """
 
-        # calc total amount of rows
-        self.total_rows = 0
-        for geometry in OhdmGeoobjectWay.GEOMETRY_TYPE.TYPES:
-            self.total_rows += self.count_rows(geo_type=geometry)
-
-        print("Start converting of {} entries!".format(self.total_rows))
-
         # iterate through every ohdm entry
         for geometry in OhdmGeoobjectWay.GEOMETRY_TYPE.TYPES:
             print("Start to convert {} objects".format(geometry))
 
-            rows: int = 0
             if geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
-                rows = self.count_rows(geo_type=geometry)
-                for row in range(0, rows, self.chunk_size):
-                    self.convert_points(offset=row, geometry=geometry)
+                current_point: int = 0
+                while True:
+                    point_counter: int = self.point_counter
+                    self.convert_points(offset=current_point, geometry=geometry)
+                    current_point += self.chunk_size
+                    if point_counter == self.point_counter:
+                        break
+
             elif geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
-                rows = self.count_rows(geo_type=geometry)
-                for row in range(0, rows, self.chunk_size):
-                    self.convert_lines(offset=row, geometry=geometry)
+                current_line: int = 0
+                while True:
+                    line_counter: int = self.line_counter
+                    self.convert_lines(offset=current_line, geometry=geometry)
+                    current_line += self.chunk_size
+                    if line_counter == self.line_counter:
+                        break
             else:
-                rows = self.count_rows(geo_type=geometry)
-                for row in range(0, rows, self.chunk_size):
-                    self.convert_polygons(offset=row, geometry=geometry)
+                current_polygon: int = 0
+                while True:
+                    polygon_counter: int = self.polygon_counter
+                    self.convert_polygons(offset=current_polygon, geometry=geometry)
+                    current_polygon += self.chunk_size
+                    if polygon_counter == self.polygon_counter:
+                        break
                 self.update_polygons()
 
             self.save_cache()
