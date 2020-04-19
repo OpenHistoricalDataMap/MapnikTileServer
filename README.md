@@ -182,6 +182,7 @@ $ docker-compose -f local.yml run --rm django python manage.py migrate
 
 ```bash
 $ docker-compose -f local.yml up test-database
+$ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik
 ```
 
 **5. download shapefiles & generate style.xml**
