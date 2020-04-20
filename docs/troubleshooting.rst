@@ -80,3 +80,12 @@ On linux & mac you can use::
 On Windows use CMD::
 
     $ netstat -an
+
+No such file or directory
+-------------------------
+
+When trying Docker on Windows on the first time, sometimes Windows will add ``\r``
+on each file, but linux don't like it. If you get some error like below, try to download
+the repo on a different way!::
+
+    /usr/bin/env: 'python\r': No such file or directory
