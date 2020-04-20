@@ -60,3 +60,23 @@ To just delete django ``OHDM`` tables and not the other django tables like users
 use::
 
     $ docker-compose -f local.yml run --rm django python manage.py migrate ohdm zero
+
+Cannot start service
+--------------------
+
+When you try to start the containers and you get a error like::
+
+    ERROR: for postgres  Cannot start service postgres: Ports are not available: listen tcp 127.0.0.1:5432: bind: Der Zugriff auf einen Socket war aufgrund der Zugriffsrechte des Sockets unzulĂ¤ssig.
+    ERROR: Encountered errors while bringing up the project.
+
+Than check if no other process is running on ``5432``, ``5555`` and ``8000``.
+
+On linux & mac you can use::
+
+    $ netstat -vanp tcp | grep 5432
+    $ netstat -vanp tcp | grep 5555
+    $ netstat -vanp tcp | grep 8000
+
+On Windows use CMD::
+
+    $ netstat -an
