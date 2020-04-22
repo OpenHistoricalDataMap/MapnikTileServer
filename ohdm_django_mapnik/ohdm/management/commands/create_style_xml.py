@@ -10,4 +10,4 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        create_style_xml(carto_sytle_path=env("CARTO_STYLE_PATH"))
+        create_style_xml(carto_style_path=env("CARTO_STYLE_PATH"))

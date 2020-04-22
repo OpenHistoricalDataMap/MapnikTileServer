@@ -280,5 +280,5 @@ os.environ["PGPORT"] = env("POSTGRES_PORT")
 
 # load default style_xml
 OSM_CARTO_STYLE_XML: str = get_style_xml(
-    generate_style_xml=False, carto_sytle_path=env("CARTO_STYLE_PATH")
+    generate_style_xml=False, carto_style_path=env("CARTO_STYLE_PATH")
 )
