@@ -402,7 +402,7 @@ Don’t try to scale `postgres`, `celerybeat`, or `traefik`!
 
 To read how to run test go to [cookiecutter-django](https://cookiecutter-django.readthedocs.io/en/latest/testing.html)
 
-Or for running test manual use `docker-compose -f local.yml run django pytest`
+Or for running test manual use `docker-compose -f local.yml run --rm django pytest`
 
 Also the project include a working travis test.
 
@@ -411,5 +411,5 @@ Also the project include a working travis test.
 To create the docs use:
 
 ```bash
-$ docker-compose -f local.yml run django make --directory docs html
+$ docker-compose -f local.yml run --rm django make --directory docs html
 ```
