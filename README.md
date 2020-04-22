@@ -22,14 +22,15 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 
 ## Features
 
+- documentation: https://mapniktileserver.readthedocs.io/en/latest/
 - work out of the box, no special configuration is need
 - work Linux, MacOS, BSD & also should work Windows (Windows not tested), just need Docker & Docker-Compose to work
 - OSM based tile server with time sensitive tiles
 - a development & production configuration
-- tile producer work in extra containers with [celery](http://www.celeryproject.org/)
+- task-queue for rendering tile with [celery](http://www.celeryproject.org/)
 - caching tiles by date range in redis
 - SSL with Let's Encrypt included
-- generate development database from osm
+- generate development database from osm / ohdm
 - include [sentry.io](https://sentry.io/) in production for error tracking
 
 ## Dependencies
@@ -44,23 +45,19 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 
 ### Front-End
 
-- [Bootstrap 4](https://getbootstrap.com/) Theme by [bootswatch.com](https://bootswatch.com/minty/)
-- [Leaflet](https://leafletjs.com/) for map view
-- [Bootstrap Datepicker](https://github.com/uxsolutions/bootstrap-datepicker)
+- [Bootstrap 4](https://getbootstrap.com/) Theme
+- [OpenLayers](https://openlayers.org/) for map view
 
-## Roadmap
+Frontend repo: https://github.com/linuxluigi/ohdm-angular-frontend
 
-- integrate complete test of tile producer, website & [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/)
-- a headless server, separate front-end from the back-end maybe with [Ionic](https://ionicframework.com/) and [OpenLayers](https://openlayers.org/)
-- add auto test on each commit with [Travis](https://travis-ci.com/) or [Github Actions](https://github.com/features/actions)
-- auto update dependencies with [pyup.io](https://pyup.io/)
-- update code `ohdm_django_mapnik/ohdm/tile.py` to render tile without using deprecated functions like Envelope
-- scale redis cache
+![MapnikTileServer OHDM Frontend](docs/_static/frontend.png "MapnikTileServer OHDM Frontend")
 
 ## minimum server requirements for developing
 
-- 3 GB of RAM
-- 30 GB of free disk space
+- 8 GB of RAM
+- 100 GB of free disk space (better using a SSD drive instead of HDD)
+
+If you can, use beefy hardware!
 
 ## Project Structure
 
@@ -112,9 +109,6 @@ OHDM MapnikTileServer
 │   │   └───management                           # app commands folder
 │   │   │   │   date_template_importer.py        # convert openstreetmap-carto/project.mml to a ohdm version (not working right now)
 │   │   └───migrations                           # Django model migrations (no not edit manually) https://docs.djangoproject.com/en/2.2/topics/migrations/
-│   └───static                                   # static files like JS & CSS for website to publish https://docs.djangoproject.com/en/2.2/howto/static-files/
-│   └───templates                                # HTML website templates https://docs.djangoproject.com/en/2.2/topics/templates/
-│   └───users                                    # custom user model by https://github.com/pydanny/cookiecutter-django
 │
 └───requirements                                 # python requirements https://pip.pypa.io/en/stable/user_guide/#requirements-files
 │   │   base.txt                                 # requirements for dev & productions
@@ -126,19 +120,24 @@ OHDM MapnikTileServer
 
 URL's are setup in `config/urls.py` and `ohdm_django_mapnik/ohdm/urls.py`.
 
-```#
+```
+# admin panel
 /admin
-admin panel
 
-/tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png                       # tile url
+# tile url
+/tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png
 
 # only in development mode enabled
-/tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-style-xml/tile.png      # tile url with reload style.xml
-/tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-project-mml/tile.png    # tile url with reload project.mml & style.xml
-/tile/<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png                                                        # tile url with default openstreetmap-carto (no time sensitivity)
+
+# tile url with
+/tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-style-xml/tile.pngreload style.xml
+# tile url with reload project.mml & style.xml
+/tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/reload-project-mml/tile.png
+# tile url with default openstreetmap-carto (no time sensitivity)
+/tile/<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png
 ```
 
-Tile example link (in Berlin): http://example.com/tile/2010/02/16/13/4398/2685/tile.png
+Tile example link (in Berlin): http://localhost:8000/tile/2010/02/16/13/4398/2685/tile.png
 
 ## Setup
 
