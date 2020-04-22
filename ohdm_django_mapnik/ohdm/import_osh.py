@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from django.contrib.gis.geos.geometry import GEOSGeometry
@@ -8,9 +9,8 @@ from osmium.osm._osm import Node, Relation, Tag, TagList, Way
 
 from .models import PlanetOsmNodes, PlanetOsmRels, PlanetOsmWays
 from .tags2mapnik import cleanup_tags
-from .utily import delete_last_terminal_line
 
-
+logger = logging.getLogger(__name__)
 class OSMHandler(SimpleHandler):
     def __init__(self, db_cache_size: int):
         SimpleHandler.__init__(self)
@@ -28,15 +28,14 @@ class OSMHandler(SimpleHandler):
 
         self.db_cache_size: int = db_cache_size
 
-        print("starting import ...")
+        logger.info("starting import ...")
 
     def show_import_status(self):
         """
         Show import status for every 10000 objects
         """
         if (self.node_counter + self.way_counter + self.rel_counter) % 10000 == 0:
-            delete_last_terminal_line()
-            print(
+            logger.info(
                 "Nodes: {} | Ways: {} | Rel: {}".format(
                     self.node_counter, self.way_counter, self.rel_counter
                 )
@@ -82,7 +81,7 @@ class OSMHandler(SimpleHandler):
         """
         Save cached geo-objects into database & clear cache
         """
-        print("saving cache ...")
+        logger.info("saving cache ...")
         if self.node_cache:
             PlanetOsmNodes.objects.bulk_create(self.node_cache)
             self.node_cache.clear()
@@ -92,8 +91,6 @@ class OSMHandler(SimpleHandler):
         if self.rel_cache:
             PlanetOsmRels.objects.bulk_create(self.rel_cache)
             self.rel_cache.clear()
-
-        delete_last_terminal_line()
 
     def tags2dict(self, tags: TagList) -> dict:
         """
@@ -210,8 +207,8 @@ def run_import(file_path: str, db_cache_size: int, cache2file: bool):
         db_cache_size {int} -- chunk size for import
     """
     osmhandler = OSMHandler(db_cache_size=db_cache_size)
-    print("import {}".format(file_path))
-    print()
+    logger.info("import {}".format(file_path))
+    logger.info()
     osmhandler.show_import_status()
 
     cache_system: str = "flex_mem"
@@ -223,4 +220,4 @@ def run_import(file_path: str, db_cache_size: int, cache2file: bool):
     )
     osmhandler.show_import_status()
     osmhandler.save_cache()
-    print("import done!")
+    logger.info("import done!")

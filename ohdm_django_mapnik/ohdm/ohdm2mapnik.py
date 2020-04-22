@@ -1,3 +1,4 @@
+import logging
 import time
 from typing import List
 
@@ -6,11 +7,11 @@ from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
                                                    set_polygon_way_area)
 from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
                                                  get_z_order, is_road)
-from ohdm_django_mapnik.ohdm.utily import delete_last_terminal_line
 
 from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
                      PlanetOsmPolygon, PlanetOsmRoads)
 
+logger = logging.getLogger(__name__)
 
 class Ohdm2Mapnik:
     """
@@ -50,16 +51,15 @@ class Ohdm2Mapnik:
         process_time: float = time.time() - self.start_time
 
         if process_time <= 360:  # 6 minutes
-            print("--- {} rows in {:4.3f} seconds ---".format(row, process_time))
+            logger.info("--- {} rows in {:4.3f} seconds ---".format(row, process_time))
         elif process_time <= 7200:  # 120 minutes
-            print("--- {} rows in {:4.3f} minutes ---".format(row, process_time / 60))
+            logger.info("--- {} rows in {:4.3f} minutes ---".format(row, process_time / 60))
         else:
-            print("--- {} rows in {:4.3f} hours ---".format(row, process_time / 360))
+            logger.info("--- {} rows in {:4.3f} hours ---".format(row, process_time / 360))
 
     def show_status(self):
         if (self.point_counter + self.line_counter + self.point_counter) % 10000 == 0:
-            delete_last_terminal_line()
-            print(
+            logger.info(
                 "Points: {} | Lines/Polygon: {} | Multipolygon: {}".format(
                     self.point_counter, self.line_counter, self.polygon_counter
                 )
@@ -72,7 +72,7 @@ class Ohdm2Mapnik:
             self.save_cache()
 
     def save_cache(self):
-        print("saving cache ...")
+        logger.info("saving cache ...")
         if self.point_cache:
             PlanetOsmPoint.objects.bulk_create(self.point_cache)
             self.point_cache.clear()
@@ -85,12 +85,11 @@ class Ohdm2Mapnik:
         if self.polygon_cache:
             PlanetOsmPolygon.objects.bulk_create(self.polygon_cache)
             self.polygon_cache.clear()
-        delete_last_terminal_line()
 
     def update_polygons(self):
-        print("Make invalid polygons valid!")
+        logger.info("Make invalid polygons valid!")
         make_polygon_valid()
-        print("Set way_area for all polygons!")
+        logger.info("Set way_area for all polygons!")
         set_polygon_way_area()
 
     def generate_sql_query(self, geo_type: str) -> str:
@@ -242,7 +241,7 @@ class Ohdm2Mapnik:
         """
         # iterate through every ohdm entry
         for geometry in OhdmGeoobjectWay.GEOMETRY_TYPE.TYPES:
-            print("Start to convert {} objects".format(geometry))
+            logger.info("Start to convert {} objects".format(geometry))
             if geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
                 self.convert_points(geometry=geometry)
             elif geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
@@ -252,6 +251,6 @@ class Ohdm2Mapnik:
                 self.update_polygons()
 
             self.save_cache()
-            print("{} is done!".format(geometry))
+            logger.info("{} is done!".format(geometry))
 
-        print("All data are converted!")
+        logger.info("All data are converted!")

@@ -1,3 +1,4 @@
+import logging
 from datetime import date, datetime
 from typing import Dict, List, Optional, Tuple
 
@@ -12,8 +13,8 @@ from .models import (PlanetOsmLine, PlanetOsmNodes, PlanetOsmPoint,
                      PlanetOsmWays)
 from .postgis_utily import make_polygon_valid, set_polygon_way_area
 from .tags2mapnik import fill_osm_object, get_z_order, is_linestring, is_road
-from .utily import delete_last_terminal_line
 
+logger = logging.getLogger(__name__)
 
 class NodeVersion:
     def __init__(self, timestamp: datetime):
@@ -97,7 +98,6 @@ class WayVersion:
                     if not poly.is_valid:
                         # fix polygon
                         poly = poly.buffer(distance=0)
-                        delete_last_terminal_line()
 
                     polygon: PlanetOsmPolygon = PlanetOsmPolygon(
                         osm_id=way.osm_id,
@@ -264,8 +264,7 @@ class Rel2pgsql:
 
     def show_status(self):
         if (self.point_counter + self.line_counter + self.point_counter) % 10000 == 0:
-            delete_last_terminal_line()
-            print(
+            logger.info(
                 "Points: {} | Lines/Polygon: {} | Multipolygon: {}".format(
                     self.point_counter, self.line_counter, self.polygon_counter
                 )
@@ -278,7 +277,7 @@ class Rel2pgsql:
             self.save_cache()
 
     def save_cache(self):
-        print("saving cache ...")
+        logger.info("saving cache ...")
         if self.point_cache:
             PlanetOsmPoint.objects.bulk_create(self.point_cache)
             self.point_cache.clear()
@@ -291,17 +290,16 @@ class Rel2pgsql:
         if self.polygon_cache:
             PlanetOsmPolygon.objects.bulk_create(self.polygon_cache)
             self.polygon_cache.clear()
-        delete_last_terminal_line()
 
     def run_import(self):
-        print()
+        logger.info()
         self.make_points()
         self.make_lines()
         # todo fix multipolygon
         # self.make_multipolygon()
         self.save_cache()
         self.update_polygons()
-        print("import done")
+        logger.info("import done")
 
     def make_points(self):
         # https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.iterator
@@ -351,7 +349,7 @@ class Rel2pgsql:
             self.check_cache_save()
 
     def update_polygons(self):
-        print("Make invalid polygons valid!")
+        logger.info("Make invalid polygons valid!")
         make_polygon_valid()
-        print("Set way_area for all polygons!")
+        logger.info("Set way_area for all polygons!")
         set_polygon_way_area()

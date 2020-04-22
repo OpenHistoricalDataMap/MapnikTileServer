@@ -37,13 +37,3 @@ def get_style_xml(generate_style_xml: bool, carto_sytle_path: str) -> str:
         return open(
             "{}/style.xml".format(carto_sytle_path), "r", encoding="utf-8"
         ).read()
-
-
-def delete_last_terminal_line():
-    """
-    Delete last terminal line
-    """
-    print(
-        "\033[A                                                                                                                                            \033[A"
-    )
-    # delete last terminal output

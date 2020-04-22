@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import List
 
@@ -8,12 +9,12 @@ from osmium import SimpleHandler
 from osmium.geom import WKTFactory
 from osmium.osm._osm import Area, Location, Node, Relation, Tag, TagList, Way
 
-from .models import PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRoads
+from .models import (PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon,
+                     PlanetOsmRoads)
 from .postgis_utily import set_polygon_way_area
 from .tags2mapnik import cleanup_tags, fill_osm_object, get_z_order, is_road
-from .utily import delete_last_terminal_line
 
-
+logger = logging.getLogger(__name__)
 class OSMHandler(SimpleHandler):
     def __init__(self, db_cache_size: int):
         SimpleHandler.__init__(self)
@@ -39,15 +40,14 @@ class OSMHandler(SimpleHandler):
 
         self.valid_until: datetime = timezone.now()
 
-        print("starting import ...")
+        logger.info("starting import ...")
 
     def show_import_status(self):
         """
         Show import status every 10000 entries
         """
         if (self.node_counter + self.way_counter + self.area_counter) % 10000 == 0:
-            delete_last_terminal_line()
-            print(
+            logger.info(
                 "Nodes: {} | Ways: {} | Area: {}".format(
                     self.node_counter, self.way_counter, self.area_counter
                 )
@@ -93,7 +93,7 @@ class OSMHandler(SimpleHandler):
         """
         Save cached geo-objects into database & clear cache
         """
-        print("saving cache ...")
+        logger.info("saving cache ...")
         if self.point_cache:
             PlanetOsmPoint.objects.bulk_create(self.point_cache)
             self.point_cache.clear()
@@ -106,8 +106,6 @@ class OSMHandler(SimpleHandler):
         if self.polygon_cache:
             PlanetOsmPolygon.objects.bulk_create(self.polygon_cache)
             self.polygon_cache.clear()
-
-        delete_last_terminal_line()
 
     def tags2dict(self, tags: TagList) -> dict:
         """
@@ -220,8 +218,8 @@ def run_import(file_path: str, db_cache_size: int, cache2file: bool):
         db_cache_size {int} -- how much geo-object will be cache and save into at once into the database
     """
     osmhandler = OSMHandler(db_cache_size=db_cache_size)
-    print("import {}".format(file_path))
-    print()
+    logger.info("import {}".format(file_path))
+    logger.info()
     osmhandler.show_import_status()
 
     cache_system: str = "flex_mem"
@@ -234,7 +232,7 @@ def run_import(file_path: str, db_cache_size: int, cache2file: bool):
     osmhandler.show_import_status()
     osmhandler.save_cache()
 
-    print("Set way_area for all polygons!")
+    logger.info("Set way_area for all polygons!")
     set_polygon_way_area()
 
-    print("import done!")
+    logger.info("import done!")
