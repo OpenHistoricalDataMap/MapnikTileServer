@@ -1,33 +1,15 @@
-import ast
 import time
-from datetime import datetime
-from multiprocessing.pool import ThreadPool
-from typing import Any, List
-
-from django.db import connections
-from django.db.models import Q
+from typing import List
 
 from config.settings.base import env
-from ohdm_django_mapnik.ohdm.models import GeoobjectGeometry
-from ohdm_django_mapnik.ohdm.postgis_utily import (
-    make_polygon_valid,
-    set_polygon_way_area,
-)
-from ohdm_django_mapnik.ohdm.tags2mapnik import (
-    cleanup_tags,
-    fill_osm_object,
-    get_z_order,
-    is_road,
-)
+from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
+                                                   set_polygon_way_area)
+from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
+                                                 get_z_order, is_road)
 from ohdm_django_mapnik.ohdm.utily import delete_last_terminal_line
 
-from .models import (
-    OhdmGeoobjectWay,
-    PlanetOsmLine,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRoads,
-)
+from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
+                     PlanetOsmPolygon, PlanetOsmRoads)
 
 
 class Ohdm2Mapnik:
@@ -111,13 +93,12 @@ class Ohdm2Mapnik:
         print("Set way_area for all polygons!")
         set_polygon_way_area()
 
-    def generate_sql_query(self, geo_type: str, offset: int = 0) -> str:
+    def generate_sql_query(self, geo_type: str) -> str:
         """
         Generate SQL Query to fetch the request geo objects
         
         Arguments:
             offset {int} -- geo_type as string like point, line or polygon
-            offset {int} -- query offset (default: {0})
         
         Returns:
             str -- SQL query as string
@@ -142,22 +123,21 @@ class Ohdm2Mapnik:
                     geoobject_geometry.valid_since,
                     geoobject_geometry.valid_until,
                     {0}s.{0} as way
-                FROM {4}.{0}s
-                INNER JOIN {4}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
-                INNER JOIN {4}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
-                INNER JOIN {4}.classification ON geoobject_geometry.classification_id=classification.id
-                WHERE {3}
-                LIMIT {1} OFFSET {2};
+                FROM {2}.{0}s
+                INNER JOIN {2}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
+                INNER JOIN {2}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+                INNER JOIN {2}.classification ON geoobject_geometry.classification_id=classification.id
+                WHERE {1};
             """.format(
-            geo_type, self.chunk_size, offset, where_statement, env.str("OHDM_SCHEMA"),
+            geo_type, where_statement, env.str("OHDM_SCHEMA"),
         )
 
-    def convert_points(self, offset: int, geometry: str):
+    def convert_points(self, geometry: str):
 
         ohdm_object: OhdmGeoobjectWay
         for ohdm_object in OhdmGeoobjectWay.objects.using("ohdm").raw(
-            self.generate_sql_query(geo_type=geometry, offset=offset)
-        ):
+            self.generate_sql_query(geo_type=geometry)).iterator():
+            self.point_counter += 1
             if not ohdm_object.tags:
                 ohdm_object.tags = {}
 
@@ -182,16 +162,15 @@ class Ohdm2Mapnik:
             point = fill_osm_object(osm_object=point)
             self.point_cache.append(point)
 
-            self.point_counter += 1
             self.show_status()
             self.check_cache_save()
 
-    def convert_lines(self, offset: int, geometry: str):
+    def convert_lines(self, geometry: str):
 
         ohdm_object: OhdmGeoobjectWay
         for ohdm_object in OhdmGeoobjectWay.objects.using("ohdm").raw(
-            self.generate_sql_query(geo_type=geometry, offset=offset)
-        ):
+            self.generate_sql_query(geo_type=geometry)).iterator():
+            self.line_counter += 1
             if not ohdm_object.tags:
                 ohdm_object.tags = {}
 
@@ -220,16 +199,15 @@ class Ohdm2Mapnik:
             if is_road(tags=clean_tags):
                 self.road_cache.append(line.to_road())
 
-            self.line_counter += 1
             self.show_status()
             self.check_cache_save()
 
-    def convert_polygons(self, offset: int, geometry: str):
+    def convert_polygons(self, geometry: str):
 
         ohdm_object: OhdmGeoobjectWay
         for ohdm_object in OhdmGeoobjectWay.objects.using("ohdm").raw(
-            self.generate_sql_query(geo_type=geometry, offset=offset)
-        ):
+            self.generate_sql_query(geo_type=geometry)).iterator():
+            self.polygon_counter += 1
             if not ohdm_object.tags:
                 ohdm_object.tags = {}
 
@@ -255,7 +233,6 @@ class Ohdm2Mapnik:
             polygon = fill_osm_object(osm_object=polygon)
             self.polygon_cache.append(polygon)
 
-            self.polygon_counter += 1
             self.show_status()
             self.check_cache_save()
 
@@ -269,30 +246,12 @@ class Ohdm2Mapnik:
             print("Start to convert {} objects".format(geometry))
 
             if geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
-                current_point: int = 0
-                while True:
-                    point_counter: int = self.point_counter
-                    self.convert_points(offset=current_point, geometry=geometry)
-                    current_point += self.chunk_size
-                    if point_counter == self.point_counter:
-                        break
+                self.convert_points(geometry=geometry)
 
             elif geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
-                current_line: int = 0
-                while True:
-                    line_counter: int = self.line_counter
-                    self.convert_lines(offset=current_line, geometry=geometry)
-                    current_line += self.chunk_size
-                    if line_counter == self.line_counter:
-                        break
+                self.convert_lines(geometry=geometry)
             else:
-                current_polygon: int = 0
-                while True:
-                    polygon_counter: int = self.polygon_counter
-                    self.convert_polygons(offset=current_polygon, geometry=geometry)
-                    current_polygon += self.chunk_size
-                    if polygon_counter == self.polygon_counter:
-                        break
+                self.convert_polygons(geometry=geometry)
                 self.update_polygons()
 
             self.save_cache()
