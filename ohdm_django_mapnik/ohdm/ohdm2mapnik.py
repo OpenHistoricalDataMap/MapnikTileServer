@@ -3,15 +3,27 @@ import time
 from typing import List
 
 from config.settings.base import env
-from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
-                                                   set_polygon_way_area)
-from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
-                                                 get_z_order, is_road)
+from ohdm_django_mapnik.ohdm.postgis_utily import (
+    make_polygon_valid,
+    set_polygon_way_area,
+)
+from ohdm_django_mapnik.ohdm.tags2mapnik import (
+    cleanup_tags,
+    fill_osm_object,
+    get_z_order,
+    is_road,
+)
 
-from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
-                     PlanetOsmPolygon, PlanetOsmRoads)
+from .models import (
+    OhdmGeoobjectWay,
+    PlanetOsmLine,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRoads,
+)
 
 logger = logging.getLogger(__name__)
+
 
 class Ohdm2Mapnik:
     """
@@ -53,9 +65,13 @@ class Ohdm2Mapnik:
         if process_time <= 360:  # 6 minutes
             logger.info("--- {} rows in {:4.3f} seconds ---".format(row, process_time))
         elif process_time <= 7200:  # 120 minutes
-            logger.info("--- {} rows in {:4.3f} minutes ---".format(row, process_time / 60))
+            logger.info(
+                "--- {} rows in {:4.3f} minutes ---".format(row, process_time / 60)
+            )
         else:
-            logger.info("--- {} rows in {:4.3f} hours ---".format(row, process_time / 360))
+            logger.info(
+                "--- {} rows in {:4.3f} hours ---".format(row, process_time / 360)
+            )
 
     def show_status(self):
         if (self.point_counter + self.line_counter + self.point_counter) % 10000 == 0:
@@ -134,8 +150,11 @@ class Ohdm2Mapnik:
     def convert_points(self, geometry: str):
 
         ohdm_object: OhdmGeoobjectWay
-        for ohdm_object in OhdmGeoobjectWay.objects.using("ohdm").raw(
-            self.generate_sql_query(geo_type=geometry)).iterator():
+        for ohdm_object in (
+            OhdmGeoobjectWay.objects.using("ohdm")
+            .raw(self.generate_sql_query(geo_type=geometry))
+            .iterator()
+        ):
             self.point_counter += 1
             if not ohdm_object.tags:
                 ohdm_object.tags = {}
@@ -167,8 +186,11 @@ class Ohdm2Mapnik:
     def convert_lines(self, geometry: str):
 
         ohdm_object: OhdmGeoobjectWay
-        for ohdm_object in OhdmGeoobjectWay.objects.using("ohdm").raw(
-            self.generate_sql_query(geo_type=geometry)).iterator():
+        for ohdm_object in (
+            OhdmGeoobjectWay.objects.using("ohdm")
+            .raw(self.generate_sql_query(geo_type=geometry))
+            .iterator()
+        ):
             self.line_counter += 1
             if not ohdm_object.tags:
                 ohdm_object.tags = {}
@@ -204,8 +226,11 @@ class Ohdm2Mapnik:
     def convert_polygons(self, geometry: str):
 
         ohdm_object: OhdmGeoobjectWay
-        for ohdm_object in OhdmGeoobjectWay.objects.using("ohdm").raw(
-            self.generate_sql_query(geo_type=geometry)).iterator():
+        for ohdm_object in (
+            OhdmGeoobjectWay.objects.using("ohdm")
+            .raw(self.generate_sql_query(geo_type=geometry))
+            .iterator()
+        ):
             self.polygon_counter += 1
             if not ohdm_object.tags:
                 ohdm_object.tags = {}

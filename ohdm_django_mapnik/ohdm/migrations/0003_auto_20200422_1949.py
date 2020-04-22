@@ -7,18 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ohdm', '0002_remove_ohdmgeoobjectway_role'),
+        ("ohdm", "0002_remove_ohdmgeoobjectway_role"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='planetosmrels',
-            name='inner_members',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.BigIntegerField(), default=list, size=None),
+            model_name="planetosmrels",
+            name="inner_members",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.BigIntegerField(), default=list, size=None
+            ),
         ),
         migrations.AlterField(
-            model_name='planetosmrels',
-            name='outer_members',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.BigIntegerField(), default=list, size=None),
+            model_name="planetosmrels",
+            name="outer_members",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.BigIntegerField(), default=list, size=None
+            ),
         ),
     ]

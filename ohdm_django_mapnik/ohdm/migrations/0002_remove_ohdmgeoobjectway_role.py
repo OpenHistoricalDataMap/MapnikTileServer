@@ -6,12 +6,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ohdm', '0001_initial'),
+        ("ohdm", "0001_initial"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='ohdmgeoobjectway',
-            name='role',
-        ),
+        migrations.RemoveField(model_name="ohdmgeoobjectway", name="role",),
     ]

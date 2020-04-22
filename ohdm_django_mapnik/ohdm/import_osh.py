@@ -11,6 +11,8 @@ from .models import PlanetOsmNodes, PlanetOsmRels, PlanetOsmWays
 from .tags2mapnik import cleanup_tags
 
 logger = logging.getLogger(__name__)
+
+
 class OSMHandler(SimpleHandler):
     def __init__(self, db_cache_size: int):
         SimpleHandler.__init__(self)

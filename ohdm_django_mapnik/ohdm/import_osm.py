@@ -9,12 +9,13 @@ from osmium import SimpleHandler
 from osmium.geom import WKTFactory
 from osmium.osm._osm import Area, Location, Node, Relation, Tag, TagList, Way
 
-from .models import (PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon,
-                     PlanetOsmRoads)
+from .models import PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRoads
 from .postgis_utily import set_polygon_way_area
 from .tags2mapnik import cleanup_tags, fill_osm_object, get_z_order, is_road
 
 logger = logging.getLogger(__name__)
+
+
 class OSMHandler(SimpleHandler):
     def __init__(self, db_cache_size: int):
         SimpleHandler.__init__(self)
