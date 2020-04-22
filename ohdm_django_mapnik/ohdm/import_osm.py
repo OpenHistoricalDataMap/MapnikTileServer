@@ -219,7 +219,6 @@ def run_import(file_path: str, db_cache_size: int, cache2file: bool):
     """
     osmhandler = OSMHandler(db_cache_size=db_cache_size)
     logger.info("import {}".format(file_path))
-    logger.info()
     osmhandler.show_import_status()
 
     cache_system: str = "flex_mem"

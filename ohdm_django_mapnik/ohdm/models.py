@@ -644,8 +644,8 @@ class PlanetOsmRels(models.Model):
     visible = models.BooleanField()
     tags = HStoreField(default=dict)
     timestamp = models.DateField(blank=True, null=True)
-    inner_members = ArrayField(models.BigIntegerField(), blank=True, null=True)
-    outer_members = ArrayField(models.BigIntegerField(), blank=True, null=True)
+    inner_members = ArrayField(models.BigIntegerField(), default=list)
+    outer_members = ArrayField(models.BigIntegerField(), default=list)
     rel_type = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:

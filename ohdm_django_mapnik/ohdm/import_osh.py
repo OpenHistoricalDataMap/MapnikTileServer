@@ -181,17 +181,13 @@ class OSMHandler(SimpleHandler):
 
         if rel.visible:
             rel_db.tags = self.tags2dict(tags=rel.tags)
-            inner_members: List[str] = []
-            outer_members: List[str] = []
             for member in rel.members:
                 if not member.type == "w":
                     continue
                 if member.role == "inner":
-                    inner_members.append(member.ref)
+                    rel_db.inner_members.append(member.ref)
                 if member.role == "outer":
-                    outer_members.append(member.ref)
-            rel_db.inner_members = inner_members
-            rel_db.outer_members = outer_members
+                    rel_db.outer_members.append(member.ref)
 
         self.rel_cache.append(rel_db)
 
@@ -208,7 +204,6 @@ def run_import(file_path: str, db_cache_size: int, cache2file: bool):
     """
     osmhandler = OSMHandler(db_cache_size=db_cache_size)
     logger.info("import {}".format(file_path))
-    logger.info()
     osmhandler.show_import_status()
 
     cache_system: str = "flex_mem"
