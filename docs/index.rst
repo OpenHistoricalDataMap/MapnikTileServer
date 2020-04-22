@@ -19,6 +19,7 @@ Welcome to MapnikTileServer's documentation!
    sourcecode
    setup_development_instance
    install-without-docker
+   tests
    deployment
    documentation
    ci
