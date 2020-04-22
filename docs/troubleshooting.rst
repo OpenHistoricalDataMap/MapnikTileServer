@@ -30,15 +30,18 @@ error::
     bash: fork: retry: Die Ressource ist zur Zeit nicht verfügbar
     bash: fork: retry: Die Ressource ist zur Zeit nicht verfügbar
 
-To solve this error, expand the process limits of your target user. For the user
-``foo`` the command is::
+To solve this error, expand the process limits of your target user. For all users
+the command is::
 
-    $ echo 'foo             soft    nproc            100' | sudo tee --append /etc/security/limits.conf
+    $ echo '* soft nofile 65000' | sudo tee --append /etc/security/limits.conf
+    $ echo '* hard nofile 65000' | sudo tee --append /etc/security/limits.conf
     $ sudo reboot
 
 After the reboot, it shouldn't shown the error message again. If this message
 isn't gone after restart, you may need to use a another hoster. On
 :ref:`server_hoster` you can watch out for a new working hoster.
+
+Plese make sure, that the hoster is not overwrite the file on each restart!
 
 unable to find face-name 'unifont Medium' in FontSet 'fontset-0'
 ----------------------------------------------------------------
