@@ -126,11 +126,10 @@ OHDM MapnikTileServer
 
 URL's are setup in `config/urls.py` and `ohdm_django_mapnik/ohdm/urls.py`.
 
-```
-/                                                                                                                # Landingpage
-/about/                                                                                                          # Aboutpage
-/users/                                                                                                          # user urls
-/accounts/                                                                                                       # allauth url
+```#
+/admin
+admin panel
+
 /tile/<int:year>/<int:month>/<int:day>/<int:zoom>/<float:x_pixel>/<float:y_pixel>/tile.png                       # tile url
 
 # only in development mode enabled

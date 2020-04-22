@@ -24,7 +24,7 @@ class Ohdm2Mapnik:
         setup Ohdm2Mapnik class
         
         Keyword Arguments:
-            chunk_size {int} -- how many entries will be load at once from database (default: {1000000})
+            chunk_size {int} -- how many entries will be load at once from database (default: {10000})
         """
         self.chunk_size: int = chunk_size
 
@@ -240,14 +240,11 @@ class Ohdm2Mapnik:
         """
         convert ohdm database to mapnik readable tables
         """
-
         # iterate through every ohdm entry
         for geometry in OhdmGeoobjectWay.GEOMETRY_TYPE.TYPES:
             print("Start to convert {} objects".format(geometry))
-
             if geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
                 self.convert_points(geometry=geometry)
-
             elif geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.LINE:
                 self.convert_lines(geometry=geometry)
             else:

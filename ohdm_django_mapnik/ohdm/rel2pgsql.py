@@ -7,20 +7,12 @@ from django.contrib.gis.geos.polygon import Polygon
 from django.utils import timezone
 from shapely.geometry import Polygon as ShapelyPolygon
 
-from .models import (
-    PlanetOsmLine,
-    PlanetOsmNodes,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRels,
-    PlanetOsmRoads,
-    PlanetOsmWays,
-)
+from .models import (PlanetOsmLine, PlanetOsmNodes, PlanetOsmPoint,
+                     PlanetOsmPolygon, PlanetOsmRels, PlanetOsmRoads,
+                     PlanetOsmWays)
 from .postgis_utily import make_polygon_valid, set_polygon_way_area
 from .tags2mapnik import fill_osm_object, get_z_order, is_linestring, is_road
 from .utily import delete_last_terminal_line
-
-# from osgeo.ogr import Geometry, wkbMultiPolygon, wkbPolygon
 
 
 class NodeVersion:

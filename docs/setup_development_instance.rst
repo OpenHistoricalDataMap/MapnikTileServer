@@ -203,7 +203,7 @@ If you need more information, go to the `offical docs
 <https://code.visualstudio.com/docs/remote/ssh>`_.
 
 .. figure:: _static/setup_ide_remote_01.png
-   :scale: 100 %
+   :align: center
    :alt: VS Code - use remote extension
 
    VS Code - use remote extension
@@ -211,7 +211,7 @@ If you need more information, go to the `offical docs
 Than select ``Remote-SSH: Open Configuration File...``
 
 .. figure:: _static/setup_ide_remote_02.png
-   :scale: 100 %
+   :align: center
    :alt: VS Code - select Open Configuration File
 
    VS Code - select ``Open Configuration File``
