@@ -12,6 +12,7 @@ Welcome to MapnikTileServer's documentation!
 
    commands/index
    setup_development_instance
+   install-without-docker
    troubleshooting
 
 
