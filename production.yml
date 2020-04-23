@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-      shm_size: "4g"
+    shm_size: "4g"
     image: ohdm_django_mapnik_production_postgres
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
