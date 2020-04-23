@@ -16,6 +16,13 @@ class Command(BaseCommand):
             help="Clear mapnik (osm2pgsql) data & tile cache",
         )
 
+        # continue old ohdm2mapnik command
+        parser.add_argument(
+            "--continue",
+            action="store_true",
+            help="Continue a previous ohdm2mapnik command, useful when the command was interrupted",
+        )
+
         # osm object cache size for saving
         parser.add_argument(
             "--cache",
@@ -30,5 +37,5 @@ class Command(BaseCommand):
         if options["clear_mapnik_db"]:
             clear_mapnik_tables()
 
-        ohdm2mapnik: Ohdm2Mapnik = Ohdm2Mapnik(chunk_size=options["cache"])
+        ohdm2mapnik: Ohdm2Mapnik = Ohdm2Mapnik(chunk_size=options["cache"], continue_old_import=options["continue"])
         ohdm2mapnik.run()

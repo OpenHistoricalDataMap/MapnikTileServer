@@ -3,24 +3,13 @@ import time
 from typing import List
 
 from config.settings.base import env
-from ohdm_django_mapnik.ohdm.postgis_utily import (
-    make_polygon_valid,
-    set_polygon_way_area,
-)
-from ohdm_django_mapnik.ohdm.tags2mapnik import (
-    cleanup_tags,
-    fill_osm_object,
-    get_z_order,
-    is_road,
-)
+from ohdm_django_mapnik.ohdm.postgis_utily import (make_polygon_valid,
+                                                   set_polygon_way_area)
+from ohdm_django_mapnik.ohdm.tags2mapnik import (cleanup_tags, fill_osm_object,
+                                                 get_z_order, is_road)
 
-from .models import (
-    OhdmGeoobjectWay,
-    PlanetOsmLine,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRoads,
-)
+from .models import (OhdmGeoobjectWay, PlanetOsmLine, PlanetOsmPoint,
+                     PlanetOsmPolygon, PlanetOsmRoads)
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +21,7 @@ class Ohdm2Mapnik:
     -> https://wiki.openstreetmap.org/wiki/Osm2pgsql/schema
     """
 
-    def __init__(self, chunk_size: int = 10000):
+    def __init__(self, chunk_size: int = 10000, continue_old_import: bool = False):
         """
         setup Ohdm2Mapnik class
         
@@ -52,6 +41,9 @@ class Ohdm2Mapnik:
 
         # process start time
         self.start_time: float = 0
+
+        # continue old ohdm2mapnik command
+        self.continue_old_import: bool = continue_old_import
 
     def display_process_time(self):
         """
@@ -108,7 +100,7 @@ class Ohdm2Mapnik:
         logger.info("Set way_area for all polygons!")
         set_polygon_way_area()
 
-    def generate_sql_query(self, geo_type: str) -> str:
+    def generate_sql_query(self, geo_type: str, offset: int = 0) -> str:
         """
         Generate SQL Query to fetch the request geo objects
         
@@ -142,17 +134,23 @@ class Ohdm2Mapnik:
                 INNER JOIN {2}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
                 INNER JOIN {2}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
                 INNER JOIN {2}.classification ON geoobject_geometry.classification_id=classification.id
-                WHERE {1};
+                WHERE {1}
+                ORDER BY geoobject.id
+                OFFSET {3};
             """.format(
-            geo_type, where_statement, env.str("OHDM_SCHEMA"),
+            geo_type, where_statement, env.str("OHDM_SCHEMA"), offset
         )
 
     def convert_points(self, geometry: str):
 
+        offset: int = 0
+        if self.continue_old_import:
+            offset = PlanetOsmPoint.objects.all().count()
+
         ohdm_object: OhdmGeoobjectWay
         for ohdm_object in (
             OhdmGeoobjectWay.objects.using("ohdm")
-            .raw(self.generate_sql_query(geo_type=geometry))
+            .raw(self.generate_sql_query(geo_type=geometry, offset=offset))
             .iterator()
         ):
             self.point_counter += 1
@@ -185,10 +183,14 @@ class Ohdm2Mapnik:
 
     def convert_lines(self, geometry: str):
 
+        offset: int = 0
+        if self.continue_old_import:
+            offset = PlanetOsmLine.objects.all().count()
+
         ohdm_object: OhdmGeoobjectWay
         for ohdm_object in (
             OhdmGeoobjectWay.objects.using("ohdm")
-            .raw(self.generate_sql_query(geo_type=geometry))
+            .raw(self.generate_sql_query(geo_type=geometry, offset=offset))
             .iterator()
         ):
             self.line_counter += 1
@@ -225,10 +227,14 @@ class Ohdm2Mapnik:
 
     def convert_polygons(self, geometry: str):
 
+        offset: int = 0
+        if self.continue_old_import:
+            offset = PlanetOsmPolygon.objects.all().count()
+
         ohdm_object: OhdmGeoobjectWay
         for ohdm_object in (
             OhdmGeoobjectWay.objects.using("ohdm")
-            .raw(self.generate_sql_query(geo_type=geometry))
+            .raw(self.generate_sql_query(geo_type=geometry, offset=offset))
             .iterator()
         ):
             self.polygon_counter += 1
