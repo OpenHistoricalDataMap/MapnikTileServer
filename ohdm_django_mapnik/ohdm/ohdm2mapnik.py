@@ -21,12 +21,14 @@ class Ohdm2Mapnik:
     -> https://wiki.openstreetmap.org/wiki/Osm2pgsql/schema
     """
 
-    def __init__(self, chunk_size: int = 10000, continue_old_import: bool = False):
+    def __init__(self, chunk_size: int = 10000, continue_old_import: bool = False, geometries: List[str] = ["points", "lines", "polygons"]):
         """
         setup Ohdm2Mapnik class
         
         Keyword Arguments:
             chunk_size {int} -- how many entries will be load at once from database (default: {10000})
+            continue_old_import {bool} -- If set, from the source server will be set an offset of the hight of the traget db (default: {False})
+            geometries {List[str]} -- which geometries should be process (default: {["points", "lines", "polygons"]})
         """
         self.chunk_size: int = chunk_size
 
@@ -44,6 +46,9 @@ class Ohdm2Mapnik:
 
         # continue old ohdm2mapnik command
         self.continue_old_import: bool = continue_old_import
+
+        # geometries to be process
+        self.geometries: List[str] = geometries
 
     def display_process_time(self):
         """
@@ -271,7 +276,7 @@ class Ohdm2Mapnik:
         convert ohdm database to mapnik readable tables
         """
         # iterate through every ohdm entry
-        for geometry in OhdmGeoobjectWay.GEOMETRY_TYPE.TYPES:
+        for geometry in self.geometries:
             logger.info("Start to convert {} objects".format(geometry))
             if geometry == OhdmGeoobjectWay.GEOMETRY_TYPE.POINT:
                 self.convert_points(geometry=geometry)

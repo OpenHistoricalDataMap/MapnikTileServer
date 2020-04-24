@@ -1,3 +1,5 @@
+from typing import List
+
 from django.core.management.base import BaseCommand
 
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
@@ -32,10 +34,41 @@ class Command(BaseCommand):
             default=100000,
         )
 
+        parser.add_argument(
+            "--convert-points",
+            action="store_true",
+            help="Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted.",
+        )
+
+        parser.add_argument(
+            "--convert-lines",
+            action="store_true",
+            help="Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted.",
+        )
+
+        parser.add_argument(
+            "--convert-polygons",
+            action="store_true",
+            help="Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted.",
+        )
+
     def handle(self, *args, **options):
         # drop all old data
         if options["clear_mapnik_db"]:
             clear_mapnik_tables()
 
-        ohdm2mapnik: Ohdm2Mapnik = Ohdm2Mapnik(chunk_size=options["cache"], continue_old_import=options["continue"])
+        geometries: List[str] = []
+
+        # set geometries
+        if options["points"]:
+            geometries.append("points")
+        if options["lines"]:
+            geometries.append("lines")
+        if options["polygons"]:
+            geometries.append("polygons")
+
+        if len(geometries) == 0:
+            geometries = ["points", "lines", "polygons"]
+
+        ohdm2mapnik: Ohdm2Mapnik = Ohdm2Mapnik(chunk_size=options["cache"], continue_old_import=options["continue"], geometries=geometries)
         ohdm2mapnik.run()

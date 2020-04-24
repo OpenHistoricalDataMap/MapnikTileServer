@@ -15,8 +15,16 @@ Optional parameters
 
 ``--clear_mapnik_db`` will delete mapnik tables befor convert relation tables.
 
+``--continue`` continue a previous ohdm2mapnik command, useful when the command was interrupted.
+
 ``--cache 100000`` set the cache size, how many objects will be hold in ram befor
 insert them into database. The default value is ``100000``.
+
+``--convert-points`` Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
+
+``--convert-lines`` Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
+
+``--convert-polygons`` Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
 
 Get osm file
 ------------
