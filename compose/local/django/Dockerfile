@@ -19,11 +19,11 @@ RUN apt-get update \
   # Translations dependencies
   && apt-get install -y --no-install-recommends gettext \
   # fonts for mapnik
-  && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \ 
+  && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \
     ttf-unifont \
     # noto fonts
-    fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \ 
-    fonts-noto-hinted fonts-noto-mono \ 
+    fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \
+    fonts-noto-hinted fonts-noto-mono \
     fonts-noto-unhinted \
     fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra \
   # geodjango https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/geolibs/
@@ -74,11 +74,10 @@ RUN pip3 install -r /requirements/system.txt \
 
 # download orginal openstreetmap-carto & create default style.xml
 # https://github.com/gravitystorm/openstreetmap-carto
-ARG OSM_CARTO_VERSION
 RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /opt/openstreetmap-carto-debug  && \
   cd /opt/openstreetmap-carto-debug && \
   git fetch --all && \
-  git reset --hard $OSM_CARTO_VERSION && \
+  git checkout 09623455a392346996a9340e5a4eba8bca9079c6 && \
   ./scripts/get-shapefiles.py && \
   carto project.mml > style.xml
 
