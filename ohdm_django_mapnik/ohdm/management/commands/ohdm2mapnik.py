@@ -18,13 +18,6 @@ class Command(BaseCommand):
             help="Clear mapnik (osm2pgsql) data & tile cache",
         )
 
-        # continue old ohdm2mapnik command
-        parser.add_argument(
-            "--continue",
-            action="store_true",
-            help="Continue a previous ohdm2mapnik command, useful when the command was interrupted",
-        )
-
         # osm object cache size for saving
         parser.add_argument(
             "--cache",
@@ -35,21 +28,37 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--convert-points",
+            "--convert_points",
             action="store_true",
             help="Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted.",
         )
 
         parser.add_argument(
-            "--convert-lines",
+            "--convert_lines",
             action="store_true",
             help="Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted.",
         )
 
         parser.add_argument(
-            "--convert-polygons",
+            "--convert_polygons",
             action="store_true",
             help="Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted.",
+        )
+
+        parser.add_argument(
+            "--convert_threads",
+            nargs="?",
+            type=int,
+            help="How many rows should be converted at once.",
+            default=1,
+        )
+
+        parser.add_argument(
+            "--sql_threads",
+            nargs="?",
+            type=int,
+            help="How many threats should be use, to insert entries into the database.",
+            default=1,
         )
 
     def handle(self, *args, **options):
@@ -60,15 +69,20 @@ class Command(BaseCommand):
         geometries: List[str] = []
 
         # set geometries
-        if options["points"]:
-            geometries.append("points")
-        if options["lines"]:
-            geometries.append("lines")
-        if options["polygons"]:
-            geometries.append("polygons")
+        if options["convert_points"]:
+            geometries.append("point")
+        if options["convert_lines"]:
+            geometries.append("line")
+        if options["convert_polygons"]:
+            geometries.append("polygon")
 
         if len(geometries) == 0:
-            geometries = ["points", "lines", "polygons"]
+            geometries = ["point", "line", "polygon"]
 
-        ohdm2mapnik: Ohdm2Mapnik = Ohdm2Mapnik(chunk_size=options["cache"], continue_old_import=options["continue"], geometries=geometries)
+        ohdm2mapnik: Ohdm2Mapnik = Ohdm2Mapnik(
+            chunk_size=options["cache"],
+            geometries=geometries,
+            sql_threads=options["sql_threads"],
+            convert_threads=options["convert_threads"],
+        )
         ohdm2mapnik.run()
