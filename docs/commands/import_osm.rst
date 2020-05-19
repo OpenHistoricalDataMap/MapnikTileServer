@@ -20,11 +20,11 @@ Optional parameters
 ``--cache 100000`` set the cache size, how many objects will be hold in ram befor
 insert them into database. The default value is ``100000``.
 
-``--convert-points`` Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
+``--convert_points`` Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
 
-``--convert-lines`` Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
+``--convert_lines`` Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
 
-``--convert-polygons`` Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
+``--convert_polygons`` Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
 
 Get osm file
 ------------

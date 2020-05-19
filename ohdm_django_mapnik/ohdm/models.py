@@ -153,23 +153,55 @@ class TileCache(models.Model):
         )
 
 
-class OhdmGeoobjectWay(models.Model):
-    way_id = models.BigIntegerField(primary_key=True)
+class OhdmGeoobjectPoint(models.Model):
     geoobject_id = models.BigIntegerField()
-    name = models.CharField(max_length=255)
-    classification_class = models.CharField(max_length=255)
-    classification_subclassname = models.CharField(max_length=255)
-    tags = HStoreField()
+    name = models.CharField(max_length=255, blank=True, null=True)
+    classification_class = models.CharField(max_length=255, blank=True, null=True)
+    classification_subclassname = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    tags = HStoreField(blank=True, null=True)
     valid_since = models.DateField()
     valid_until = models.DateField()
-    way = models.TextField()
+    way = models.TextField(blank=True, null=True)
+    # way = models.GeometryField(srid=0, blank=True, null=True)
 
-    class GEOMETRY_TYPE:
-        POINT = "point"
-        LINE = "line"
-        POLYGON = "polygon"
+    class Meta:
+        db_table = "ohdm_points"
 
-        TYPES = [POINT, LINE, POLYGON]
+
+class OhdmGeoobjectLine(models.Model):
+    geoobject_id = models.BigIntegerField()
+    name = models.CharField(max_length=255, blank=True, null=True)
+    classification_class = models.CharField(max_length=255, blank=True, null=True)
+    classification_subclassname = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    tags = HStoreField(blank=True, null=True)
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    way = models.TextField(blank=True, null=True)
+    # way = models.GeometryField(srid=0, blank=True, null=True)
+
+    class Meta:
+        db_table = "ohdm_lines"
+
+
+class OhdmGeoobjectPolygon(models.Model):
+    geoobject_id = models.BigIntegerField()
+    name = models.CharField(max_length=255, blank=True, null=True)
+    classification_class = models.CharField(max_length=255, blank=True, null=True)
+    classification_subclassname = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    tags = HStoreField(blank=True, null=True)
+    valid_since = models.DateField()
+    valid_until = models.DateField()
+    way = models.TextField(blank=True, null=True)
+    # way = models.GeometryField(srid=0, blank=True, null=True)
+
+    class Meta:
+        db_table = "ohdm_polygons"
 
 
 class PlanetOsmRoads(models.Model):
