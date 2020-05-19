@@ -6,12 +6,12 @@ from typing import Dict
 import pytest
 from django.utils import timezone
 from mapnik import Box2d
-from PIL import Image, ImageChops
-
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
-from ohdm_django_mapnik.ohdm.exceptions import CoordinateOutOfRange, ZoomOutOfRange
+from ohdm_django_mapnik.ohdm.exceptions import (CoordinateOutOfRange,
+                                                ZoomOutOfRange)
 from ohdm_django_mapnik.ohdm.import_osm import run_import
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
+from PIL import Image, ImageChops
 
 
 def test_tile_generator_init():
@@ -148,7 +148,7 @@ def test_render_tile_without_data(
 ):
     """
     test render tiles for tile_test_cases without using ohdm test data
-    
+
     Arguments:
         tile_generator {TileGenerator} -- default TileGenerator
     """
@@ -186,7 +186,7 @@ def test_render_tile_with_data(
 ):
     """
     test render tiles for tile_test_cases with using ohdm test data
-    
+
     Arguments:
         tile_generator {TileGenerator} -- default TileGenerator
     """
@@ -195,7 +195,7 @@ def test_render_tile_with_data(
 
     # fill database
     run_import(
-        file_path="/map.osm", db_cache_size=10000, cache2file=False,
+        file_path="/niue-latest.osm.pbf", db_cache_size=10000, cache2file=False,
     )
 
     tile_generator.request_date = timezone.now()

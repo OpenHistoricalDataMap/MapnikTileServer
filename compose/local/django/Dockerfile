@@ -37,8 +37,8 @@ RUN apt-get update \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
 
-# download osm test area -> https://www.openstreetmap.org/#map=17/53.07300/8.80780
-RUN wget 'https://www.openstreetmap.org/api/0.6/map?bbox=8.80616%2C53.07173%2C8.81218%2C53.07477' --output-document '/map.osm'
+# download demo dataset (niue)
+RUN wget http://download.geofabrik.de/australia-oceania/niue-latest.osm.pbf -O /niue-latest.osm.pbf
 
 # install fonts that are not included in the repo
 # https://www.google.com/get/noto/
@@ -53,10 +53,6 @@ RUN mkdir /opt/noto-fonts \
   && fc-cache -fv \
   && fc-list \
   && rm -r /opt/noto-fonts
-
-#   'Noto Sans Balinese Regular' in FontSet 'fontset-2'
-# celeryworker_1  | Mapnik LOG> 2020-04-16 17:18:06: warning: unable to find face-name 'Noto Sans Syriac Eastern Regular' in FontSet 'fontset-2'
-# celeryworker_1  | Mapnik LOG> 2020-04-16 17:18:06: warning: unable to find face-name 'Noto Emoji Regular' in FontSet 'fontset-2'
 
 # set python 3.x as default
 RUN ln -sfn /usr/bin/python3 /usr/bin/python

@@ -18,9 +18,9 @@ RUN mkdir /ohdm
 
 WORKDIR /ohdm
 
-# download demo dataset (malta)
-RUN wget http://download.geofabrik.de/europe/malta-latest.osm.bz2  \
-    && bunzip2 malta-latest.osm.bz2
+# download demo dataset (niue)
+RUN wget http://download.geofabrik.de/australia-oceania/niue-latest.osm.bz2  \
+    && bunzip2 niue-latest.osm.bz2
 
 # download OHDMConverter
 RUN wget https://github.com/OpenHistoricalDataMap/OSMImportUpdate/releases/download/0.1/OHDMConverter.jar
