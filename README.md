@@ -190,6 +190,7 @@ $ docker-compose -f local.yml run --rm django /get-shapefiles.sh
 $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
 ```
 
+/opt/openstreetmap-carto
 **6. start test server**
 
 ```bash
@@ -204,7 +205,7 @@ $ docker-compose -f local.yml up -d django celeryworker celerybeat
 
 If it works fine you should able to visit the Website via http://example.com:8000/
 
-**5. use Flower to monitor tile producing task**
+**7. use Flower to monitor tile producing task**
 
 With [Flower](https://flower.readthedocs.io/en/latest/) it's possible to monitor [Celery](http://www.celeryproject.org/) task.
 
@@ -216,7 +217,7 @@ $ docker-compose -f local.yml up -d flower
 
 Then you can via http://example.com:5555/ watch the Flower monitor. The login data stored in `.envs/.local/.django`
 
-**6. create admin user**
+**8. create admin user**
 
 ```bash
 $ docker-compose -f local.yml run --rm django python manage.py createsuperuser
@@ -226,7 +227,7 @@ To visit the admin panel go to http://example.com:8000/admin/
 
 For more infos got to https://cookiecutter-django.readthedocs.io/en/latest/developing-locally-docker.html
 
-**7. stop server**
+**9. stop server**
 
 ```bash
 $ docker-compose -f local.yml stop
