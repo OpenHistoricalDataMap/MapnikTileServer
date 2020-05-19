@@ -18,8 +18,9 @@ RUN mkdir /ohdm
 
 WORKDIR /ohdm
 
-# download osm test area -> https://www.openstreetmap.org/#map=17/53.07300/8.80780
-RUN wget 'https://www.openstreetmap.org/api/0.6/map?bbox=8.7999%2C53.0679%2C8.8232%2C53.078' --output-document '/ohdm/bremen-latest.osm'
+# download demo dataset (malta)
+RUN wget http://download.geofabrik.de/europe/malta-latest.osm.bz2  \
+    && bunzip2 malta-latest.osm.bz2
 
 # download OHDMConverter
 RUN wget https://github.com/OpenHistoricalDataMap/OSMImportUpdate/releases/download/0.1/OHDMConverter.jar

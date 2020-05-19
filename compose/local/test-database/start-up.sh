@@ -53,7 +53,7 @@ sed -i -e "s/PGPORT/$PGPORT/g" /ohdm/configs/db_*.txt
 psql -f /ohdm/sql/create-schema.sql
 
 # load osm file into db
-java -jar /ohdm/OHDMConverter.jar -o /ohdm/bremen-latest.osm -i /ohdm/configs/db_inter.txt
+java -jar /ohdm/OHDMConverter.jar -o /ohdm/malta-latest.osm -i /ohdm/configs/db_inter.txt
 
 # load convert osm database into a ohdm database
 java -jar /ohdm/OHDMConverter.jar -i /ohdm/configs/db_inter.txt -d /ohdm/configs/db_ohdm.txt
