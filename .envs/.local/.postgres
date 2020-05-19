@@ -8,6 +8,11 @@ POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oa
 POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
 PGCONNECT_TIMEOUT=60
 
+WAL_SIZE=16GB
+MIN_WAL_SIZE=8GB
+WAL_SEGSIZE=8192
+MAINTAINANCE_WORK_MEM=4GB
+
 # OHDM PostgreSQL
 # ------------------------------------------------------------------------------
 OHDM_POSTGRES_HOST=postgres
@@ -17,7 +22,7 @@ OHDM_POSTGRES_USER=docker
 OHDM_POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
 OHDM_POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
 OHDM_PGCONNECT_TIMEOUT=60
-OHDM_SCHEMA=public
+OHDM_SCHEMA=ohdm_test
 
 # VS-Code
 # ------------------------------------------------------------------------------
