@@ -23,7 +23,7 @@ certificatesResolvers:
 http:
   routers:
     web-router:
-      rule: "Host(`ohdm.net`)"
+      rule: "Host(`ohdm.net`, `a.ohdm.net`, `b.ohdm.net`, `c.ohdm.net`)"
       entryPoints:
         - web
       middlewares:
@@ -32,12 +32,30 @@ http:
       service: django
 
     web-secure-router:
-      rule: "Host(`ohdm.net`)"
+      rule: "Host(`ohdm.net`, `a.ohdm.net`, `b.ohdm.net`, `c.ohdm.net`)"
       entryPoints:
         - web-secure
       middlewares:
         - csrf
       service: django
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    flower-router:
+      rule: "Host(`monitor.ohdm.net`)"
+      entryPoints:
+        - web
+      middlewares:
+        - redirect
+        - csrf
+      service: flower
+
+    flower-secure-router:
+      rule: "Host(`monitor.ohdm.net`)"
+      entryPoints:
+        - web-secure
+      service: flower
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
@@ -57,8 +75,14 @@ http:
   services:
     django:
       loadBalancer:
+        terminationDelay: 100
         servers:
           - url: http://django:5000
+
+    flower:
+      loadBalancer:
+        servers:
+          - url: http://flower:5555
 
 providers:
   # https://docs.traefik.io/master/providers/file/

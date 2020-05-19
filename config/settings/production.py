@@ -1,4 +1,5 @@
 import logging
+import lzma
 
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -13,7 +14,9 @@ from .base import env
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["ohdm.net"])
+ALLOWED_HOSTS = env.list(
+    "DJANGO_ALLOWED_HOSTS", default=["a.ohdm.net", "b.ohdm.net", "c.ohdm.net"]
+)
 
 # DATABASES
 # ------------------------------------------------------------------------------
@@ -33,6 +36,9 @@ CACHES = {
             # Mimicing memcache behavior.
             # http://niwinz.github.io/django-redis/latest/#_memcached_exceptions_behavior
             "IGNORE_EXCEPTIONS": True,
+            # compress cache with Lz4
+            # https://jazzband.github.io/django-redis/latest/#_compression_support
+            "COMPRESSOR": "django_redis.compressors.lzma.LzmaCompressor",
         },
     }
 }
