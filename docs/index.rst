@@ -14,6 +14,8 @@ Welcome to MapnikTileServer's documentation!
    commands/index
    frontend
    config
+   view
+   caching
    urls
    openstreetmap-carto
    sourcecode
