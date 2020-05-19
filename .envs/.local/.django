@@ -22,6 +22,15 @@ MAPNIK_VERSION=v3.0.22
 TILE_GENERATOR_SOFT_TIMEOUT=240
 TILE_GENERATOR_HARD_TIMEOUT=360
 
+# caching
+# ------------------------------------------------------------------------------
+# 86400 == 1 day
+CACHE_VIEW=86400
+# to which zoom level tiles should cached for ever
+ZOOM_LEVEL=13
+# 2592000 == 1 month
+TILE_CACHE_TIME=2592000
+
 # VS-Code
 # ------------------------------------------------------------------------------
 CELERY_BROKER_URL=redis://redis:6379/0
