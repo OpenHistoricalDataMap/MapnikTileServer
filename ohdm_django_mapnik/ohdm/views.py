@@ -1,17 +1,21 @@
 from datetime import date
+from time import sleep
 from typing import Optional
 
+from celery import exceptions
 from celery.result import AsyncResult
+from config.settings.base import OSM_CARTO_STYLE_XML, env
 from django.core.cache import cache
 from django.http import HttpResponse
+from django.views.decorators.cache import cache_page
 
-from config.settings.base import OSM_CARTO_STYLE_XML, env
 from ohdm_django_mapnik.ohdm.models import TileCache
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 
+@cache_page(env.int("CACHE_VIEW"))
 def generate_tile(
     request, year: int, month: int, day: int, zoom: int, x_pixel: float, y_pixel: float
 ) -> HttpResponse:
@@ -27,53 +31,69 @@ def generate_tile(
     :return:
     """
 
-    request_date: date = date(year=int(year), month=int(month), day=int(day))
+    # set tile cache key, where the celery task id & tile cache id is stored
+    tile_cache_key: str = "{}-{}-{}-{}-{}-{}".format(
+        int(year), int(month), int(day), int(zoom), int(x_pixel), int(y_pixel),
+    )
 
-    tile_cache: Optional[TileCache] = TileCache.objects.filter(
-        zoom=zoom,
-        x_pixel=x_pixel,
-        y_pixel=y_pixel,
-        valid_since__lte=request_date,
-        valid_until__gte=request_date,
-    ).last()
+    # tile static typing
+    tile: Optional[bytes]
+    tile_process: AsyncResult
 
-    if tile_cache:
-        tile: Optional[bytes] = tile_cache.get_tile_from_cache_or_delete()
+    # get tile cache
+    tile_cache: Optional[dict] = cache.get(
+        tile_cache_key, {"process_id": None, "tile_hash": None}
+    )
 
-    if tile_cache and tile:
-        return HttpResponse(tile, content_type="image/jpeg")
+    # check if process is running and wait for end
+    if tile_cache["process_id"]:
+        tile_process = AsyncResult(tile_cache["process_id"])
+        for _ in range(0, env.int("TILE_GENERATOR_HARD_TIMEOUT") * 2):
+            sleep(0.5)
+            tile_cache = cache.get(
+                tile_cache_key, {"process_id": None, "tile_hash": None}
+            )
+
+            if tile_cache["tile_hash"]:
+                break
+
+    # try get tile png & return it
+    if tile_cache["tile_hash"]:
+        tile = cache.get(tile_cache["tile_hash"])
+        if tile:
+            return HttpResponse(tile, content_type="image/jpeg")
+
+    # if there is no tile process & no tile in cache, create one
+    tile_process: AsyncResult = async_generate_tile.delay(
+        year=int(year),
+        month=int(month),
+        day=int(day),
+        style_xml_template=OSM_CARTO_STYLE_XML,
+        zoom=int(zoom),
+        x_pixel=float(x_pixel),
+        y_pixel=float(y_pixel),
+        osm_cato_path=env("CARTO_STYLE_PATH"),
+        cache_key=tile_cache_key,
+    )
+    tile_cache["process_id"] = tile_process.id
+
+    # update cache
+    if zoom <= env.int("ZOOM_LEVEL"):
+        cache.set(tile_cache_key, tile_cache, None)
     else:
-        tile_cache = TileCache.objects.create(
-            zoom=zoom,
-            x_pixel=x_pixel,
-            y_pixel=y_pixel,
-            valid_since=request_date,
-            valid_until=request_date,
-        )
+        cache.set(tile_cache_key, tile_cache, env.int("TILE_CACHE_TIME"))
 
-        tile_process: AsyncResult = async_generate_tile.delay(
-            year=int(year),
-            month=int(month),
-            day=int(day),
-            style_xml_template=OSM_CARTO_STYLE_XML,
-            zoom=int(zoom),
-            x_pixel=float(x_pixel),
-            y_pixel=float(y_pixel),
-            osm_cato_path=env("CARTO_STYLE_PATH"),
-            cache_key=tile_cache.get_cache_key(),
-        )
+    try:
+        # todo add timeout to environment var
+        tile_process.wait(timeout=env.int("TILE_GENERATOR_HARD_TIMEOUT"))
+    except exceptions.TimeoutError:
+        return HttpResponse("Timeout when creating tile", status=500)
 
-        tile_cache.celery_task_id = tile_process.id
-        tile_cache.save()
-        tile_cache.set_valid_date()
-
-        while tile_process.ready() is False:
-            pass
-
-        tile_cache.celery_task_done = True
-        tile_cache.save()
-
-        return HttpResponse(cache.get(tile_process.get()), content_type="image/jpeg")
+    tile_cache["tile_hash"] = tile_process.get()
+    tile = cache.get(tile_cache["tile_hash"])
+    if tile:
+        return HttpResponse(tile, content_type="image/jpeg")
+    return HttpResponse(tile_cache["tile_hash"])
 
 
 def generate_tile_reload_style(

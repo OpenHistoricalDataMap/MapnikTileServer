@@ -1,3 +1,4 @@
+import hashlib
 from datetime import date
 from time import sleep
 
@@ -37,20 +38,34 @@ def async_generate_tile(
     :return:
     """
 
-    cache.set(
-        cache_key,
-        TileGenerator(
-            request_date=date(year=int(year), month=int(month), day=int(day)),
-            style_xml_template=style_xml_template,
-            zoom=int(zoom),
-            x_pixel=float(x_pixel),
-            y_pixel=float(y_pixel),
-            osm_cato_path=osm_cato_path,
-            use_cache=True,
-        ).render_tile(),
-    )
+    # render requested tile
+    tile: bytes = TileGenerator(
+        request_date=date(year=int(year), month=int(month), day=int(day)),
+        style_xml_template=style_xml_template,
+        zoom=int(zoom),
+        x_pixel=float(x_pixel),
+        y_pixel=float(y_pixel),
+        osm_cato_path=osm_cato_path,
+        use_cache=True,
+    ).render_tile()
 
-    return cache_key
+    # create a md5 hash of the tile
+    tile_hash: str = hashlib.md5(tile).hexdigest()
+
+    # set url-tile cache content
+    tile_cache: dict = {"process_id": None, "tile_hash": tile_hash}
+
+    # update tile cache & url-tile cache content
+    if zoom <= env.int("ZOOM_LEVEL"):
+        # cache for ever
+        cache.set(tile_hash, tile, None)
+        cache.set(cache_key, tile_cache, None)
+    else:
+        # cache for time in TILE_CACHE_TIME
+        cache.set(tile_hash, tile, env.int("TILE_CACHE_TIME") * 10)
+        cache.set(cache_key, tile_cache, env.int("TILE_CACHE_TIME"))
+
+    return tile_hash
 
 
 @app.task()

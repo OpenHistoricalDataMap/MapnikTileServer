@@ -9,3 +9,4 @@ sentry-sdk==0.14.1  # https://github.com/getsentry/sentry-python
 
 # Django
 # ------------------------------------------------------------------------------
+lz4==3.0.2  # https://github.com/python-lz4/python-lz4
