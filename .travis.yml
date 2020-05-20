@@ -18,6 +18,16 @@ addons:
     packages:
       - python3-pip
       - python3-setuptools
+      - postgresql-client-common
+      - postgresql-client-12
+
+env:
+  global:
+    - PGUSER=docker
+    - PGPASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
+    - PGDATABASE=gis
+    - PGHOST=localhost
+    - PGPORT=5432
 
 before_script:
   # download openstreetmap-carto
@@ -33,8 +43,11 @@ before_script:
   - sudo docker-compose -f local.yml run --rm django python manage.py create_style_xml
   # start postgis server
   - sudo docker-compose -f local.yml up -d postgres
-  # fill demo database
-  - sudo docker-compose -f local.yml up test-database
+  # fill demo database (pg_dump -W -F t gis | gzip > gis.tar.gz)
+  - pip3 install gdown
+  - gdown https://drive.google.com/uc?id=1fNPz4bA81hTEg7q9WZtfnuFswt0jgzub
+  - gunzip gis.tar.gz
+  - psql gis < gis.tar
 
 install:
   # install docker-compose
