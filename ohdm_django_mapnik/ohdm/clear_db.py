@@ -1,13 +1,8 @@
-from .models import (
-    PlanetOsmLine,
-    PlanetOsmNodes,
-    PlanetOsmPoint,
-    PlanetOsmPolygon,
-    PlanetOsmRels,
-    PlanetOsmRoads,
-    PlanetOsmWays,
-    TileCache,
-)
+from django.core.cache import cache
+
+from .models import (PlanetOsmLine, PlanetOsmNodes, PlanetOsmPoint,
+                     PlanetOsmPolygon, PlanetOsmRels, PlanetOsmRoads,
+                     PlanetOsmWays)
 
 
 def clear_rel_tables():
@@ -26,8 +21,11 @@ def clear_mapnik_tables():
     """
     print("clear mapnik data & cache")
 
+    # clear database
     PlanetOsmLine.objects.all().delete()
     PlanetOsmPoint.objects.all().delete()
     PlanetOsmPolygon.objects.all().delete()
     PlanetOsmRoads.objects.all().delete()
-    TileCache.objects.all().delete()
+
+    # clear cache
+    cache.clear()

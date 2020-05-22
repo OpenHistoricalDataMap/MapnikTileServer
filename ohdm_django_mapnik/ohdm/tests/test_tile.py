@@ -4,6 +4,7 @@ from tempfile import SpooledTemporaryFile
 from typing import Dict
 
 import pytest
+
 from django.utils import timezone
 from mapnik import Box2d
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
@@ -217,8 +218,6 @@ def test_render_tile_with_data(
 
         # open new tile as image
         new_tile_image: Image = Image.open(new_tile)
-
-        new_tile_image.save("/app/bremen.png")
 
         # check if the tile is a PNG file
         assert new_tile_image.format == "PNG"

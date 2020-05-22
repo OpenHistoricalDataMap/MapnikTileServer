@@ -9,7 +9,6 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
 
-from ohdm_django_mapnik.ohdm.models import TileCache
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml

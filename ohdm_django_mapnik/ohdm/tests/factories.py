@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from factory import DjangoModelFactory
-
 from ohdm_django_mapnik.ohdm.tasks import auto_done_task
 
 
@@ -68,23 +67,3 @@ class PlanetOsmRoadsFactory(DjangoModelFactory):
     way = "010200000002000000AE1FAC30E49836416ED53F8574505A4141D7BE0805993641E9A9C49368505A41"
     valid_since = datetime(2020, 1, 1)
     valid_until = datetime(2020, 12, 31)
-
-
-class FinishTileCacheFactory(DjangoModelFactory):
-    class Meta:
-        model = "ohdm.TileCache"
-
-    created = datetime(2020, 2, 11)
-    zoom = 0
-    x_pixel = 0
-    y_pixel = 0
-    valid_since = datetime(2020, 1, 1)
-    valid_until = datetime(2020, 12, 31)
-    celery_task_id = auto_done_task.delay(seconds=0).id
-    celery_task_done = True
-
-
-class RunningTileCacheFactory(FinishTileCacheFactory):
-
-    celery_task_id = auto_done_task.delay(seconds=10).id
-    celery_task_done = False
