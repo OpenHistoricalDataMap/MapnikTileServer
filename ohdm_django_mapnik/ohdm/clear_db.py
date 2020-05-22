@@ -1,8 +1,14 @@
 from django.core.cache import cache
 
-from .models import (PlanetOsmLine, PlanetOsmNodes, PlanetOsmPoint,
-                     PlanetOsmPolygon, PlanetOsmRels, PlanetOsmRoads,
-                     PlanetOsmWays)
+from .models import (
+    PlanetOsmLine,
+    PlanetOsmNodes,
+    PlanetOsmPoint,
+    PlanetOsmPolygon,
+    PlanetOsmRels,
+    PlanetOsmRoads,
+    PlanetOsmWays,
+)
 
 
 def clear_rel_tables():

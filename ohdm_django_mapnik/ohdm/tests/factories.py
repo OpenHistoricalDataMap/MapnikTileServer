@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from factory import DjangoModelFactory
-from ohdm_django_mapnik.ohdm.tasks import auto_done_task
 
 
 class PlanetOsmLineFactory(DjangoModelFactory):

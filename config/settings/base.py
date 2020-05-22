@@ -5,7 +5,6 @@ import os
 
 import environ
 import mapnik
-
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 ROOT_DIR = (
@@ -27,6 +26,8 @@ print("Mapnik version: {}".format(mapnik.mapnik_version()))
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
+# enable test urls in ohdm_django_mapnik/ohdm/urls.py
+TEST_URLS = DEBUG
 # Local time zone. Choices are
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # though not all of them may be available with every OS.
@@ -133,6 +134,24 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# CACHES
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#caches
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env("REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # Mimicing memcache behavior.
+            # http://niwinz.github.io/django-redis/latest/#_memcached_exceptions_behavior
+            "IGNORE_EXCEPTIONS": False,
+            # https://jazzband.github.io/django-redis/latest/#_compression_support
+            "COMPRESSOR": "django_redis.compressors.lzma.LzmaCompressor",
+        },
+    }
+}
 
 # STATIC
 # ------------------------------------------------------------------------------

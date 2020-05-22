@@ -21,6 +21,31 @@ def tile_generator() -> TileGenerator:
 
 
 @pytest.fixture
+def test_tile() -> Dict[str, dict]:
+    """
+    A dict with all values to tests a single tile
+
+    Returns:
+        Dict[str, dict] -- test tile data
+    """
+    return {
+        "data": {
+            "year": 2020,
+            "month": 1,
+            "day": 1,
+            "zoom": 0,
+            "x_pixel": 0,
+            "y_pixel": 0,
+        },
+        "no-data-data": {"zoom": 0, "x_pixel": 0, "y_pixel": 0,},
+        "cache": {
+            "tile_hash": "e5e9e200cd28d88296ddd282d6ec0651",
+            "cache_key": "2020-1-1-0-0-0",
+        },
+    }
+
+
+@pytest.fixture
 def tile_test_cases() -> Dict[str, dict]:
     """
     A dict of tile test cases

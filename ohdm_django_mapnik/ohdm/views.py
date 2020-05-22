@@ -8,7 +8,7 @@ from config.settings.base import OSM_CARTO_STYLE_XML, env
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
-
+from ohdm_django_mapnik.ohdm.exceptions import CoordinateOutOfRange
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
@@ -45,25 +45,28 @@ def generate_tile(
     )
 
     # check if process is running and wait for end
-    if tile_cache["process_id"]:
-        tile_process = AsyncResult(tile_cache["process_id"])
-        for _ in range(0, env.int("TILE_GENERATOR_HARD_TIMEOUT") * 2):
-            sleep(0.5)
-            tile_cache = cache.get(
-                tile_cache_key, {"process_id": None, "tile_hash": None}
-            )
+    if tile_cache:
+        if tile_cache["process_id"]:
+            tile_process = AsyncResult(tile_cache["process_id"])
+            for _ in range(0, env.int("TILE_GENERATOR_HARD_TIMEOUT") * 2):
+                sleep(0.5)
+                tile_cache = cache.get(
+                    tile_cache_key, {"process_id": None, "tile_hash": None}
+                )
 
-            if tile_cache["tile_hash"]:
-                break
+                if tile_cache:
+                    if tile_cache["tile_hash"]:
+                        break
 
     # try get tile png & return it
-    if tile_cache["tile_hash"]:
-        tile = cache.get(tile_cache["tile_hash"])
-        if tile:
-            return HttpResponse(tile, content_type="image/jpeg")
+    if tile_cache:
+        if tile_cache["tile_hash"]:
+            tile = cache.get(tile_cache["tile_hash"])
+            if tile:
+                return HttpResponse(tile, content_type="image/jpeg")
 
     # if there is no tile process & no tile in cache, create one
-    tile_process: AsyncResult = async_generate_tile.delay(
+    tile_process = async_generate_tile.delay(
         year=int(year),
         month=int(month),
         day=int(day),
@@ -74,6 +77,10 @@ def generate_tile(
         osm_cato_path=env("CARTO_STYLE_PATH"),
         cache_key=tile_cache_key,
     )
+
+    if not tile_cache:
+        tile_cache = {"process_id": None, "tile_hash": None}
+
     tile_cache["process_id"] = tile_process.id
 
     # update cache
@@ -83,16 +90,18 @@ def generate_tile(
         cache.set(tile_cache_key, tile_cache, env.int("TILE_CACHE_TIME"))
 
     try:
-        # todo add timeout to environment var
         tile_process.wait(timeout=env.int("TILE_GENERATOR_HARD_TIMEOUT"))
     except exceptions.TimeoutError:
         return HttpResponse("Timeout when creating tile", status=500)
+    except CoordinateOutOfRange as e:
+        return HttpResponse(e, status=405)
 
     tile_cache["tile_hash"] = tile_process.get()
     tile = cache.get(tile_cache["tile_hash"])
     if tile:
         return HttpResponse(tile, content_type="image/jpeg")
-    return HttpResponse(tile_cache["tile_hash"])
+
+    return HttpResponse("Caching Error", status=500)
 
 
 def generate_tile_reload_style(
