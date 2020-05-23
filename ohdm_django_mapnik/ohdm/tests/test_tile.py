@@ -9,7 +9,11 @@ from django.core.cache import cache
 from django.utils import timezone
 from mapnik import Box2d
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
-from ohdm_django_mapnik.ohdm.exceptions import CoordinateOutOfRange, ZoomOutOfRange
+from ohdm_django_mapnik.ohdm.exceptions import (
+    CoordinateOutOfRange,
+    RenderErrorNoDate,
+    ZoomOutOfRange,
+)
 from ohdm_django_mapnik.ohdm.import_osm import run_import
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from PIL import Image, ImageChops
@@ -237,3 +241,12 @@ def test_render_tile_with_data(
 
     # cleanup data
     clear_mapnik_tables()
+
+
+def test_without_date():
+    tile_generator: TileGenerator = TileGenerator(
+        zoom=0, x_pixel=0, y_pixel=0, use_cache=False
+    )
+
+    with pytest.raises(RenderErrorNoDate):
+        tile_generator.render_tile()
