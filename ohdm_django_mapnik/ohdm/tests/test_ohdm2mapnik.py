@@ -1,6 +1,6 @@
 import pytest
-
 from django.db import connection
+
 from ohdm_django_mapnik.ohdm.models import (
     GeoobjectGeometry,
     OhdmGeoobjectLine,

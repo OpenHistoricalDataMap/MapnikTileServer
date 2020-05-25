@@ -4,10 +4,11 @@ from tempfile import SpooledTemporaryFile
 from typing import Dict
 
 import pytest
-
 from django.core.cache import cache
 from django.utils import timezone
 from mapnik import Box2d
+from PIL import Image, ImageChops
+
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.exceptions import (
     CoordinateOutOfRange,
@@ -16,7 +17,6 @@ from ohdm_django_mapnik.ohdm.exceptions import (
 )
 from ohdm_django_mapnik.ohdm.import_osm import run_import
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
-from PIL import Image, ImageChops
 
 
 def test_tile_generator_init():
