@@ -30,11 +30,15 @@ class TestAsyncGenerateTile:
         # get tile cache
         tile_cache: Optional[dict] = cache.get(cache_key)
 
-        assert tile_cache is not None
-        assert tile_cache["process_id"] is None
-        assert tile_cache["tile_hash"] is not None
+        if tile_cache is None:
+            raise AssertionError
+        if tile_cache["process_id"] is not None:
+            raise AssertionError
+        if tile_cache["tile_hash"] is None:
+            raise AssertionError
 
-        assert isinstance(tile_cache["tile_hash"], str)
+        if not isinstance(tile_cache["tile_hash"], str):
+            raise AssertionError
 
     def test_high_zoom(self, test_tile: Dict[str, dict]):
         # clear cache
@@ -59,8 +63,12 @@ class TestAsyncGenerateTile:
         # get tile cache
         tile_cache: Optional[dict] = cache.get(cache_key)
 
-        assert tile_cache is not None
-        assert tile_cache["process_id"] is None
-        assert tile_cache["tile_hash"] is not None
+        if tile_cache is None:
+            raise AssertionError
+        if tile_cache["process_id"] is not None:
+            raise AssertionError
+        if tile_cache["tile_hash"] is None:
+            raise AssertionError
 
-        assert isinstance(tile_cache["tile_hash"], str)
+        if not isinstance(tile_cache["tile_hash"], str):
+            raise AssertionError

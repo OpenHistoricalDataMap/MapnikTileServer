@@ -39,9 +39,12 @@ def test_generate_tile_reload_style(test_tile: Dict[str, dict]):
         y_pixel=test_tile["data"]["y_pixel"],
     )
 
-    assert isinstance(response.content, bytes)
-    assert response.status_code == 200
-    assert response["content-type"] == "image/jpeg"
+    if not isinstance(response.content, bytes):
+        raise AssertionError
+    if response.status_code != 200:
+        raise AssertionError
+    if response["content-type"] != "image/jpeg":
+        raise AssertionError
 
 
 @pytest.mark.django_db()
@@ -64,9 +67,12 @@ def test_generate_tile_reload_project(test_tile: Dict[str, dict]):
         y_pixel=test_tile["data"]["y_pixel"],
     )
 
-    assert isinstance(response.content, bytes)
-    assert response.status_code == 200
-    assert response["content-type"] == "image/jpeg"
+    if not isinstance(response.content, bytes):
+        raise AssertionError
+    if response.status_code != 200:
+        raise AssertionError
+    if response["content-type"] != "image/jpeg":
+        raise AssertionError
 
 
 @pytest.mark.django_db()
@@ -84,6 +90,9 @@ def test_generate_osm_tile(test_tile: Dict[str, dict]):
         y_pixel=test_tile["no-data-data"]["y_pixel"],
     )
 
-    assert isinstance(response.content, bytes)
-    assert response.status_code == 200
-    assert response["content-type"] == "image/jpeg"
+    if not isinstance(response.content, bytes):
+        raise AssertionError
+    if response.status_code != 200:
+        raise AssertionError
+    if response["content-type"] != "image/jpeg":
+        raise AssertionError

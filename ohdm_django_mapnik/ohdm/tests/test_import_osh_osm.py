@@ -31,10 +31,14 @@ def test_import_osm():
     osm_polygon_count: int = PlanetOsmPolygon.objects.all().count()
 
     # check if there was added any mapnik entry
-    assert osm_point_count > 0
-    assert osm_line_count > 0
-    assert osm_road_count > 0
-    assert osm_polygon_count > 0
+    if osm_point_count <= 0:
+        raise AssertionError
+    if osm_line_count <= 0:
+        raise AssertionError
+    if osm_road_count <= 0:
+        raise AssertionError
+    if osm_polygon_count <= 0:
+        raise AssertionError
 
 
 @pytest.mark.django_db()
@@ -55,7 +59,11 @@ def test_import_osh():
     osh_polygon_count: int = PlanetOsmPolygon.objects.all().count()
 
     # check if there was added any mapnik entry
-    assert osh_point_count > 0
-    assert osh_line_count > 0
-    assert osh_road_count > 0
-    assert osh_polygon_count > 0
+    if osh_point_count <= 0:
+        raise AssertionError
+    if osh_line_count <= 0:
+        raise AssertionError
+    if osh_road_count <= 0:
+        raise AssertionError
+    if osh_polygon_count <= 0:
+        raise AssertionError
