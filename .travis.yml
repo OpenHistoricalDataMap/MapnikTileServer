@@ -41,7 +41,7 @@ before_script:
   - sudo docker-compose -f local.yml run --rm django /get-shapefiles.sh
   # generate style.xml
   - sudo docker-compose -f local.yml run --rm django python manage.py create_style_xml
-  # start postgis server & celery
+  # start postgis, redis & celery
   - sudo docker-compose -f local.yml up -d postgres celerybeat celeryworker
   # fill demo database (pg_dump -W -F t gis | gzip > gis.tar.gz)
   - pip3 install gdown
