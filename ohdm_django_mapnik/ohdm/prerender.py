@@ -10,7 +10,7 @@ from ohdm_django_mapnik.ohdm.models import (
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 
 
-def prerender(zoom_level: int):
+def prerender(zoom_level: int, test_mode: bool = False):
     # get the lowest valid_since for each geometry
     point_valid_since: Optional[date] = PlanetOsmPoint.objects.all().order_by(
         "valid_since"
@@ -84,17 +84,18 @@ def prerender(zoom_level: int):
 
                     print("rendering: {}".format(tile_cache_key))
 
-                    async_generate_tile(
-                        year=valid_since.year,
-                        month=valid_since.month,
-                        day=valid_since.day,
-                        style_xml_template=OSM_CARTO_STYLE_XML,
-                        zoom=zoom,
-                        x_pixel=x,
-                        y_pixel=y,
-                        osm_cato_path=env("CARTO_STYLE_PATH"),
-                        cache_key=tile_cache_key,
-                    )
+                    if not test_mode:
+                        async_generate_tile(
+                            year=valid_since.year,
+                            month=valid_since.month,
+                            day=valid_since.day,
+                            style_xml_template=OSM_CARTO_STYLE_XML,
+                            zoom=zoom,
+                            x_pixel=x,
+                            y_pixel=y,
+                            osm_cato_path=env("CARTO_STYLE_PATH"),
+                            cache_key=tile_cache_key,
+                        )
 
         valid_since += delta
     print("prerending is done!")

@@ -27,4 +27,4 @@ def test_prerender():
         valid_since=date(2020, 1, 1), valid_until=date(2020, 1, 3),
     )
 
-    prerender(zoom_level=0)
+    prerender(zoom_level=0, test_mode=True)
