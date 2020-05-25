@@ -1,10 +1,20 @@
+import csv
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List
 
 import pytest
-
 from django.conf import settings
 from django.test import RequestFactory
+
+from ohdm_django_mapnik.ohdm.models import (
+    Classification,
+    Geoobject,
+    GeoobjectGeometry,
+    Lines,
+    Points,
+    Polygons,
+)
+from ohdm_django_mapnik.ohdm.ohdm2mapnik import Ohdm2Mapnik
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 
@@ -85,3 +95,85 @@ def tile_test_cases() -> Dict[str, dict]:
             "has_date_data": False,
         },
     }
+
+
+@pytest.fixture
+def ohdm2mapnik() -> Ohdm2Mapnik:
+    # fill ohdm database
+
+    # classification
+    classifications: List[Classification] = list()
+    with open("compose/production/django/test-data/classification.csv") as csvfile:
+        for row in csv.reader(csvfile, delimiter=",", quotechar='"'):
+            if len(row) == 3:
+                classifications.append(
+                    Classification(id=row[0], class_field=row[1], subclassname=row[2])
+                )
+    Classification.objects.bulk_create(classifications)
+
+    # geoobject
+    geoobjects: List[Geoobject] = list()
+    with open("compose/production/django/test-data/geoobject.csv") as csvfile:
+        for row in csv.reader(csvfile, delimiter=",", quotechar='"'):
+            if len(row) == 3:
+                geoobjects.append(
+                    Geoobject(id=row[0], name=row[1], source_user_id=row[2])
+                )
+    Geoobject.objects.bulk_create(geoobjects)
+
+    # geoobject_geometry
+    geoobject_geometrys: List[GeoobjectGeometry] = list()
+    with open("compose/production/django/test-data/geoobject_geometry.csv") as csvfile:
+        for row in csv.reader(csvfile, delimiter=",", quotechar='"'):
+            if len(row) == 12:
+                geoobject_geometry: GeoobjectGeometry = GeoobjectGeometry(
+                    id=row[0],
+                    id_target=row[1],
+                    type_target=row[2],
+                    id_geoobject_source=row[3],
+                    # role=row[4],
+                    classification_id=row[5],
+                    # tags=row[6],
+                    valid_since=row[7],
+                    valid_until=row[8],
+                    valid_since_offset=row[9],
+                    valid_until_offset=row[10],
+                    source_user_id=row[11],
+                )
+
+                if row[4] != "NULL":
+                    geoobject_geometry.role = row[4]
+                if row[6] != "NULL":
+                    geoobject_geometry.tags = row[6]
+
+                geoobject_geometrys.append(geoobject_geometry)
+
+    GeoobjectGeometry.objects.bulk_create(geoobject_geometrys)
+
+    # points
+    points: List[Points] = list()
+    with open("compose/production/django/test-data/points.csv") as csvfile:
+        for row in csv.reader(csvfile, delimiter=",", quotechar='"'):
+            if len(row) == 3:
+                points.append(Points(id=row[0], point=row[1], source_user_id=row[2]))
+    Points.objects.bulk_create(points)
+
+    # lines
+    lines: List[Lines] = list()
+    with open("compose/production/django/test-data/lines.csv") as csvfile:
+        for row in csv.reader(csvfile, delimiter=",", quotechar='"'):
+            if len(row) == 3:
+                lines.append(Lines(id=row[0], line=row[1], source_user_id=row[2]))
+    Lines.objects.bulk_create(lines)
+
+    # polygons
+    polygons: List[Polygons] = list()
+    with open("compose/production/django/test-data/polygons.csv") as csvfile:
+        for row in csv.reader(csvfile, delimiter=",", quotechar='"'):
+            if len(row) == 3:
+                polygons.append(
+                    Polygons(id=row[0], polygon=row[1], source_user_id=row[2])
+                )
+    Polygons.objects.bulk_create(polygons)
+
+    return Ohdm2Mapnik(ohdm_schema="public")

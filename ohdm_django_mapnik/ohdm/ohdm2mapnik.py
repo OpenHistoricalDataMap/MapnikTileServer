@@ -4,15 +4,13 @@ import time
 from multiprocessing import Pool as ThreadPool
 from typing import List, Optional, Tuple
 
+from config.settings.base import env
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import LineString, Point
 from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
-from django.db import InternalError
+from django.db import InternalError, connection
 from django.db.utils import OperationalError
-from shapely.geometry import Polygon as ShapelyPolygon
-
-from config.settings.base import env
 from ohdm_django_mapnik.ohdm.postgis_utily import (
     make_polygon_valid,
     set_polygon_way_area,
@@ -23,6 +21,7 @@ from ohdm_django_mapnik.ohdm.tags2mapnik import (
     get_z_order,
     is_road,
 )
+from shapely.geometry import Polygon as ShapelyPolygon
 
 from .models import (
     OhdmGeoobjectLine,
@@ -61,7 +60,7 @@ class SaveCache2DB(threading.Thread):
         self.polygon_cache: List[PlanetOsmPolygon] = polygon_cache
 
     def run(self):
-        print(threading.activeCount())
+        print(threading.active_count())
         if self.point_cache:
             self.save_points()
         if self.line_cache:
@@ -124,10 +123,11 @@ class Ohdm2Mapnik:
         geometries: List[str] = ["point", "line", "polygon"],
         sql_threads: int = 1,
         convert_threads: int = 1,
+        ohdm_schema: str = env.str("OHDM_SCHEMA"),
     ):
         """
         setup Ohdm2Mapnik class
-        
+
         Keyword Arguments:
             chunk_size {int} -- how many entries will be load at once from database (default: {10000})
             continue_old_import {bool} -- If set, from the source server will be set an offset of the hight of the traget db (default: {False})
@@ -152,6 +152,8 @@ class Ohdm2Mapnik:
 
         # number of threats
         self.sql_threads: int = sql_threads
+
+        self.ohdm_schema = ohdm_schema
 
     def display_process_time(self):
         """
@@ -192,7 +194,7 @@ class Ohdm2Mapnik:
     def save_cache(self):
         logger.info("saving cache ...")
 
-        while threading.activeCount() > self.sql_threads:
+        while threading.active_count() > self.sql_threads:
             time.sleep(0.1)
 
         save_cache_2_db: SaveCache2DB = SaveCache2DB(
@@ -215,43 +217,86 @@ class Ohdm2Mapnik:
         logger.info("Set way_area for all polygons!")
         set_polygon_way_area()
 
-    def generate_sql_query(self, geo_type: str, offset: int = 0) -> str:
-        """
-        Generate SQL Query to fetch the request geo objects
-        
-        Arguments:
-            offset {int} -- geo_type as string like point, line or polygon
-        
-        Returns:
-            str -- SQL query as string
+    def fill_ohdm_geoobject_tables(self):
+        """Fill OhdmGeoobjectPoint, OhdmGeoobjectLine & OhdmGeoobjectPolygon
         """
 
-        where_statement: str = ""
-        if geo_type == GEOMETRY_TYPE.POINT:
-            where_statement = "geoobject_geometry.type_target = 0 or geoobject_geometry.type_target = 1"
-        elif geo_type == GEOMETRY_TYPE.LINE:
-            where_statement = "geoobject_geometry.type_target = 2"
-        else:
-            where_statement = "geoobject_geometry.type_target = 3"
+        # clear up old data
+        OhdmGeoobjectPoint.objects.all().delete()
+        OhdmGeoobjectLine.objects.all().delete()
+        OhdmGeoobjectPolygon.objects.all().delete()
 
-        return """
-                SELECT 
-                    geoobject_geometry.id_geoobject_source as geoobject_id,
-                    geoobject.name,
-                    classification.class as classification_class,
-	                classification.subclassname as classification_subclassname,
-                    geoobject_geometry.tags,
-                    geoobject_geometry.valid_since,
-                    geoobject_geometry.valid_until,
-                    {0}s.{0} as way
-                FROM {2}.{0}s
-                INNER JOIN {2}.geoobject_geometry ON {0}s.id=geoobject_geometry.id_target
-                INNER JOIN {2}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
-                INNER JOIN {2}.classification ON geoobject_geometry.classification_id=classification.id
-                WHERE {1};
+        with connection.cursor() as cursor:
+
+            # fill points
+            cursor.execute(
+                """
+            INSERT INTO ohdm_points (geoobject_id, name, classification_class, classification_subclassname, tags, valid_since, valid_until, way)
+            SELECT
+                geoobject_geometry.id_geoobject_source as geoobject_id,
+                geoobject.name,
+                classification.class as classification_class,
+                classification.subclassname as classification_subclassname,
+                geoobject_geometry.tags,
+                geoobject_geometry.valid_since,
+                geoobject_geometry.valid_until,
+                ST_Transform(points.point, 3857) as way
+            FROM {schema}.geoobject_geometry
+            JOIN {schema}.points ON geoobject_geometry.id_target=points.id
+            JOIN {schema}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+            JOIN {schema}.classification ON geoobject_geometry.classification_id=classification.id
+            WHERE geoobject_geometry.type_target = 0 or geoobject_geometry.type_target = 1;
             """.format(
-            geo_type, where_statement, env.str("OHDM_SCHEMA")
-        )
+                    schema=self.ohdm_schema
+                )
+            )
+
+            # fill lines
+            cursor.execute(
+                """
+            INSERT INTO ohdm_lines (geoobject_id, name, classification_class, classification_subclassname, tags, valid_since, valid_until, way)
+            SELECT
+                geoobject_geometry.id_geoobject_source as geoobject_id,
+                geoobject.name,
+                classification.class as classification_class,
+                classification.subclassname as classification_subclassname,
+                geoobject_geometry.tags,
+                geoobject_geometry.valid_since,
+                geoobject_geometry.valid_until,
+                ST_Transform(lines.line, 3857) as way
+            FROM {schema}.geoobject_geometry
+            JOIN {schema}.lines ON geoobject_geometry.id_target=lines.id
+            JOIN {schema}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+            JOIN {schema}.classification ON geoobject_geometry.classification_id=classification.id
+            WHERE geoobject_geometry.type_target = 2;
+            """.format(
+                    schema=self.ohdm_schema
+                )
+            )
+
+            # fill polygons
+            cursor.execute(
+                """
+            INSERT INTO ohdm_polygons (geoobject_id, name, classification_class, classification_subclassname, tags, valid_since, valid_until, way, way_area)
+            SELECT
+                geoobject_geometry.id_geoobject_source as geoobject_id,
+                geoobject.name,
+                classification.class as classification_class,
+                classification.subclassname as classification_subclassname,
+                geoobject_geometry.tags,
+                geoobject_geometry.valid_since,
+                geoobject_geometry.valid_until,
+                ST_MakeValid(ST_Transform(polygons.polygon, 3857)) as way,
+                ST_Area(ST_MakeValid(ST_Transform(polygons.polygon, 3857))) as way_area
+            FROM {schema}.geoobject_geometry
+            JOIN {schema}.polygons ON geoobject_geometry.id_target=polygons.id
+            JOIN {schema}.geoobject ON geoobject_geometry.id_geoobject_source=geoobject.id
+            JOIN {schema}.classification ON geoobject_geometry.classification_id=classification.id
+            WHERE geoobject_geometry.type_target = 3;
+            """.format(
+                    schema=self.ohdm_schema
+                )
+            )
 
     def convert_points(self):
         ohdm_object: OhdmGeoobjectPoint
@@ -312,10 +357,13 @@ class Ohdm2Mapnik:
             line: Tuple[
                 Optional[PlanetOsmLine], Optional[PlanetOsmRoads]
             ] = self.convert_line(ohdm_object=ohdm_object)
-            if line[0]:
-                self.line_cache.append(line[0])
-            if line[1]:
-                self.road_cache.append(line[1])
+
+            osm_line: Optional[PlanetOsmLine] = line[0]
+            osm_road: Optional[PlanetOsmRoads] = line[1]
+            if osm_line:
+                self.line_cache.append(osm_line)
+            if osm_road:
+                self.road_cache.append(osm_road)
 
             if self.line_counter % self.chunk_size == 0:
                 self.show_status()
@@ -329,9 +377,9 @@ class Ohdm2Mapnik:
     ) -> Tuple[Optional[PlanetOsmLine], Optional[PlanetOsmRoads]]:
         try:
             if GEOSGeometry(ohdm_object.way).geom_type != "LineString":
-                return None
+                return None, None
         except TypeError:
-            return None
+            return None, None
 
         if not ohdm_object.tags:
             ohdm_object.tags = {}
@@ -384,9 +432,7 @@ class Ohdm2Mapnik:
         self, ohdm_object: OhdmGeoobjectPolygon,
     ) -> Optional[PlanetOsmPolygon]:
         try:
-            # geometry: GEOSGeometry = GEOSGeometry(ohdm_object.way,)
-            geometry: GEOSGeometry = GEOSGeometry(ohdm_object.way, srid=4326)
-            # print(GEOSGeometry(ohdm_object.way).coords)
+            geometry: GEOSGeometry = GEOSGeometry(ohdm_object.way)
             if geometry.geom_type != "Polygon" and geometry.geom_type != "MultiPolygon":
                 print(geometry.geom_type)
                 return None
@@ -435,7 +481,7 @@ class Ohdm2Mapnik:
             logger.info("{} is done!".format(geometry))
 
         # wait to be all threats are done
-        while threading.activeCount() > 1:
+        while threading.active_count() > 1:
             time.sleep(0.1)
 
         logger.info("All data are converted!")

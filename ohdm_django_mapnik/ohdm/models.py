@@ -10,6 +10,7 @@ from django.contrib.gis.geos import LineString, Polygon
 from django.contrib.gis.geos.point import Point
 from django.contrib.postgres.fields import ArrayField, HStoreField
 from django.core.cache import cache
+
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 
@@ -23,8 +24,7 @@ class OhdmGeoobjectPoint(models.Model):
     tags = HStoreField(blank=True, null=True)
     valid_since = models.DateField()
     valid_until = models.DateField()
-    way = models.TextField(blank=True, null=True)
-    # way = models.GeometryField(srid=0, blank=True, null=True)
+    way = models.PointField(srid=3857)
 
     class Meta:
         db_table = "ohdm_points"
@@ -40,8 +40,7 @@ class OhdmGeoobjectLine(models.Model):
     tags = HStoreField(blank=True, null=True)
     valid_since = models.DateField()
     valid_until = models.DateField()
-    way = models.TextField(blank=True, null=True)
-    # way = models.GeometryField(srid=0, blank=True, null=True)
+    way = models.LineStringField(srid=3857)
 
     class Meta:
         db_table = "ohdm_lines"
@@ -57,8 +56,8 @@ class OhdmGeoobjectPolygon(models.Model):
     tags = HStoreField(blank=True, null=True)
     valid_since = models.DateField()
     valid_until = models.DateField()
-    way = models.TextField(blank=True, null=True)
-    # way = models.GeometryField(srid=0, blank=True, null=True)
+    way_area = models.FloatField()
+    way = models.GeometryField(srid=3857)
 
     class Meta:
         db_table = "ohdm_polygons"
@@ -546,7 +545,7 @@ class PlanetOsmRels(models.Model):
 
 class Points(models.Model):
     id = models.BigAutoField(primary_key=True)
-    point = models.GeometryField(srid=0, blank=True, null=True)
+    point = models.GeometryField(srid=4326, blank=True, null=True)
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
@@ -555,7 +554,7 @@ class Points(models.Model):
 
 class Lines(models.Model):
     id = models.BigAutoField(primary_key=True)
-    line = models.GeometryField(srid=0, blank=True, null=True)
+    line = models.GeometryField(srid=4326, blank=True, null=True)
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
@@ -564,7 +563,7 @@ class Lines(models.Model):
 
 class Polygons(models.Model):
     id = models.BigAutoField(primary_key=True)
-    polygon = models.GeometryField(srid=0, blank=True, null=True)
+    polygon = models.GeometryField(srid=4326, blank=True, null=True)
     source_user_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
@@ -578,7 +577,7 @@ class GeoobjectGeometry(models.Model):
     id_geoobject_source = models.BigIntegerField()
     role = models.CharField(max_length=255, blank=True, null=True)
     classification_id = models.BigIntegerField()
-    tags = models.TextField(blank=True, null=True)  # This field type is a guess.
+    tags = HStoreField(blank=True, null=True)
     valid_since = models.DateField()
     valid_until = models.DateField()
     valid_since_offset = models.BigIntegerField(blank=True, null=True)

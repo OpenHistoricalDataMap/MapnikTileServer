@@ -15,16 +15,8 @@ MAINTAINANCE_WORK_MEM=4GB
 
 # OHDM PostgreSQL
 # ------------------------------------------------------------------------------
-OHDM_POSTGRES_HOST=postgres
-OHDM_POSTGRES_PORT=5432
-OHDM_POSTGRES_DB=gis
-OHDM_POSTGRES_USER=docker
-OHDM_POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
-OHDM_POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
-OHDM_PGCONNECT_TIMEOUT=60
 OHDM_SCHEMA=ohdm_test
 
 # VS-Code
 # ------------------------------------------------------------------------------
 DATABASE_URL=postgres://docker:Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw@postgres:5432/gis
-OHDM_DATABASE_URL=postgres://docker:Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw@postgres:5432/gis

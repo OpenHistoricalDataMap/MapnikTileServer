@@ -14,9 +14,12 @@ from django.urls import reverse
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
-from ohdm_django_mapnik.ohdm.views import (generate_osm_tile, generate_tile,
-                                           generate_tile_reload_project,
-                                           generate_tile_reload_style)
+from ohdm_django_mapnik.ohdm.views import (
+    generate_osm_tile,
+    generate_tile,
+    generate_tile_reload_project,
+    generate_tile_reload_style,
+)
 
 
 @pytest.mark.django_db()

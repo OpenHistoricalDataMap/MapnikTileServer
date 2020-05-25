@@ -1,7 +1,6 @@
 from typing import List
 
 from django.core.management.base import BaseCommand
-
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.ohdm2mapnik import Ohdm2Mapnik
 
@@ -61,6 +60,12 @@ class Command(BaseCommand):
             default=1,
         )
 
+        parser.add_argument(
+            "--not-fill-ohdm-tables",
+            action="store_true",
+            help="Do not fill the ohdm cache table.",
+        )
+
     def handle(self, *args, **options):
         # drop all old data
         if options["clear_mapnik_db"]:
@@ -85,4 +90,8 @@ class Command(BaseCommand):
             sql_threads=options["sql_threads"],
             convert_threads=options["convert_threads"],
         )
+
+        if not options["not-fill-ohdm-tables"]:
+            ohdm2mapnik.fill_ohdm_geoobject_tables()
+
         ohdm2mapnik.run()
