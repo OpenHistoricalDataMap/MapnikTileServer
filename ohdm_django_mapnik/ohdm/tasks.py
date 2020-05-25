@@ -1,6 +1,5 @@
 import hashlib
 from datetime import date
-from time import sleep
 
 from config.celery_app import app
 from config.settings.base import env

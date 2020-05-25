@@ -1,10 +1,7 @@
 import logging
 from datetime import date, datetime
 from typing import Dict, List, Optional, Tuple
-
-from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
-from django.contrib.gis.geos.polygon import Polygon
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from shapely.geometry import Polygon as ShapelyPolygon
@@ -19,7 +16,7 @@ from .models import (
     PlanetOsmWays,
 )
 from .postgis_utily import make_polygon_valid, set_polygon_way_area
-from .tags2mapnik import fill_osm_object, get_z_order, is_linestring, is_road
+from .tags2mapnik import fill_osm_object, get_z_order, is_road
 
 logger = logging.getLogger(__name__)
 

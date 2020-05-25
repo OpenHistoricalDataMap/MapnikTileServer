@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from config.settings.base import OSM_CARTO_STYLE_XML, env
+from config.settings.base import env
 from django.core.cache import cache
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.utily import get_style_xml

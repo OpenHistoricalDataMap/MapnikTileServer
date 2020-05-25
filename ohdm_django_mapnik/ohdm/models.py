@@ -1,17 +1,7 @@
 from __future__ import annotations
-
-from datetime import date
-from time import sleep
 from typing import Any, Dict, List, Optional
-
-from celery.result import AsyncResult
 from django.contrib.gis.db import models
-from django.contrib.gis.geos import LineString, Polygon
-from django.contrib.gis.geos.point import Point
 from django.contrib.postgres.fields import ArrayField, HStoreField
-from django.core.cache import cache
-
-from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 
 class OhdmGeoobjectPoint(models.Model):

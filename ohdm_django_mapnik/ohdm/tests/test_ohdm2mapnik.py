@@ -10,7 +10,6 @@ from ohdm_django_mapnik.ohdm.models import (
     PlanetOsmPoint,
     PlanetOsmPolygon,
 )
-from ohdm_django_mapnik.ohdm.ohdm2mapnik import Ohdm2Mapnik
 
 
 @pytest.mark.django_db()

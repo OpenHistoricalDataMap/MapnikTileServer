@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Dict, List
 
 import pytest
-from django.conf import settings
 from django.test import RequestFactory
 
 from ohdm_django_mapnik.ohdm.models import (

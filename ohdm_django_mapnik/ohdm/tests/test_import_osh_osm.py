@@ -1,19 +1,11 @@
 import pytest
-
-from django.db import connection
-from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.import_osh import run_import as run_osh_import
 from ohdm_django_mapnik.ohdm.import_osm import run_import as run_osm_import
 from ohdm_django_mapnik.ohdm.models import (
-    GeoobjectGeometry,
-    OhdmGeoobjectLine,
-    OhdmGeoobjectPoint,
-    OhdmGeoobjectPolygon,
     PlanetOsmLine,
     PlanetOsmPoint,
     PlanetOsmPolygon,
-    PlanetOsmRoads,
-)
+    PlanetOsmRoads)
 from ohdm_django_mapnik.ohdm.rel2pgsql import Rel2pgsql
 
 

@@ -1,5 +1,4 @@
 import logging
-import lzma
 
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
