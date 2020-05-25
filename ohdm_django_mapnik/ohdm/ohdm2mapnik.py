@@ -433,7 +433,11 @@ class Ohdm2Mapnik:
     ) -> Optional[PlanetOsmPolygon]:
         try:
             geometry: GEOSGeometry = GEOSGeometry(ohdm_object.way)
-            if geometry.geom_type != "Polygon" and geometry.geom_type != "MultiPolygon":
+            if (
+                geometry.geom_type != "Polygon"
+                and geometry.geom_type != "MultiPolygon"
+                and geometry.geom_type != "GeometryCollection"
+            ):
                 print(geometry.geom_type)
                 return None
         except TypeError:
@@ -475,7 +479,6 @@ class Ohdm2Mapnik:
                 self.convert_lines()
             else:
                 self.convert_polygons()
-                # self.update_polygons()
 
             self.save_cache()
             logger.info("{} is done!".format(geometry))
