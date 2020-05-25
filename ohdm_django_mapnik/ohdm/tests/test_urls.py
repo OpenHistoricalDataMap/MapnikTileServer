@@ -14,4 +14,5 @@ class TestUrls:
                 "y_pixel": 2685,
             },
         )
-        assert resolve(path).view_name == "ohdm-tile"
+        if resolve(path).view_name != "ohdm-tile":
+            raise AssertionError

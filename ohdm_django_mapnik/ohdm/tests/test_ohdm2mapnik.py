@@ -21,22 +21,23 @@ class TestOhdm2mapnik:
         ohdm2mapnik.fill_ohdm_geoobject_tables()
         ohdm2mapnik.run()
 
-        assert (
-            PlanetOsmPoint.objects.all().count()
-            == OhdmGeoobjectPoint.objects.all().count()
-        )
-        assert (
-            PlanetOsmLine.objects.all().count()
-            == OhdmGeoobjectLine.objects.all().count()
-        )
-        assert (
-            PlanetOsmPolygon.objects.all().count()
-            >= OhdmGeoobjectPolygon.objects.all().count() / 100 * 98
-        )
+        if (
+            PlanetOsmPoint.objects.all().count() != OhdmGeoobjectPoint.objects.all().count()
+        ):
+            raise AssertionError
+        if (
+            PlanetOsmLine.objects.all().count() != OhdmGeoobjectLine.objects.all().count()
+        ):
+            raise AssertionError
+        if (
+            PlanetOsmPolygon.objects.all().count() < OhdmGeoobjectPolygon.objects.all().count() / 100 * 98
+        ):
+            raise AssertionError
 
     def test_fill_ohdm_geoobject_tables(self, ohdm2mapnik):
         """test if the function fill_ohdm_geoobject_tables fill the ohdm objects tables correctly
         """
         ohdm2mapnik.fill_ohdm_geoobject_tables()
         ohdm_objects: int = OhdmGeoobjectPoint.objects.all().count() + OhdmGeoobjectLine.objects.all().count() + OhdmGeoobjectPolygon.objects.all().count()
-        assert ohdm_objects >= GeoobjectGeometry.objects.all().count() / 100 * 97
+        if ohdm_objects < GeoobjectGeometry.objects.all().count() / 100 * 97:
+            raise AssertionError

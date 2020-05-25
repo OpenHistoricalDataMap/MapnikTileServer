@@ -47,7 +47,8 @@ class TestGenerateTile:
         )
 
         tile_cache: Optional[dict] = cache.get(test_tile["cache"]["cache_key"])
-        assert tile_cache is not None
+        if tile_cache is None:
+            raise AssertionError
         tile: Optional[bytes] = cache.get(tile_cache["tile_hash"])
 
         tile_generator.zoom = test_tile["data"]["zoom"]
@@ -55,15 +56,21 @@ class TestGenerateTile:
         tile_generator.y_pixel = test_tile["data"]["y_pixel"]
 
         # check if the right tile was rendert
-        assert response.content == tile_generator.render_tile()
+        if response.content != tile_generator.render_tile():
+            raise AssertionError
 
         # check if the cache was setup right
-        assert hashlib.md5(response.content).hexdigest() == tile_cache["tile_hash"]
-        assert response.content == tile
+        if hashlib.md5(response.content).hexdigest() != tile_cache["tile_hash"]:
+            raise AssertionError
+        if response.content != tile:
+            raise AssertionError
 
-        assert isinstance(response.content, bytes)
-        assert response.status_code == 200
-        assert response["content-type"] == "image/jpeg"
+        if not isinstance(response.content, bytes):
+            raise AssertionError
+        if response.status_code != 200:
+            raise AssertionError
+        if response["content-type"] != "image/jpeg":
+            raise AssertionError
 
     def test_task_already_in_queue(self, test_tile: Dict[str, dict]):
         # clear cache
@@ -105,13 +112,19 @@ class TestGenerateTile:
         tile_cache: Optional[dict] = cache.get(test_tile["cache"]["cache_key"])
 
         # check if the cache was setup right
-        assert tile_cache is not None
-        assert hashlib.md5(response.content).hexdigest() == tile_process.get()
-        assert tile_cache["process_id"] is None
+        if tile_cache is None:
+            raise AssertionError
+        if hashlib.md5(response.content).hexdigest() != tile_process.get():
+            raise AssertionError
+        if tile_cache["process_id"] is not None:
+            raise AssertionError
 
-        assert isinstance(response.content, bytes)
-        assert response.status_code == 200
-        assert response["content-type"] == "image/jpeg"
+        if not isinstance(response.content, bytes):
+            raise AssertionError
+        if response.status_code != 200:
+            raise AssertionError
+        if response["content-type"] != "image/jpeg":
+            raise AssertionError
 
     def test_tile_in_cache(self, test_tile: Dict[str, dict]):
         # clear cache
@@ -145,11 +158,15 @@ class TestGenerateTile:
         )
 
         # check if the right tile was returned
-        assert response.content == dummy_tile
+        if response.content != dummy_tile:
+            raise AssertionError
 
-        assert isinstance(response.content, bytes)
-        assert response.status_code == 200
-        assert response["content-type"] == "image/jpeg"
+        if not isinstance(response.content, bytes):
+            raise AssertionError
+        if response.status_code != 200:
+            raise AssertionError
+        if response["content-type"] != "image/jpeg":
+            raise AssertionError
 
     def test_invalid_url(self, test_tile: Dict[str, dict]):
         # clear cache
@@ -168,4 +185,5 @@ class TestGenerateTile:
             y_pixel=9999,
         )
 
-        assert response.status_code == 405
+        if response.status_code != 405:
+            raise AssertionError

@@ -23,7 +23,8 @@ def test_tile_generator_init():
     """test TileGenerator constructor"""
     # test valid zoom level
     for zoom in range(20):
-        assert isinstance(TileGenerator(zoom=zoom, x_pixel=0, y_pixel=0), TileGenerator)
+        if not isinstance(TileGenerator(zoom=zoom, x_pixel=0, y_pixel=0), TileGenerator):
+            raise AssertionError
 
     # test zoom level with invalid zoom level
     with pytest.raises(ZoomOutOfRange):
@@ -48,12 +49,14 @@ def test_tile_generator_init():
             TileGenerator(zoom=zoom, x_pixel=0, y_pixel=max_coordinate + 1)
 
         # valid y & x
-        assert isinstance(
+        if not isinstance(
             TileGenerator(zoom=zoom, x_pixel=max_coordinate, y_pixel=0), TileGenerator
-        )
-        assert isinstance(
+        ):
+            raise AssertionError
+        if not isinstance(
             TileGenerator(zoom=zoom, x_pixel=0, y_pixel=max_coordinate), TileGenerator
-        )
+        ):
+            raise AssertionError
 
 
 def test_from_px_to_lon(tile_test_cases: Dict[str, dict]):
@@ -68,8 +71,10 @@ def test_from_px_to_lon(tile_test_cases: Dict[str, dict]):
         lon: float = TileGenerator.from_px_to_lon(
             px=tile_test_cases[test_case]["x"], zoom=tile_test_cases[test_case]["zoom"],
         )
-        assert "{:0.10f}".format(lon) == tile_test_cases[test_case]["lon"]
-        assert isinstance(lon, float)
+        if "{:0.10f}".format(lon) != tile_test_cases[test_case]["lon"]:
+            raise AssertionError
+        if not isinstance(lon, float):
+            raise AssertionError
 
 
 def test_from_py_to_lat(tile_test_cases: Dict[str, dict]):
@@ -84,8 +89,10 @@ def test_from_py_to_lat(tile_test_cases: Dict[str, dict]):
         lat: float = TileGenerator.from_py_to_lat(
             py=tile_test_cases[test_case]["y"], zoom=tile_test_cases[test_case]["zoom"],
         )
-        assert "{:0.10f}".format(lat) == tile_test_cases[test_case]["lat"]
-        assert isinstance(lat, float)
+        if "{:0.10f}".format(lat) != tile_test_cases[test_case]["lat"]:
+            raise AssertionError
+        if not isinstance(lat, float):
+            raise AssertionError
 
 
 def test_get_bbox_test_cases(
@@ -104,11 +111,16 @@ def test_get_bbox_test_cases(
         tile_generator.x_pixel = tile_test_cases[test_case]["x"]
         tile_generator.y_pixel = tile_test_cases[test_case]["y"]
         box2d: Box2d = tile_generator.get_bbox()
-        assert isinstance(box2d, Box2d)
-        assert "{}".format(box2d.maxx) == tile_test_cases[test_case]["maxx"]
-        assert "{}".format(box2d.maxy) == tile_test_cases[test_case]["maxy"]
-        assert "{}".format(box2d.minx) == tile_test_cases[test_case]["minx"]
-        assert "{}".format(box2d.miny) == tile_test_cases[test_case]["miny"]
+        if not isinstance(box2d, Box2d):
+            raise AssertionError
+        if "{}".format(box2d.maxx) != tile_test_cases[test_case]["maxx"]:
+            raise AssertionError
+        if "{}".format(box2d.maxy) != tile_test_cases[test_case]["maxy"]:
+            raise AssertionError
+        if "{}".format(box2d.minx) != tile_test_cases[test_case]["minx"]:
+            raise AssertionError
+        if "{}".format(box2d.miny) != tile_test_cases[test_case]["miny"]:
+            raise AssertionError
 
 
 def test_get_bbox_zoom_0_10(tile_generator: TileGenerator):
@@ -126,7 +138,8 @@ def test_get_bbox_zoom_0_10(tile_generator: TileGenerator):
             for y in range(int(pow(2, zoom))):
                 tile_generator.x_pixel = x
                 tile_generator.y_pixel = y
-                assert isinstance(tile_generator.get_bbox(), Box2d)
+                if not isinstance(tile_generator.get_bbox(), Box2d):
+                    raise AssertionError
 
 
 def test_get_bbox_random_zoom_10_20(tile_generator: TileGenerator):
@@ -145,7 +158,8 @@ def test_get_bbox_random_zoom_10_20(tile_generator: TileGenerator):
                 y: int = randrange(coordinate_limit)
                 tile_generator.x_pixel = x
                 tile_generator.y_pixel = y
-                assert isinstance(tile_generator.get_bbox(), Box2d)
+                if not isinstance(tile_generator.get_bbox(), Box2d):
+                    raise AssertionError
 
 
 def test_render_tile_without_data(
@@ -175,7 +189,8 @@ def test_render_tile_without_data(
         new_tile_image: Image = Image.open(new_tile)
 
         # check if the tile is a PNG file
-        assert new_tile_image.format == "PNG"
+        if new_tile_image.format != "PNG":
+            raise AssertionError
 
         # monochrome & resize images to better compare them
         reference_tile = Image.open(
@@ -184,7 +199,8 @@ def test_render_tile_without_data(
             )
         )
 
-        assert ImageChops.difference(reference_tile, new_tile_image).getbbox() is None
+        if ImageChops.difference(reference_tile, new_tile_image).getbbox() is not None:
+            raise AssertionError
 
 
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
@@ -226,7 +242,8 @@ def test_render_tile_with_data(
         new_tile_image: Image = Image.open(new_tile)
 
         # check if the tile is a PNG file
-        assert new_tile_image.format == "PNG"
+        if new_tile_image.format != "PNG":
+            raise AssertionError
 
         # monochrome & resize images to better compare them
         reference_tile = Image.open(
