@@ -1,6 +1,7 @@
 from typing import List
 
 from django.core.management.base import BaseCommand
+
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.ohdm2mapnik import Ohdm2Mapnik
 

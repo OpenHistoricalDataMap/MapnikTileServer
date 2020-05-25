@@ -8,6 +8,7 @@ from config.settings.base import OSM_CARTO_STYLE_XML, env
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
+
 from ohdm_django_mapnik.ohdm.exceptions import CoordinateOutOfRange
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
