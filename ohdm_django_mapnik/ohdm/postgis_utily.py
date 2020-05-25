@@ -1,3 +1,4 @@
+from config.settings.base import env
 from django.db import connection
 
 
@@ -11,7 +12,7 @@ def make_polygon_valid():
             """
             UPDATE public.planet_osm_polygon
             SET way = ST_MakeValid(way)
-            WHERE ST_IsValid(way) is false; 
+            WHERE ST_IsValid(way) is false;
         """
         )
 
@@ -27,3 +28,13 @@ def set_polygon_way_area():
             SET way_area = ST_Area(way);
         """
         )
+
+
+def set_indexes(osm_cato_path: str = env("CARTO_STYLE_PATH")):
+    """
+    Set SQL indexes, to speedup rendering
+    """
+    with open("{}/indexes.sql".format(osm_cato_path)) as index:
+        index_sql: str = index.read()
+        with connection.cursor() as cursor:
+            cursor.execute(index_sql)
