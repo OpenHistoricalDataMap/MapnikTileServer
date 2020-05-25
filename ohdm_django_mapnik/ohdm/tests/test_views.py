@@ -4,8 +4,7 @@ from typing import Dict, Optional
 import pytest
 
 from celery.result import AsyncResult
-from config.settings.base import OSM_CARTO_STYLE_XML, env
-from django.conf import settings
+from config.settings.base import env
 from django.core.cache import cache
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
@@ -15,11 +14,7 @@ from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 from ohdm_django_mapnik.ohdm.views import (
-    generate_osm_tile,
-    generate_tile,
-    generate_tile_reload_project,
-    generate_tile_reload_style,
-)
+    generate_tile)
 
 
 @pytest.mark.django_db()

@@ -5,7 +5,7 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from osmium import SimpleHandler
 from osmium._osmium import InvalidLocationError
 from osmium.geom import WKTFactory
-from osmium.osm._osm import Node, Relation, Tag, TagList, Way
+from osmium.osm._osm import Node, Relation, TagList, Way
 
 from .models import PlanetOsmNodes, PlanetOsmRels, PlanetOsmWays
 from .tags2mapnik import cleanup_tags

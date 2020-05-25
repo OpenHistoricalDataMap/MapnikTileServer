@@ -1,4 +1,3 @@
-from datetime import datetime
 from random import randrange
 from tempfile import SpooledTemporaryFile
 from typing import Dict

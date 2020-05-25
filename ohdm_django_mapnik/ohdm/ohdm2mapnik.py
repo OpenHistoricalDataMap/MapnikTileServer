@@ -1,15 +1,12 @@
 import logging
 import threading
 import time
-from multiprocessing import Pool as ThreadPool
 from typing import List, Optional, Tuple
 
 from config.settings.base import env
 from django.contrib.gis.gdal import CoordTransform, SpatialReference
-from django.contrib.gis.geos import LineString, Point
-from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
-from django.db import InternalError, connection
+from django.db import connection
 from django.db.utils import OperationalError
 from ohdm_django_mapnik.ohdm.postgis_utily import (
     make_polygon_valid,
@@ -21,7 +18,6 @@ from ohdm_django_mapnik.ohdm.tags2mapnik import (
     get_z_order,
     is_road,
 )
-from shapely.geometry import Polygon as ShapelyPolygon
 
 from .models import (
     OhdmGeoobjectLine,

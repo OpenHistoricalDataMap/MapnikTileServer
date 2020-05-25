@@ -7,7 +7,7 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.utils import timezone
 from osmium import SimpleHandler
 from osmium.geom import WKTFactory
-from osmium.osm._osm import Area, Location, Node, Relation, Tag, TagList, Way
+from osmium.osm._osm import Area, Node, TagList, Way
 
 from .models import PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRoads
 from .postgis_utily import set_polygon_way_area
