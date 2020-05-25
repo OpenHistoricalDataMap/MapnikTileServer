@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 
+from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.models import (
     PlanetOsmLine,
     PlanetOsmPoint,
@@ -12,6 +13,8 @@ from ohdm_django_mapnik.ohdm.prerender import prerender
 
 @pytest.mark.django_db()
 def test_prerender():
+    clear_mapnik_tables()
+
     PlanetOsmPoint.objects.create(
         valid_since=date(2020, 1, 3), valid_until=date(2020, 1, 1),
     )

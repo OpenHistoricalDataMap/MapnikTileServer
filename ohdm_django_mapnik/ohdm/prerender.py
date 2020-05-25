@@ -82,7 +82,9 @@ def prerender(zoom_level: int):
                         y,
                     )
 
-                    async_generate_tile.delay(
+                    print("rendering: {}".format(tile_cache_key))
+
+                    async_generate_tile(
                         year=valid_since.year,
                         month=valid_since.month,
                         day=valid_since.day,
@@ -95,4 +97,4 @@ def prerender(zoom_level: int):
                     )
 
         valid_since += delta
-    print("prerending queue is set!")
+    print("prerending is done!")
