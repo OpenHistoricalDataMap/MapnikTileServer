@@ -31,6 +31,9 @@ before_script:
   - sudo docker-compose -f local.yml run --rm django /get-shapefiles.sh
   # generate style.xml
   - sudo docker-compose -f local.yml run --rm django python manage.py create_style_xml
+  # load demo data
+  - sudo docker-compose -f local.yml run --rm django python manage.py migrate
+  - sudo docker-compose -f local.yml run --rm django python manage.py import_osm --planet /niue-latest.osm.pbf
   # start postgis, redis & celery
   - sudo docker-compose -f local.yml up -d postgres celerybeat celeryworker
 
