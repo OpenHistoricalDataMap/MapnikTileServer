@@ -3,19 +3,17 @@ from tempfile import SpooledTemporaryFile
 from typing import Dict
 
 import pytest
+
 from django.core.cache import cache
 from django.utils import timezone
 from mapnik import Box2d
-from PIL import Image, ImageChops
-
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
-from ohdm_django_mapnik.ohdm.exceptions import (
-    CoordinateOutOfRange,
-    RenderErrorNoDate,
-    ZoomOutOfRange,
-)
+from ohdm_django_mapnik.ohdm.exceptions import (CoordinateOutOfRange,
+                                                RenderErrorNoDate,
+                                                ZoomOutOfRange)
 from ohdm_django_mapnik.ohdm.import_osm import run_import
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
+from PIL import Image, ImageChops
 
 
 def test_tile_generator_init():
@@ -161,47 +159,6 @@ def test_get_bbox_random_zoom_10_20(tile_generator: TileGenerator):
                     raise AssertionError
 
 
-def test_render_tile_without_data(
-    tile_generator: TileGenerator, tile_test_cases: Dict[str, dict]
-):
-    """
-    test render tiles for tile_test_cases without using ohdm test data
-
-    Arguments:
-        tile_generator {TileGenerator} -- default TileGenerator
-    """
-    # clear cache
-    cache.clear()
-
-    for test_case in tile_test_cases:
-        print("test: {}".format(test_case))
-        tile_generator.zoom = tile_test_cases[test_case]["zoom"]
-        tile_generator.x_pixel = tile_test_cases[test_case]["x"]
-        tile_generator.y_pixel = tile_test_cases[test_case]["y"]
-
-        # generate new tile into a tmp file
-        new_tile: SpooledTemporaryFile = SpooledTemporaryFile()
-        new_tile.write(tile_generator.render_tile())
-        new_tile.seek(0)
-
-        # open new tile as image
-        new_tile_image: Image = Image.open(new_tile)
-
-        # check if the tile is a PNG file
-        if new_tile_image.format != "PNG":
-            raise AssertionError
-
-        # monochrome & resize images to better compare them
-        reference_tile = Image.open(
-            "/app/compose/local/django/test_tile/{}".format(
-                tile_test_cases[test_case]["tile_png"]
-            )
-        )
-
-        if ImageChops.difference(reference_tile, new_tile_image).getbbox() is not None:
-            raise AssertionError
-
-
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_render_tile_with_data(
     tile_generator: TileGenerator, tile_test_cases: Dict[str, dict]
@@ -254,6 +211,7 @@ def test_render_tile_with_data(
         diff: bool = ImageChops.difference(
             reference_tile, new_tile_image
         ).getbbox() is None
+        assert diff is False
 
     # cleanup data
     clear_mapnik_tables()
