@@ -8,3 +8,6 @@ Commands
    import_osh
    import_osm
    create_style_xml
+   set_indexes
+   prerender
+   clear_cache

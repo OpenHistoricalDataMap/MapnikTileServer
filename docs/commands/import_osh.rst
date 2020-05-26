@@ -17,7 +17,7 @@ two command.
 
 To import a osh file into relation tables.::
 
-    $ docker-compose -f local.yml run --rm django python manage.py import_osh --planet /osm-files/osh-file.osh.pbf 
+    $ docker-compose -f local.yml run --rm django python manage.py import_osh --planet /osm-files/osh-file.osh.pbf
 
 .. note::
     Multipolygons are not integrated!
@@ -29,12 +29,20 @@ To convert relation tables to mapnik tables.::
 Optional parameters
 -------------------
 
-``--clear_rel_db`` will delete relation tables befor import a osh file.
+--clear_rel_db
+    Clear relation data
 
-``--clear_mapnik_db`` will delete mapnik tables befor convert relation tables.
+--clear_mapnik_db
+    Clear mapnik (osm2pgsql) data & tile cache
 
-``--cache 100000`` set the cache size, how many objects will be hold in ram befor
-insert them into database. The default value is ``100000``.
+--cache [CACHE]
+    Amount of object witch will be handel at once!
+
+--cache2file
+    Cache osmium extraction into a file instead of memory
+
+--planet [PLANET]
+    Path to the planet file.
 
 Get osh file
 ------------

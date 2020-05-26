@@ -11,20 +11,20 @@ To import a OpenStreetMap file (osm), use::
 This command will import a osm file into mapnik tables.
 
 Optional parameters
--------------------
+...................
 
-``--clear_mapnik_db`` will delete mapnik tables befor convert relation tables.
+--clear_mapnik_db
+    Clear mapnik (osm2pgsql) data & tile cache
 
-``--continue`` continue a previous ohdm2mapnik command, useful when the command was interrupted.
+--cache [CACHE]
+    Amount of object witch will be handel at once!
 
-``--cache 100000`` set the cache size, how many objects will be hold in ram befor
-insert them into database. The default value is ``100000``.
+--cache2file
+    Cache osmium extraction into a file instead of memory
 
-``--convert_points`` Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
+--planet [PLANET]
+    Path to the planet file.
 
-``--convert_lines`` Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
-
-``--convert_polygons`` Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be converted..
 
 Get osm file
 ------------

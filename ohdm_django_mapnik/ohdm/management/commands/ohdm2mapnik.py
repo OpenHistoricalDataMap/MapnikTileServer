@@ -55,7 +55,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--not-fill-ohdm-tables",
             action="store_true",
-            help="Do not fill the ohdm cache table.",
+            help="Do not fill the ohdm cache table. Do this only if the ohdm cache tables already filled!",
         )
 
     def handle(self, *args, **options):

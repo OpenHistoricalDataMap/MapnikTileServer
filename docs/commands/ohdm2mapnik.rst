@@ -16,7 +16,7 @@ Database setup
     This project does not contain a option to create a time sensitive OSM database.
     For this purpose use https://github.com/OpenHistoricalDataMap/OSMImportUpdate !
 
-For this command a `OHDM` database connection is need to setup in 
+For this command a `OHDM` database connection is need to setup in
 ``.envs/.local/.postgres`` for the developing instance and for production is it
 ``.envs/.production/.postgres``.
 
@@ -24,23 +24,16 @@ An example will look like::
 
     # OHDM PostgreSQL
     # ------------------------------------------------------------------------------
-    OHDM_POSTGRES_HOST=postgres
-    OHDM_POSTGRES_PORT=5432
-    OHDM_POSTGRES_DB=gis
-    OHDM_POSTGRES_USER=docker
-    OHDM_POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
-    OHDM_POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
-    OHDM_PGCONNECT_TIMEOUT=60
-    OHDM_SCHEMA=public
+    OHDM_SCHEMA=ohdm
 
 Theory
 ------
 
 For converting the database from OHDM schema to Osm2pgsql (mapnik readbale)
 schema, the command will create an SQL statement, which will merge multiple
-OHDM tables into one output. 
+OHDM tables into one output.
 
-The tables are ``classification``, ``geoobject``, ``geoobject_geometry`` and 
+The tables are ``classification``, ``geoobject``, ``geoobject_geometry`` and
 one of ``points``, ``lines`` or ``polygon``, depending on the ``type_target``
 in the ``geoobject_geometry`` table. So if the ``type_target`` is ``0`` or ``1```
 it will create points, for 2 lines and 3 it will create polygons.
@@ -61,8 +54,7 @@ As next step, the ``z_order`` will be compute through the given data.
 The ``z_order`` is use in mapnik to order the objects for the renderer. So that
 a object with a higher ``z_order`` will be overdraw a object with a lower ``z_order``.
 To compute the ``z_order``, every classification entry & every tag in ``tags`` will
-be go a dict, where is defined how to rank a object. Classification values are
-10 times higher rank than the tags. 
+be go a dict, where is defined how to rank a object.
 In :numref:`ohdm2mapnik_SingleTable2Mapnik` is an diagram how to calc the ``z_order``.
 
 .. _ohdm2mapnik_SingleTable2Mapnik:
@@ -76,8 +68,8 @@ In :numref:`ohdm2mapnik_SingleTable2Mapnik` is an diagram how to calc the ``z_or
 
 In the same time, when compute the ``z_order``, the system check if the dict which
 contains the ``z_order`` values, has a value for ``is_road``. If this is ``true``,
-a new ``PlanetOsmRoads`` object will be created from the data in the previous 
-generated osm object. 
+a new ``PlanetOsmRoads`` object will be created from the data in the previous
+generated osm object.
 In :numref:`ohdm2mapnik_planet_osm_roads` is an diagram how a ``PlanetOsmRoads``
 object will be created.
 
@@ -104,21 +96,34 @@ For local instance use ::
 
     $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik
 
-To clear the mapnik tables befor import, use ``--clear_mapnik_db``::
-
 Optional parameters
 ...................
 
-To clear the mapnik tables befor import, use ``--clear_mapnik_db``.::
+--clear_mapnik_db
+    Clear mapnik (osm2pgsql) data & tile cache
 
-    $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik --clear_mapnik_db
+--cache [CACHE]
+    Amount of object witch will be handel at once!
 
-To set the cache size ``--cache 100000``, the size how many entries will be saved in RAM bevor adding
-them to the database, default value is ``100000``.::
+--convert_points
+    Points convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be
+    converted.
 
-    $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik --cache 100000
+--convert_lines
+    Lines convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be
+    converted.
+
+--convert_polygons
+    Polygons convert will be enabled, if set, only enabled geometries will be converted. By default, all geometries will be
+    converted.
+
+--sql_threads [SQL_THREADS]
+    How many threats should be use, to insert entries into the database.
+
+--not-fill-ohdm-tables
+    Do not fill the ohdm cache table. Do this only if the ohdm cache tables already filled!
 
 .. hint::
-    To reset just the mapnik tables (``planet_osm_*``) use 
+    To reset just the mapnik tables (``planet_osm_*``) use
     ``docker-compose -f local.yml run --rm django python manage.py migrate ohdm zero``.
     For faster database testing!
