@@ -1,7 +1,6 @@
 from typing import List
 
 from django.core.management.base import BaseCommand
-
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.ohdm2mapnik import Ohdm2Mapnik
 
@@ -46,14 +45,6 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--convert_threads",
-            nargs="?",
-            type=int,
-            help="How many rows should be converted at once.",
-            default=1,
-        )
-
-        parser.add_argument(
             "--sql_threads",
             nargs="?",
             type=int,
@@ -89,7 +80,6 @@ class Command(BaseCommand):
             chunk_size=options["cache"],
             geometries=geometries,
             sql_threads=options["sql_threads"],
-            convert_threads=options["convert_threads"],
         )
 
         if not options["not-fill-ohdm-tables"]:
