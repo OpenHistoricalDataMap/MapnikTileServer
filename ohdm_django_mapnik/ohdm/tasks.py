@@ -8,8 +8,8 @@ from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 
 @app.task(
-    soft_time_limit=env.int("TILE_GENERATOR_SOFT_TIMEOUT"),
-    time_limit=env.int("TILE_GENERATOR_HARD_TIMEOUT"),
+    soft_time_limit=env.int("TILE_GENERATOR_SOFT_TIMEOUT", 240),
+    time_limit=env.int("TILE_GENERATOR_HARD_TIMEOUT", 360),
 )
 def async_generate_tile(
     year: int,
@@ -54,13 +54,13 @@ def async_generate_tile(
     tile_cache: dict = {"process_id": None, "tile_hash": tile_hash}
 
     # update tile cache & url-tile cache content
-    if zoom <= env.int("ZOOM_LEVEL"):
+    if zoom <= env.int("ZOOM_LEVEL", 13):
         # cache for ever
         cache.set(tile_hash, tile, None)
         cache.set(cache_key, tile_cache, None)
     else:
         # cache for time in TILE_CACHE_TIME
-        cache.set(tile_hash, tile, env.int("TILE_CACHE_TIME") * 10)
-        cache.set(cache_key, tile_cache, env.int("TILE_CACHE_TIME"))
+        cache.set(tile_hash, tile, env.int("TILE_CACHE_TIME", 2592000) * 10)
+        cache.set(cache_key, tile_cache, env.int("TILE_CACHE_TIME", 2592000))
 
     return tile_hash

@@ -2,33 +2,19 @@
 # ------------------------------------------------------------------------------
 USE_DOCKER=yes
 IPYTHONDIR=/app/.ipython
+
 # Redis
 # ------------------------------------------------------------------------------
 REDIS_URL=redis://redis:6379/0
 
-# Celery
+# Celery / Flower
 # ------------------------------------------------------------------------------
-
-# Flower
 CELERY_FLOWER_USER=msshnhBNlGfVLiDTErFKxFWpBOrcZNVp
 CELERY_FLOWER_PASSWORD=eIYplziix19gsYgGfu7HsVzlhHUwFJxQikoOwDlSDnYCjQEjo1atzobXZCyrmnG0
 
 # ohdm
 # ------------------------------------------------------------------------------
 CARTO_STYLE_PATH=/opt/openstreetmap-carto
-CARTO_STYLE_PATH_DEBUG=/opt/openstreetmap-carto-debug
-MAPNIK_VERSION=v3.0.22
-TILE_GENERATOR_SOFT_TIMEOUT=240
-TILE_GENERATOR_HARD_TIMEOUT=360
-
-# caching
-# ------------------------------------------------------------------------------
-# 86400 == 1 day
-CACHE_VIEW=86400
-# to which zoom level tiles should cached for ever
-ZOOM_LEVEL=13
-# 2592000 == 1 month
-TILE_CACHE_TIME=2592000
 
 # VS-Code
 # ------------------------------------------------------------------------------

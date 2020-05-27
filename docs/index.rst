@@ -15,6 +15,7 @@ Welcome to MapnikTileServer's documentation!
    getting_start_remote
    commands/index
    frontend
+   settings
    config
    view
    caching

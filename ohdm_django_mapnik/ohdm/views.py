@@ -8,14 +8,13 @@ from config.settings.base import OSM_CARTO_STYLE_XML, env
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
-
 from ohdm_django_mapnik.ohdm.exceptions import CoordinateOutOfRange
 from ohdm_django_mapnik.ohdm.tasks import async_generate_tile
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 
-@cache_page(env.int("CACHE_VIEW"))
+@cache_page(env.int("CACHE_VIEW", 86400))
 def generate_tile(
     request, year: int, month: int, day: int, zoom: int, x_pixel: float, y_pixel: float
 ) -> HttpResponse:
@@ -49,7 +48,7 @@ def generate_tile(
     if tile_cache:
         if tile_cache["process_id"]:
             tile_process = AsyncResult(tile_cache["process_id"])
-            for _ in range(0, env.int("TILE_GENERATOR_HARD_TIMEOUT") * 2):
+            for _ in range(0, env.int("TILE_GENERATOR_HARD_TIMEOUT", 360) * 2):
                 sleep(0.5)
                 tile_cache = cache.get(
                     tile_cache_key, {"process_id": None, "tile_hash": None}
@@ -85,13 +84,13 @@ def generate_tile(
     tile_cache["process_id"] = tile_process.id
 
     # update cache
-    if zoom <= env.int("ZOOM_LEVEL"):
+    if zoom <= env.int("ZOOM_LEVEL", 13):
         cache.set(tile_cache_key, tile_cache, None)
     else:
-        cache.set(tile_cache_key, tile_cache, env.int("TILE_CACHE_TIME"))
+        cache.set(tile_cache_key, tile_cache, env.int("TILE_CACHE_TIME", 2592000))
 
     try:
-        tile_process.wait(timeout=env.int("TILE_GENERATOR_HARD_TIMEOUT"))
+        tile_process.wait(timeout=env.int("TILE_GENERATOR_HARD_TIMEOUT", 360))
     except exceptions.TimeoutError:
         return HttpResponse("Timeout when creating tile", status=500)
     except CoordinateOutOfRange as e:
@@ -178,12 +177,12 @@ def generate_osm_tile(
     tile_gen: TileGenerator = TileGenerator(
         request_date=date(year=2000, month=1, day=1),
         style_xml_template=get_style_xml(
-            generate_style_xml=False, carto_style_path=env("CARTO_STYLE_PATH_DEBUG")
+            generate_style_xml=False, carto_style_path=env("CARTO_STYLE_PATH_DEBUG", "/opt/openstreetmap-carto-debug")
         ),
         zoom=int(zoom),
         x_pixel=float(x_pixel),
         y_pixel=float(y_pixel),
-        osm_cato_path=env("CARTO_STYLE_PATH_DEBUG"),
+        osm_cato_path=env("CARTO_STYLE_PATH_DEBUG", "/opt/openstreetmap-carto-debug"),
     )
 
     return HttpResponse(tile_gen.render_tile(), content_type="image/jpeg")
