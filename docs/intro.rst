@@ -12,6 +12,17 @@ the offical `OpenStreetMap <https://www.openstreetmap.org/>`_  stylesheets.
 
    MapntikTileServer Frontend
 
+What is a Tile?
+---------------
+
+A tile is a part of a map. On each zoom level, the map is split into zoom^4 map parts (tiles).
+
+.. figure:: _static/tms/tms.png
+   :align: center
+   :alt: Tile
+
+   Tile
+
 What is a Tile server?
 ----------------------
 
@@ -58,7 +69,7 @@ On the diagram below, there is the workflow of the MapntikTileServer descipted.
 Cookiecutter Django
 -------------------
 
-The project was created with 
+The project was created with
 `Cookiecutter Django <https://github.com/pydanny/cookiecutter-django>`_ and
 build up with docker. So if you unsure how to use this MapntikTileServer,
 read the the `Cookiecutter Django Docs <https://cookiecutter-django.readthedocs.io/en/latest/>`_
@@ -81,10 +92,10 @@ will be triggered a new task on the queue.
 
    Celery-worker get work from broker.
 
-Every celery container have 4 threads, where it can process tile request. To scale
+Every celery container have mutiple threads, where it can process tile request. To scale
 up the production you can use with docker::
 
-   $ docker-compose -f production.yml scale celeryworker=4
+   $ docker-compose -f production.yml scale celeryworker=2
 
 But be careful how many containers you scale up to, do not create more
 celery threads on one machine than there are CPU cores. So if you host has

@@ -190,7 +190,6 @@ $ docker-compose -f local.yml run --rm django /get-shapefiles.sh
 $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
 ```
 
-/opt/openstreetmap-carto
 **6. start test server**
 
 ```bash
