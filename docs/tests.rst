@@ -8,6 +8,14 @@ Tests are written with `pytest <https://docs.pytest.org/en/latest/>`_.
 
 The pytests stored in ``ohdm_django_mapnik/ohdm/tests/``.
 
+Bevor running the test, you need to fill the database with some test data, create
+a mapnik style xml and load shapefiles.::
+
+    $ docker-compose -f local.yml run --rm django /get-shapefiles.sh
+    $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
+    $ docker-compose -f local.yml run --rm django python manage.py migrate
+    $ docker-compose -f local.yml run --rm django python manage.py import_osm --planet /niue-latest.osm.pbf
+
 To run the tests use::
 
     $ docker-compose -f local.yml run --rm django pytest
@@ -34,7 +42,7 @@ From `mypy-lang.org <http://mypy-lang.org/>`_:
     benefits of dynamic (or "duck") typing and static typing. Mypy combines the
     expressive power and convenience of Python with a powerful type system and
     compile-time type checking. Mypy type checks standard Python programs; run
-    them using any Python VM with basically no runtime overhead. 
+    them using any Python VM with basically no runtime overhead.
 
 On `travis <https://travis-ci.com/>`_ pipeline, the mypy tests will run and
 if there some error, the whole pipeline will shown as ``build failed``.

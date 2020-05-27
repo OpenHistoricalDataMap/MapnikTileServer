@@ -1,11 +1,11 @@
-Setup Development Instance
-==========================
+Getting up and running remote with docker
+=========================================
 
 About
 -----
 
 The project is `Docker <https://www.docker.com/>`_ based. That means, the
-development requirements are just `Docker <https://www.docker.com/>`_ and 
+development requirements are just `Docker <https://www.docker.com/>`_ and
 `Docker Compose <https://docs.docker.com/compose/>`_. Every other dependency
 will be automatically installed in a container. So the host system stays clean
 and every dveloper has the same dependencies!
@@ -16,7 +16,7 @@ everything on the :ref:`ide_localhost`.
 
 To start developing fast, it's recommended to use `VS Code
 <https://code.visualstudio.com/>`_ as IDE. Facebook & Microsoft created an
-extention to `Remote Development 
+extention to `Remote Development
 <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack>`_,
 with this extension is it possible to use a remote server like it is in front
 of you.
@@ -28,7 +28,7 @@ Localhost
 
 .. _ide_remote_server:
 
-Remote Server 
+Remote Server
 -------------
 
 .. note::
@@ -85,7 +85,7 @@ Secure ``SSH`` to only allow to login as non root user and via ssh key.::
 
     $ sudo nano /etc/ssh/sshd_config
 
-Change ``PermitRootLogin yes`` to ``PermitRootLogin no`` and 
+Change ``PermitRootLogin yes`` to ``PermitRootLogin no`` and
 ``PasswordAuthentication yes`` to ``PasswordAuthentication no``. Than press ``F2``
 and ``y`` and ``enter`` to save the file.
 
@@ -97,7 +97,7 @@ Setup firewall with ``ufw``, for a detail instruction go to
 `Ubuntu Wiki firewall <https://help.ubuntu.com/lts/serverguide/firewall.html>`_ ::
 
     $ sudo apt-get install ufw
-    $ sudo ufw default allow    
+    $ sudo ufw default allow
     $ sudo ufw allow ssh
     $ sudo ufw allow 22
     $ sudo ufw deny 4243
@@ -155,7 +155,7 @@ Enable the docker API for localhost. For that edit the file
 To test if the api access works, create a http request::
 
     $ curl -X GET http://localhost:4243/images/json
-    [{"Containers":-1,"Created":1546306167,"Id":"sha256:fce289e99eb9bca977dae136fbe2a82b6b7d4c372474c9235adc1741675f587e","Labels":null,"ParentId":"","RepoDigests":["hello-world@sha256:9572f7cdcee8591948c2963463447a53466950b3fc15a247fcad1917ca215a2f"],"RepoTags":["hello-world:latest"],"SharedSize":-1,"Size":1840,"VirtualSize":1840}] 
+    [{"Containers":-1,"Created":1546306167,"Id":"sha256:fce289e99eb9bca977dae136fbe2a82b6b7d4c372474c9235adc1741675f587e","Labels":null,"ParentId":"","RepoDigests":["hello-world@sha256:9572f7cdcee8591948c2963463447a53466950b3fc15a247fcad1917ca215a2f"],"RepoTags":["hello-world:latest"],"SharedSize":-1,"Size":1840,"VirtualSize":1840}]
 
 Next setup ``GIT``. To install just use ``apt-get``::
 
@@ -170,7 +170,7 @@ Create a new github SSH key, for deployment new commits ::
 
     $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 
-Add your new generated key to github.com:: 
+Add your new generated key to github.com::
 
     $ cat ~/.ssh/id_rsa.pub
 

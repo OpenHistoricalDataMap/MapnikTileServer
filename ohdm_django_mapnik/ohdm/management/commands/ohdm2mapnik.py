@@ -53,7 +53,7 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--not-fill-ohdm-tables",
+            "--not_fill_ohdm_tables",
             action="store_true",
             help="Do not fill the ohdm cache table. Do this only if the ohdm cache tables already filled!",
         )
@@ -82,7 +82,7 @@ class Command(BaseCommand):
             sql_threads=options["sql_threads"],
         )
 
-        if not options["not-fill-ohdm-tables"]:
+        if not options["not_fill_ohdm_tables"]:
             ohdm2mapnik.fill_ohdm_geoobject_tables()
 
         ohdm2mapnik.run()

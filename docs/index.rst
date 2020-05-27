@@ -11,6 +11,8 @@ Welcome to MapnikTileServer's documentation!
    :caption: Contents:
 
    intro
+   getting_start_local
+   getting_start_remote
    commands/index
    frontend
    config
@@ -19,10 +21,9 @@ Welcome to MapnikTileServer's documentation!
    urls
    openstreetmap-carto
    sourcecode
-   setup_development_instance
-   install-without-docker
    tests
    deployment
+   deployment_docker
    documentation
    ci
    troubleshooting

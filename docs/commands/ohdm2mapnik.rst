@@ -120,7 +120,7 @@ Optional parameters
 --sql_threads [SQL_THREADS]
     How many threats should be use, to insert entries into the database.
 
---not-fill-ohdm-tables
+--not_fill_ohdm_tables
     Do not fill the ohdm cache table. Do this only if the ohdm cache tables already filled!
 
 .. hint::
