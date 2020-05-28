@@ -15,6 +15,7 @@ CELERY_FLOWER_PASSWORD=eIYplziix19gsYgGfu7HsVzlhHUwFJxQikoOwDlSDnYCjQEjo1atzobXZ
 # ohdm
 # ------------------------------------------------------------------------------
 CARTO_STYLE_PATH=/opt/openstreetmap-carto
+CARTO_STYLE_PATH_DEBUG=/opt/openstreetmap-carto-debug
 
 # VS-Code
 # ------------------------------------------------------------------------------

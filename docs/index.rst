@@ -19,6 +19,7 @@ Welcome to MapnikTileServer's documentation!
    config
    view
    caching
+   monitoring
    urls
    openstreetmap-carto
    sourcecode

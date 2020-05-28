@@ -36,8 +36,8 @@ DJANGO_ALLOWED_HOSTS                    ALLOWED_HOSTS               ['*']       
 CELERY_BROKER_URL                       CELERY_BROKER_URL           auto w/ Docker; raises error w/o               raises error
 SENTRY_DSN                              SENTRY_DSN                  n/a                                            False
 DJANGO_SENTRY_LOG_LEVEL                 SENTRY_LOG_LEVEL            n/a                                            logging.INFO
-CARTO_STYLE_PATH                        CARTO_STYLE_PATH            /opt/openstreetmap-carto                       raises error
-CARTO_STYLE_PATH_DEBUG                  CARTO_STYLE_PATH_DEBUG      /opt/openstreetmap-carto-debug                 n/a
+CARTO_STYLE_PATH                        CARTO_STYLE_PATH            raises error                                   raises error
+CARTO_STYLE_PATH_DEBUG                  CARTO_STYLE_PATH_DEBUG      raises error                                   n/a
 TILE_GENERATOR_SOFT_TIMEOUT             TILE_GENERATOR_SOFT_TIMEOUT 240                                            240
 TILE_GENERATOR_HARD_TIMEOUT             TILE_GENERATOR_HARD_TIMEOUT 360                                            360
 CACHE_VIEW                              CACHE_VIEW                  86400                                          86400
