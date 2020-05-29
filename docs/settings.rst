@@ -41,7 +41,6 @@ CARTO_STYLE_PATH                        CARTO_STYLE_PATH            raises error
 CARTO_STYLE_PATH_DEBUG                  CARTO_STYLE_PATH_DEBUG      raises error                                   n/a
 TILE_GENERATOR_SOFT_TIMEOUT             TILE_GENERATOR_SOFT_TIMEOUT 240                                            240
 TILE_GENERATOR_HARD_TIMEOUT             TILE_GENERATOR_HARD_TIMEOUT 360                                            360
-CACHE_VIEW                              CACHE_VIEW                  86400                                          86400
 ZOOM_LEVEL                              ZOOM_LEVEL                  13                                             13
 TILE_CACHE_TIME                         TILE_CACHE_TIME             2592000                                        2592000
 ======================================= =========================== ============================================== ======================================================================

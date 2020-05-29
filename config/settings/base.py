@@ -124,9 +124,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
-    "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -147,6 +145,8 @@ CACHES = {
             "IGNORE_EXCEPTIONS": False,
             # https://jazzband.github.io/django-redis/latest/#_compression_support
             "COMPRESSOR": "django_redis.compressors.lzma.LzmaCompressor",
+            # https://jazzband.github.io/django-redis/latest/#_pluggable_serializer
+            "SERIALIZER": "django_redis.serializers.msgpack.MSGPackSerializer",
         },
     }
 }

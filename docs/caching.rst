@@ -4,12 +4,11 @@ Caching
 Basic
 -----
 
-There are 4 tings, that will be cached.
+There are 3 tings, that will be cached.
 
 1. Mapnik Style XML for each date
-2. view
-3. tile cache location
-4. tile
+2. tile cache location
+3. tile
 
 The cache will be filled on each ``HTTP`` request, where there is no cached file
 or when ussing the prerendering command. ::
@@ -33,13 +32,7 @@ Caching Objects
 Cache will be created, when a tile process is running. For each date, the system
 need a different mapnik style xml.
 
-2. view
-.................................
-
-The ``HTTP`` response for every tile request. Short cache time, usefull for
-highly frequently used tiles.
-
-3. tile cache location
+2. tile cache location
 .................................
 
 Cache location of a tile. To save space on the cache server, every tile will
@@ -54,7 +47,7 @@ is ``year-month-day-zoom-X-Y``.
 
    tiles of a map
 
-4. tile
+3. tile
 .................................
 
 Finally the tile png. The cache key is the hash value of the tile.
@@ -66,16 +59,11 @@ In the config file, you can set, how low the cache should be save.::
 
     # caching
     # ------------------------------------------------------------------------------
-    # 86400 == 1 day
-    CACHE_VIEW=86400
     # to which zoom level tiles should cached for ever
     ZOOM_LEVEL=13
     # 2592000 == 1 month
     TILE_CACHE_TIME=2592000
 
-
-**CACHE_VIEW** set how long a view should be cached in seconds. This is usefull, to speedup
-the server response for highly frequently used tiles.
 
 **ZOOM_LEVEL** to wich zoom level the cache should be stored for ever.
 

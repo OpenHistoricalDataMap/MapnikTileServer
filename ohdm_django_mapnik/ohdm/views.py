@@ -14,7 +14,6 @@ from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from ohdm_django_mapnik.ohdm.utily import get_style_xml
 
 
-@cache_page(env.int("CACHE_VIEW", 86400))
 def generate_tile(
     request, year: int, month: int, day: int, zoom: int, x_pixel: float, y_pixel: float
 ) -> HttpResponse:
