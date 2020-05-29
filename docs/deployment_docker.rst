@@ -42,6 +42,24 @@ All possible enviroment vars are list in :ref:`settings`. A minimal config file
     # ------------------------------------------------------------------------------
     CARTO_STYLE_PATH=/opt/openstreetmap-carto
 
+In the ``.envs/.production/.postgres`` file is the connection to the PostGis server
+and the schema of the OHDM data included. For the minimal configuration::
+
+    # Default PostgreSQL
+    # ------------------------------------------------------------------------------
+    POSTGRES_HOST=postgres
+    POSTGRES_PORT=5432
+    POSTGRES_DB=gis
+    POSTGRES_USER=docker
+    POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
+    POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
+    PGCONNECT_TIMEOUT=60
+
+    # OHDM PostgreSQL
+    # ------------------------------------------------------------------------------
+    OHDM_SCHEMA=ohdm
+
+More possible options can be read on https://github.com/kartoza/docker-postgis 
 
 Need to change
 ..............
