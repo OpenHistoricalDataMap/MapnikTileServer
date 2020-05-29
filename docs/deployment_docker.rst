@@ -10,15 +10,131 @@ Prerequisites
 * Docker 17.05+.
 * Docker Compose 1.17+
 
+Download the software
+---------------------
+
+To download the source, use git with::
+
+    $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
+
 Configuration with enviroment vars
 ----------------------------------
 
 To setup the server for your personal needs, you need to create 2 files.
 ``.envs/.production/.django`` & ``.envs/.production/.postgres``.
 
-:ref:`settings`
+All possible enviroment vars are list in :ref:`settings`. A minimal config file
+``.envs/.production/.django`` will look like::
+
+    # General
+    # ------------------------------------------------------------------------------
+    USE_DOCKER=yes
+    IPYTHONDIR=/app/.ipython
+    DJANGO_SECRET_KEY=!!!ChangeMeToSomeRandomValue!!!!!
+    DJANGO_ALLOWED_HOSTS=a.ohdm.net,b.ohdm.net,c.ohdm.net
+    DJANGO_SETTINGS_MODULE=config.settings.production
+
+    # Redis
+    # ------------------------------------------------------------------------------
+    REDIS_URL=redis://redis:6379/0
+
+    # ohdm
+    # ------------------------------------------------------------------------------
+    CARTO_STYLE_PATH=/opt/openstreetmap-carto
 
 
+Need to change
+..............
+
+DJANGO_SECRET_KEY
+    Need to be randomly unique value to provide cryptographic signing.
+    For creating a randomly-generated SECRET_KEY, you can use https://djecrety.ir/
+
+    Docs: https://docs.djangoproject.com/en/3.0/ref/settings/#std:setting-SECRET_KEY
+
+DJANGO_ALLOWED_HOSTS
+    Domains for the django container, add all domains which are pointed to the container,
+    separated by ``,``.
+
+Monitoring
+..........
+
+There a two monitoring system integrated.
+`Flower <https://flower.readthedocs.io/en/latest/>`_ monitor the tile producing queue
+and `Sentry.io <https://sentry.io>`_ for logging all errors on sentry.io.
+For setup go to :ref:`monitoring`.
+
+Changing the default domains
+----------------------------
+
+To change the default domains, you need the modify ``compose/production/traefik/traefik.yml```
+and set the enviroment var ``DJANGO_ALLOWED_HOSTS``.
 
 Building & Running Production Stack
 -----------------------------------
+
+You will need to build the stack first. To do that, run::
+
+    docker-compose -f production.yml build
+
+Once this is ready, you can run it with::
+
+    docker-compose -f production.yml up
+
+To run the stack and detach the containers, run::
+
+    docker-compose -f production.yml up -d
+
+To run a migration, open up a second terminal and run::
+
+   docker-compose -f production.yml run --rm django python manage.py migrate
+
+To create a superuser, run::
+
+   docker-compose -f production.yml run --rm django python manage.py createsuperuser
+
+If you need a shell, run::
+
+   docker-compose -f production.yml run --rm django python manage.py shell
+
+To check the logs out, run::
+
+   docker-compose -f production.yml logs
+
+If you want to scale your application, run::
+
+   docker-compose -f production.yml scale django=70
+   docker-compose -f production.yml scale celeryworker=2
+
+.. warning:: don't try to scale ``postgres``, ``celerybeat``, or ``traefik``.
+
+To see how your containers are doing run::
+
+    docker-compose -f production.yml ps
+
+Example: Supervisor
+-------------------
+
+Once you are ready with your initial setup, you want to make sure that your application is run by a process manager to
+survive reboots and auto restarts in case of an error. You can use the process manager you are most familiar with. All
+it needs to do is to run ``docker-compose -f production.yml up`` in your projects root directory.
+
+If you are using ``supervisor``, you can use this file as a starting point::
+
+    [program:{{cookiecutter.project_slug}}]
+    command=docker-compose -f production.yml up
+    directory=/path/to/{{cookiecutter.project_slug}}
+    redirect_stderr=true
+    autostart=true
+    autorestart=true
+    priority=10
+
+Move it to ``/etc/supervisor/conf.d/{{cookiecutter.project_slug}}.conf`` and run::
+
+    supervisorctl reread
+    supervisorctl update
+    supervisorctl start {{cookiecutter.project_slug}}
+
+For status check, run::
+
+    supervisorctl status
