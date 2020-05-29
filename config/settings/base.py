@@ -27,7 +27,7 @@ print("Mapnik version: {}".format(mapnik.mapnik_version()))
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
 # enable test urls in ohdm_django_mapnik/ohdm/urls.py
-TEST_URLS = DEBUG
+TEST_URLS = env.bool("DJANGO_TEST_URLS", DEBUG)
 # Local time zone. Choices are
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # though not all of them may be available with every OS.

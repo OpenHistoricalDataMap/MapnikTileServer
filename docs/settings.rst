@@ -20,6 +20,7 @@ Environment Variable                    Django Setting              Development 
 ======================================= =========================== ============================================== ======================================================================
 DATABASE_URL                            DATABASES                   auto w/ Docker; postgres://project_slug w/o    raises error
 DJANGO_DEBUG                            DEBUG                       True                                           False
+DJANGO_TEST_URLS                        TEST_URLS                   DEBUG                                          n/a
 DJANGO_SETTINGS_MODULE                  DJANGO_SETTINGS_MODULE      config.settings.local                          raises error -> config.settings.production
 DJANGO_SECRET_KEY                       SECRET_KEY                  auto-generated                                 raises error
 DJANGO_SECURE_BROWSER_XSS_FILTER        SECURE_BROWSER_XSS_FILTER   n/a                                            True
