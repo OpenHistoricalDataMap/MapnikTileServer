@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/debian/
-FROM debian:bullseye-slim
+FROM debian:buster-slim
 
 RUN apt-get update \
   # install helper
@@ -63,11 +63,6 @@ RUN npm install -g n stable
 # install cartoCSS -> https://github.com/mapbox/carto
 RUN npm install -g carto@0
 
-# Requirements are installed here to ensure they will be cached.
-COPY ./requirements /requirements
-RUN pip3 install -r /requirements/system.txt \
-  && pip3 install -r /requirements/local.txt
-
 # download orginal openstreetmap-carto & create default style.xml
 # https://github.com/gravitystorm/openstreetmap-carto
 RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /opt/openstreetmap-carto-debug  && \
@@ -83,6 +78,11 @@ RUN mkdir /opt/openstreetmap-carto
 COPY ./compose/local/django/get-shapefiles.sh /get-shapefiles.sh
 RUN sed -i 's/\r$//g' /get-shapefiles.sh \
   && chmod +x /get-shapefiles.sh
+
+# Requirements are installed here to ensure they will be cached.
+COPY ./requirements /requirements
+RUN pip3 install -r /requirements/system.txt \
+  && pip3 install -r /requirements/local.txt
 
 COPY ./compose/production/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint \

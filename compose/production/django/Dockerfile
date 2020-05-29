@@ -32,7 +32,7 @@ RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstr
   carto project.mml > style.xml
 
 # https://hub.docker.com/_/debian/
-FROM debian:bullseye-slim
+FROM debian:buster-slim
 
 RUN apt-get update \
   # install helper
@@ -49,11 +49,11 @@ RUN apt-get update \
   # Translations dependencies
   && apt-get install -y --no-install-recommends gettext \
   # fonts for mapnik
-  && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \ 
+  && apt-get install -y --no-install-recommends fonts-dejavu fonts-hanazono \
     ttf-unifont \
     # noto fonts
-    fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \ 
-    fonts-noto-hinted fonts-noto-mono \ 
+    fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \
+    fonts-noto-hinted fonts-noto-mono \
     fonts-noto-unhinted \
     fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra \
   # geodjango https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/geolibs/
