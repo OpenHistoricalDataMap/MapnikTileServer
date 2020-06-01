@@ -1,4 +1,4 @@
-Derployment
+Deployment
 ==================================
 
 .. note::
