@@ -260,7 +260,7 @@ Log into ``mapnik`` user and go to the home folder::
     $ su - mapnik
     $ cd
 
-Download `openstreetmap-carto <https://github.com/linuxluigi/openstreetmap-carto/`_::
+Download `openstreetmap-carto <https://github.com/linuxluigi/openstreetmap-carto/>`_::
 
     $ git clone https://github.com/linuxluigi/openstreetmap-carto.git
 
@@ -275,7 +275,7 @@ Next go back to the ``mapnik`` home foldder::
 
     $ cd
 
-Download `MapnikTileServer <https://github.com/OpenHistoricalDataMap/MapnikTileServer/`_
+Download `MapnikTileServer <https://github.com/OpenHistoricalDataMap/MapnikTileServer/>`_
 and go to the new MapnikTileServer folder::
 
     $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
