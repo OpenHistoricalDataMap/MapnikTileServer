@@ -1,77 +1,223 @@
 Derployment
 ==================================
 
-The default way to use the tile-server is with Docker, but it is also possible
-to install the system without docker. This tutorial is written for Ubuntu and 
-Debian.
+.. note::
+    This tutorial is only tested on Debian Buster!
 
-**Requirements:**
+Firewall
+--------
 
-- Python 3.8
-- Postgres 12 with Postgis 3.x
-- Redis
+Ports ``80`` & ``443`` need to be open, for installing the dependencies & running
+the server. An example for iptables to open the ports.::
 
-1. Install Dependencies
------------------------
+    $ iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+    $ iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+    $ iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    $ iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
 
-Update your system::
+Dependend Services
+------------------
 
-    $ sudo apt-get update
-    $ sudo apt-get dist-upgrade
+Postgres 12 with Postgis 3
+..........................
 
-Install helper packages::
+To use the performence boost of the new Postgres Version, add the
+`postgres repo <https://www.postgresql.org/download/linux/debian/>`_
+from postgresql.org to your system.::
 
-    $ sudo apt-get install -y wget unzip fontconfig gnupg
 
-Install node::
+    $ apt-get --no-install-recommends install \
+        locales gnupg2 wget ca-certificates rpl pwgen software-properties-common gdal-bin iputils-ping
+    $ sh -c "echo \"deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main\" > /etc/apt/sources.list.d/pgdg.list"
+    $ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    $ apt-get update
 
-    $ sudo apt-get install -y nodejs npm
+Install Postgres 12 with Postgis 3::
+
+    $ apt-get --no-install-recommends install postgresql-client-12 \
+        postgresql-common postgresql-12 postgresql-12-postgis-3 \
+        netcat postgresql-12-ogr-fdw postgresql-12-postgis-3-scripts \
+        postgresql-12-cron postgresql-plpython3-12 postgresql-12-pgrouting
+
+Postgres service is started & set to come up after each system reboot::
+
+    $ systemctl status postgresql.service
+
+While the installation, the user ``postgres`` was added to the system. With the
+user you can access the admin postgres user.
+
+    $ su - postgres
+
+Change the postgres user ``postgres`` password (remember this password!)::
+
+    $ psql -c "alter user postgres with password 'YourNewPassword'"
+
+Now access the postgres prompt::
+
+    $ psql
+
+Enable Postgis & hstore extentions for postgres::
+
+    $ CREATE EXTENSION postgis;
+    $ CREATE EXTENSION hstore;
+    $ CREATE EXTENSION postgis_topology;
+
+Create the ``gis`` database with the user ``mapnik`` to access the ``gis`` database.::
+
+    $ CREATE DATABASE gis;
+    $ CREATE USER mapnik WITH ENCRYPTED PASSWORD 'MyStr0ngP@SS';
+    $ GRANT ALL PRIVILEGES ON DATABASE gis to mapnik;
+
+Set the new ``mapnik`` database user as superuser::
+
+    $ ALTER USER mapnik WITH SUPERUSER;
+
+Logout from postgres prompt & user::
+
+    $ \q
+    $ exit
+
+Redis 5
+.......
+
+Redis use as a caching server for the tiles & as a task broker for celery.
+
+For installing redis server, use::
+
+    $ apt-get install --no-install-recommends redis-server
+
+If you running redis on the same system than the web-service, than is redis ready
+to work :)
+
+
+NGINX
+......
+
+Install NGINX and certbot for Let's Encrypt::
+
+    $ apt-get install --no-install-recommends nginx python3-acme \
+        python3-certbot python3-mock python3-openssl python3-pkg-resources \
+        python3-pyparsing python3-zope.interface python3-certbot-nginx
+
+Obtaining an SSL Certificate::
+
+    $ certbot --nginx -d a.ohdm.net -d b.ohdm.net -d c.ohdm.net
+
+Create a NGINX config file for ohdm.::
+
+    $ nano /etc/nginx/sites-available/MapnikTileServer.conf
+
+    server {
+        server_name a.ohdm.net b.ohdm.net c.ohdm.net;
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location  /static/ {
+        alias /home/mapnik/MapnikTileServer/staticfiles/;
+        }
+
+        location / {
+            include proxy_params;
+        proxy_pass http://unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock;
+        }
+
+        listen 443 ssl; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/a.ohdm.net/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/a.ohdm.net/privkey.pem; # managed by Certbot
+        include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    }
+    server {
+        if ($host = c.ohdm.net) {
+            return 301 https://$host$request_uri;
+        } # managed by Certbot
+
+        if ($host = b.ohdm.net) {
+            return 301 https://$host$request_uri;
+        } # managed by Certbot
+
+        if ($host = a.ohdm.net) {
+            return 301 https://$host$request_uri;
+        } # managed by Certbot
+
+        listen 80;
+        server_name a.ohdm.net b.ohdm.net c.ohdm.net;
+        return 404; # managed by Certbot
+    }
+
+Link the config file from ``/etc/nginx/sites-available/MapnikTileServer.conf``
+to ``/etc/nginx/sites-enabled/MapnikTileServer.conf``::
+
+    $ ln -s /etc/nginx/sites-available/MapnikTileServer.conf /etc/nginx/sites-enabled
+
+Test if the config was setup right & restart NGINX::
+
+    $ nginx -t
+    $ systemctl restart nginx
+
+Test if certbot can auto reniew the SSL certificate::
+
+    $ certbot renew --dry-run
+
+Install MapnikTileServer
+------------------------
+
+System dependencies::
+
+    $ apt-get install --no-install-recommends wget unzip fontconfig gnupg
+
+Node::
+
+    $ apt-get install nodejs npm
     $ npm i -g npm@^6
 
-Install python dependencies::
+Python::
 
-    $ sudo apt-get install -y python3-pip python3-dev python3-setuptools
+    $ apt-get install --no-install-recommends python3-pip python3-dev \
+        python3-setuptools
 
-Install mapnik-utils for openstreetmap-carto::
+Mapnik-utils for openstreetmap-carto::
 
-    $ sudo apt-get install -y mapnik-utils
+    $ apt-get install --no-install-recommends mapnik-utils
 
-Install dependencies for building Python packages::
+Dependencies for building Python packages::
 
-    $ sudo apt-get install -y build-essential
+    $ apt-get install --no-install-recommends build-essential
 
-Install psycopg2 dependencies::
+Psycopg2 dependencies::
 
-    $ sudo apt-get install -y libpq-dev
+    $ apt-get install --no-install-recommends libpq-dev
 
-Install translations dependencies::
+Translations dependencies::
 
-    $ sudo apt-get install -y gettext
-
-Geodjango dependencies::
-
-    $ sudo apt-get install -y binutils libproj-dev gdal-bin
-
-Git::
-
-    $ sudo apt-get install -y git
-
-Mapnik::
-
-    $ sudo apt-get install -y libmapnik-dev libmapnik3.0 mapnik-utils python3-mapnik
+    $ apt-get install --no-install-recommends gettext
 
 Fonts for mapnik::
 
-    $ sudo apt-get install -y fonts-dejavu fonts-hanazono ttf-unifont \
-        fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \ 
-        fonts-noto-hinted fonts-noto-mono fonts-noto-unhinted \
-        fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra
+    $ apt-get install --no-install-recommends fonts-dejavu fonts-hanazono \
+    ttf-unifont \
+    fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \
+    fonts-noto-hinted fonts-noto-mono \
+    fonts-noto-unhinted \
+    fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra
 
-If you get an error, that a font is missing, you can download it manually
-via https://www.google.com/get/noto/. How to enable the fonts, just look at the
-next step.
+`Geodjango <https://docs.djangoproject.com/en/3.0/ref/contrib/gis/install/geolibs/>`_::
 
-Download extra Noto fonts from google::
+    $ apt-get install --no-install-recommends binutils libproj-dev gdal-bin
+
+Git::
+
+    $ apt-get install --no-install-recommends git
+
+Mapnik::
+
+    $ apt-get install --no-install-recommends libmapnik-dev libmapnik3.0 mapnik-utils \
+    python3-mapnik
+
+Supervisor::
+
+    $ apt-get install --no-install-recommends supervisor
+
+Download & install more `noto fonts <https://www.google.com/get/noto/>`_ for mapnik::
 
     $ mkdir noto-fonts
     $ cd noto-fonts
@@ -79,152 +225,230 @@ Download extra Noto fonts from google::
     $ wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansSyriacEastern-unhinted.zip
     $ wget https://noto-website-2.storage.googleapis.com/pkgs/NotoColorEmoji-unhinted.zip
     $ wget https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip
-    $ unzip -o \*.zip \
+    $ unzip -o \*.zip
     $ cp ./*.ttf /usr/share/fonts/truetype/noto/
-    $ fc-cache -fv 
+    $ fc-cache -fv
     $ fc-list
     $ cd ..
     $ rm -r noto-fonts
 
-2. Install Node dependencies for generating the Mapnik style.xml
-----------------------------------------------------------------
+Update NodeJS to the latest stable::
 
-Set nodejs to stable::
+    $ npm install -g n stable
 
-    $ sudo npm install -g n stable
+Install `CartoCSS <https://github.com/mapbox/carto>`_ with a version below 1::
 
-Install cartoCSS -> https://github.com/mapbox/carto::
+    $ npm install -g carto@0
 
-    $ sudo npm install -g carto@0
+Set enviroment vars for running the MapnikTileServer::
 
-3. Set the default python version
----------------------------------
+    $ nano /etc/environment
 
-Set python 3.8 as the default python version. If you don't have python 3.8
-try to install it yourself. Python 3.7 should work also, but it is not tested.::
+Fill the ``/etc/environment`` file with the following values.
 
-    $ sudo ln -sfn /usr/bin/python3.8 /usr/bin/python
+    # Django
+    # ------------------------------------------------------------------------------
+    DJANGO_READ_DOT_ENV_FILE=True
+    DJANGO_SETTINGS_MODULE=config.settings.production
 
-4. Download the Mapnik-Tile-Server & openstreetmap-carto
---------------------------------------------------------
+Create a Mapnik user, for running the MapnikTileServer::
 
-You need to download 3 git packages MapnikTileServer, original openstreetmap-carto
-and ohdm version of openstreetmap-carto.
+    $ adduser mapnik
 
-At first download the MapnikTileServer::
+Log into ``mapnik`` user and go to the home folder::
 
-    $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git MapnikTileServer
+    $ su - mapnik
+    $ cd
 
-Next download the original openstreetmap-carto, for testing purpose.::
+Download `openstreetmap-carto <https://github.com/linuxluigi/openstreetmap-carto/`_::
 
-    $ git clone https://github.com/gravitystorm/openstreetmap-carto.git openstreetmap-carto-debug
-    $ cd openstreetmap-carto-debug
-    $ git fetch --all
-    $ git reset --hard 09623455a392346996a9340e5a4eba8bca9079c6
-    $ ./scripts/get-shapefiles.py
-    $ carto project.mml > style.xml
-    $ cd ..
+    $ git clone https://github.com/linuxluigi/openstreetmap-carto.git
 
-Now download the ohdm version of openstreetmap-carto::
+Go to the new openstreetmap-carto folder, download the shapefiles & create
+the default mapnik style XML::
 
-    $ git clone https://github.com/linuxluigi/openstreetmap-carto.git openstreetmap-carto
     $ cd openstreetmap-carto
     $ ./scripts/get-shapefiles.py
     $ carto project.mml > style.xml
-    $ cd ..
 
-5. Install python packages
+Next go back to the ``mapnik`` home foldder::
+
+    $ cd
+
+Download `MapnikTileServer <https://github.com/OpenHistoricalDataMap/MapnikTileServer/`_
+and go to the new MapnikTileServer folder::
+
+    $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
+    $ cd MapnikTileServer
+
+Install / update the python packages as root user::
+
+    $ exit
+    $ pip3 install -r /home/mapnik/MapnikTileServer/requirements/system.txt
+    $ pip3 install -r /home/mapnik/MapnikTileServer/requirements/production.txt
 
 .. note::
-    In this tutorial we install development and production packages, this is not
-    recommened, please install a package with fit best for you.
+    When install an update of MapnikTileServer, also update the python packages!
 
-At first go to the MapnikTileServer package & install system packages::
+Go back to the ``mapnik`` user & back to the MapnikTileServer folder::
 
-    $ cd MapnikTileServer
-    $ pip3 install -r requirements/system.txt
+    $ su mapnik
+    $ cd /home/mapnik/MapnikTileServer
 
-Install development packages::
+Create a ``.env`` file for the MapnikTileServer settings. Go to :ref:`settings`
+to see all possibiles options. Below is a minimal configuration::
 
-    $ pip3 install -r requirements/local.txt
+    # General
+    # ------------------------------------------------------------------------------
+    DJANGO_SECRET_KEY=!!!ChangeMeToSomeRandomValue!!!!!
+    DJANGO_ALLOWED_HOSTS=a.ohdm.net,b.ohdm.net,c.ohdm.net
 
-Install production packages::
+    # Redis
+    # ------------------------------------------------------------------------------
+    REDIS_URL=redis://localhost:6379/0
 
-    $ pip3 install -r requirements/production.txt
+    # ohdm
+    # ------------------------------------------------------------------------------
+    CARTO_STYLE_PATH=/home/mapnik/openstreetmap-carto
 
-5. Enable postgres extentions
------------------------------
+    # Default PostgreSQL
+    # ------------------------------------------------------------------------------
+    DATABASE_URL="postgres://mapnik:MyStr0ngP@SS@localhost:5432/gis"
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    POSTGRES_DB=gis
+    POSTGRES_USER=mapnik
+    POSTGRES_PASSWORD=MyStr0ngP
+    PGCONNECT_TIMEOUT=60
 
-Create a Database with the name ``gis`` and run in postgres on the ``gis``
-database the following commands::
+    # OHDM PostgreSQL
+    # ------------------------------------------------------------------------------
+    OHDM_SCHEMA=ohdm
 
-    $ CREATE EXTENSION postgis;
-    $ CREATE EXTENSION hstore;
-    $ CREATE EXTENSION postgis_topology;
+Tests the settings, migrate the database, set indexes & collect static files::
 
-6. Setup enviroment vars
-------------------------
+    $ python3 manage.py migrate
+    $ python3 manage.py set_indexes
+    $ python3 manage.py collectstatic
 
-Set the enviroment vars to run a django application::
+Add a superuser for the admin panel::
 
-    $ export CELERY_BROKER_URL="redis://redis:6379/0"
-    $ export CARTO_STYLE_PATH="~/openstreetmap-carto"
-    $ export CARTO_STYLE_PATH_DEBUG="~/openstreetmap-carto-debug"
-    $ export MAPNIK_VERSION=v3.0.22
-    $ export TILE_GENERATOR_SOFT_TIMEOUT=240
-    $ export TILE_GENERATOR_HARD_TIMEOUT=360
+    $ python3 manage.py createsuperuser
 
-    $ export POSTGRES_HOST=localhost
-    $ export POSTGRES_PORT=5432
-    $ export POSTGRES_DB=gis
-    $ export POSTGRES_USER=!!your-postgres-user!!
-    $ export POSTGRES_PASSWORD=!!your-postgres-user-pass!!
-    $ export PGCONNECT_TIMEOUT=60
+Add ``supervisor`` script to auto start django, celery & flower at system start.
+For creating the scripts, go back to the root user::
 
-    $ export DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_PORT:$POSTGRES_PORT/$POSTGRES_DB
-    $ export OHDM_DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_PORT:$POSTGRES_PORT/$POSTGRES_DB
+    $ exit
 
-If you want to run the production version, also add::
+Open the text editor to create the ``supervisor`` file.::
 
-    $ export DJANGO_SETTINGS_MODULE=config.settings.production
+    $ nano /etc/supervisor/conf.d/mapnik_tile_server.conf
 
-7. Migrate database
--------------------
+Fill the ``supervisor`` file with the values below, but don't forget to change ``CELERY_FLOWER_USER```
+& ``CELERY_FLOWER_PASSWORD`` values::
 
-Go to the MapnikTileServer folder.::
+    [supervisord]
+    environment=DJANGO_READ_DOT_ENV_FILE=True,DJANGO_SETTINGS_MODULE=config.settings.production,CELERY_FLOWER_USER=ChangeMeFlowerUser,CELERY_FLOWER_PASSWORD=ChangeMeFlowerPassword,CELERY_BROKER_URL=redis://localhost:6379/0
 
-    $ cd MapnikTileServer
+    [program:MapnikTileServer_celery_worker]
+    command=celery -A config.celery_app worker -l INFO
+    user=mapnik
+    directory=/home/mapnik/MapnikTileServer
+    autostart=true
+    autorestart=true
+    priority=10
+    stderr_logfile=/var/log/MapnikTileServer_celery_worker.err.log
 
-Than run django database migrate::
+    [program:MapnikTileServer_celery_beat]
+    command=celery -A config.celery_app beat -l INFO
+    user=mapnik
+    directory=/home/mapnik/MapnikTileServer
+    autostart=true
+    autorestart=true
+    priority=10
+    stderr_logfile=/var/log/MapnikTileServer_celery_beat.err.log
 
-    $ python manage.py migrate
+    [program:MapnikTileServer_celery_flower]
+    command=celery flower --app=config.celery_app --broker="redis://localhost:6379/0" --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
+    user=mapnik
+    directory=/home/mapnik/MapnikTileServer
+    autostart=true
+    autorestart=true
+    priority=10
+    stderr_logfile=/var/log/MapnikTileServer_celery_flower.err.log
 
-8. Add a admin user (optional)
-------------------------------
+    [program:MapnikTileServer_django]
+    command=/usr/local/bin/gunicorn config.wsgi --workers 2 --bind unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock -t 240
+    user=mapnik
+    directory=/home/mapnik/MapnikTileServer
+    autostart=true
+    autorestart=true
+    priority=10
+    stderr_logfile=/var/log/MapnikTileServer_django.err.log
 
-Add a user for the admin interface on ``http://localhost:8000/admin/``::
+To enable the ``supervisor`` script.::
 
-    $ python manage.py createsuperuser
+    supervisorctl reread
+    supervisorctl update
+    supervisorctl start MapnikTileServer_celery_worker
+    supervisorctl start MapnikTileServer_celery_beat
+    supervisorctl start MapnikTileServer_celery_flower
+    supervisorctl start MapnikTileServer_django
+    supervisorctl status
 
-9. Insert a planet or region file (optional)
---------------------------------------------
+Use commands
+------------
 
-To fill the database with some test data, just download a ``osm`` file from
-http://download.geofabrik.de/
+For using django commands from :ref:`commands`, log into the ``mapnik`` user &
+go to the ``/home/mapnik/MapnikTileServer``.::
 
-To import the ``osm`` file into the database use::
+    $ su mapnik
+    $ cd /home/mapnik/MapnikTileServer
 
-    $ python manage.py import_osm --planet path-to-your-planet.osm.bz2
+The commands in :ref:`commands` are written for the docker usage, to use them
+without docker, just use the command after the ``django`` keyword. For exmaple,
+to use ``set_indexes``, in the docs the command is write down as
+``docker-compose -f local.yml run --rm django python manage.py set_indexes`` and
+to use it without docker, just use ``python3 manage.py set_indexes``.
 
-This could take some time, depending on how large your file is.
+Download updates
+----------------
 
-9. Start the Webserver
-----------------------
+Stop all services first::
 
-To normal start the server, run::
+    $ supervisorctl stop all
 
-    $ python manage.py runserver
+Log into the ``mapnik`` user and go to the openstreetmap-carto folder::
 
-To use the debug toolbar and more dev features, use instead::
+    $ su mapnik
+    $ cd /home/mapnik/openstreetmap-carto
 
-    $ python manage.py runserver_plus
+Get the latest version with ``git pull``::
+
+    $ git fetch
+    $ git pull
+
+Downoad the latest shapefiles & create the default mapnik style XML::
+
+    $ ./scripts/get-shapefiles.py
+    $ carto project.mml > style.xml
+
+Go to the MapnikTileServer::
+
+    $ cd /home/mapnik/MapnikTileServer
+
+Download the latest code from github, for the MapnikTileServer::
+
+    $ git fetch
+    $ git pull
+
+Update the database & staticfiles::
+
+    $ python3 manage.py migrate
+    $ python3 manage.py set_indexes
+    $ python3 manage.py collectstatic
+
+Log out from the ``mapnik`` user & start the webservices again::
+
+    $ exit
+    $ supervisorctl start all

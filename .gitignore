@@ -338,5 +338,8 @@ ohdm_django_mapnik/media/
 *project.xml
 *style.xml
 
-# psmium 
+# psmium
 osmium.nodecache
+
+# gunicorn sock
+MapnikTileServer.sock
