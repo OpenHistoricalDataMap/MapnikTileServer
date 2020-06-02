@@ -15,13 +15,13 @@ the server. An example for iptables to open the ports.::
     $ iptables -A INPUT -p tcp --dport 80 -j ACCEPT
     $ iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
 
-Dependend Services
+Dependent Services
 ------------------
 
 Postgres 12 with Postgis 3
 ..........................
 
-To use the performence boost of the new Postgres Version, add the
+To use the performance boost of the new Postgres Version, add the
 `postgres repo <https://www.postgresql.org/download/linux/debian/>`_
 from postgresql.org to your system.::
 
@@ -32,14 +32,14 @@ from postgresql.org to your system.::
     $ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
     $ apt-get update
 
-Install Postgres 12 with Postgis 3::
+Install Postgres 12 with Postgis 3.::
 
     $ apt-get --no-install-recommends install postgresql-client-12 \
         postgresql-common postgresql-12 postgresql-12-postgis-3 \
         netcat postgresql-12-ogr-fdw postgresql-12-postgis-3-scripts \
         postgresql-12-cron postgresql-plpython3-12 postgresql-12-pgrouting
 
-Postgres service is started & set to come up after each system reboot::
+Postgres's service is started & set to come up after each system reboot.::
 
     $ systemctl status postgresql.service
 
@@ -52,11 +52,11 @@ Change the postgres user ``postgres`` password (remember this password!)::
 
     $ psql -c "alter user postgres with password 'YourNewPassword'"
 
-Now access the postgres prompt::
+Now access the postgres prompt.::
 
     $ psql
 
-Enable Postgis & hstore extentions for postgres::
+Enable Postgis & hstore extensions for postgres.::
 
     $ CREATE EXTENSION postgis;
     $ CREATE EXTENSION hstore;
@@ -68,11 +68,11 @@ Create the ``gis`` database with the user ``mapnik`` to access the ``gis`` datab
     $ CREATE USER mapnik WITH ENCRYPTED PASSWORD 'MyStr0ngP@SS';
     $ GRANT ALL PRIVILEGES ON DATABASE gis to mapnik;
 
-Set the new ``mapnik`` database user as superuser::
+Set the new ``mapnik`` database user as superuser.::
 
     $ ALTER USER mapnik WITH SUPERUSER;
 
-Logout from postgres prompt & user::
+Logout from postgres prompt & user.::
 
     $ \q
     $ exit
@@ -86,20 +86,19 @@ For installing redis server, use::
 
     $ apt-get install --no-install-recommends redis-server
 
-If you running redis on the same system than the web-service, than is redis ready
+If you running redis on the same system as the web-service, then is redis ready
 to work :)
-
 
 NGINX
 ......
 
-Install NGINX and certbot for Let's Encrypt::
+Install NGINX and certbot for Let's Encrypt.::
 
     $ apt-get install --no-install-recommends nginx python3-acme \
         python3-certbot python3-mock python3-openssl python3-pkg-resources \
         python3-pyparsing python3-zope.interface python3-certbot-nginx
 
-Obtaining an SSL Certificate::
+Obtaining an SSL Certificate.::
 
     $ certbot --nginx -d a.ohdm.net -d b.ohdm.net -d c.ohdm.net
 
@@ -145,16 +144,16 @@ Create a NGINX config file for ohdm.::
     }
 
 Link the config file from ``/etc/nginx/sites-available/MapnikTileServer.conf``
-to ``/etc/nginx/sites-enabled/MapnikTileServer.conf``::
+to ``/etc/nginx/sites-enabled/MapnikTileServer.conf``.::
 
     $ ln -s /etc/nginx/sites-available/MapnikTileServer.conf /etc/nginx/sites-enabled
 
-Test if the config was setup right & restart NGINX::
+Test if the config was set up right & restart NGINX.::
 
     $ nginx -t
     $ systemctl restart nginx
 
-Test if certbot can auto reniew the SSL certificate::
+Test if certbot can auto renew the SSL certificate.::
 
     $ certbot renew --dry-run
 
@@ -236,11 +235,11 @@ Update NodeJS to the latest stable::
 
     $ npm install -g n stable
 
-Install `CartoCSS <https://github.com/mapbox/carto>`_ with a version below 1::
+Install `CartoCSS <https://github.com/mapbox/carto>`_ with a version below 1.::
 
     $ npm install -g carto@0
 
-Set enviroment vars for running the MapnikTileServer::
+Set environment vars for running the MapnikTileServer.::
 
     $ nano /etc/environment
 
@@ -251,11 +250,11 @@ Fill the ``/etc/environment`` file with the following values.
     DJANGO_READ_DOT_ENV_FILE=True
     DJANGO_SETTINGS_MODULE=config.settings.production
 
-Create a Mapnik user, for running the MapnikTileServer::
+Create a Mapnik user, for running the MapnikTileServer.::
 
     $ adduser mapnik
 
-Log into ``mapnik`` user and go to the home folder::
+Log into ``mapnik`` user and go to the home folder.::
 
     $ su - mapnik
     $ cd
@@ -264,24 +263,24 @@ Download `openstreetmap-carto <https://github.com/linuxluigi/openstreetmap-carto
 
     $ git clone https://github.com/linuxluigi/openstreetmap-carto.git
 
-Go to the new openstreetmap-carto folder, download the shapefiles & create
+Go to the new openstreetmap-carto folder, download the shape files & create
 the default mapnik style XML::
 
     $ cd openstreetmap-carto
     $ ./scripts/get-shapefiles.py
     $ carto project.mml > style.xml
 
-Next go back to the ``mapnik`` home foldder::
+Next go back to the ``mapnik`` home folder.::
 
     $ cd
 
 Download `MapnikTileServer <https://github.com/OpenHistoricalDataMap/MapnikTileServer/>`_
-and go to the new MapnikTileServer folder::
+and go to the new MapnikTileServer folder.::
 
     $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
     $ cd MapnikTileServer
 
-Install / update the python packages as root user::
+Install / update the python packages as root user.::
 
     $ exit
     $ pip3 install -r /home/mapnik/MapnikTileServer/requirements/system.txt
@@ -290,13 +289,13 @@ Install / update the python packages as root user::
 .. note::
     When install an update of MapnikTileServer, also update the python packages!
 
-Go back to the ``mapnik`` user & back to the MapnikTileServer folder::
+Go back to the ``mapnik`` user & back to the MapnikTileServer folder.::
 
     $ su mapnik
     $ cd /home/mapnik/MapnikTileServer
 
 Create a ``.env`` file for the MapnikTileServer settings. Go to :ref:`settings`
-to see all possibiles options. Below is a minimal configuration::
+to see all possibles options. Below is a minimal configuration::
 
     # General
     # ------------------------------------------------------------------------------
@@ -331,12 +330,12 @@ Tests the settings, migrate the database, set indexes & collect static files::
     $ python3 manage.py set_indexes
     $ python3 manage.py collectstatic
 
-Add a superuser for the admin panel::
+Add a superuser for the admin panel.::
 
     $ python3 manage.py createsuperuser
 
 Add ``supervisor`` script to auto start django, celery & flower at system start.
-For creating the scripts, go back to the root user::
+For creating the scripts, go back to the root user.::
 
     $ exit
 
@@ -345,7 +344,7 @@ Open the text editor to create the ``supervisor`` file.::
     $ nano /etc/supervisor/conf.d/mapnik_tile_server.conf
 
 Fill the ``supervisor`` file with the values below, but don't forget to change ``CELERY_FLOWER_USER```
-& ``CELERY_FLOWER_PASSWORD`` values::
+& ``CELERY_FLOWER_PASSWORD`` values.::
 
     [supervisord]
     environment=DJANGO_READ_DOT_ENV_FILE=True,DJANGO_SETTINGS_MODULE=config.settings.production,CELERY_FLOWER_USER=ChangeMeFlowerUser,CELERY_FLOWER_PASSWORD=ChangeMeFlowerPassword,CELERY_BROKER_URL=redis://localhost:6379/0
@@ -406,49 +405,49 @@ go to the ``/home/mapnik/MapnikTileServer``.::
     $ cd /home/mapnik/MapnikTileServer
 
 The commands in :ref:`commands` are written for the docker usage, to use them
-without docker, just use the command after the ``django`` keyword. For exmaple,
-to use ``set_indexes``, in the docs the command is write down as
+without docker, just use the command after the ``django`` keyword. For example,
+to use ``set_indexes``, in the docs the command is written down as
 ``docker-compose -f local.yml run --rm django python manage.py set_indexes`` and
 to use it without docker, just use ``python3 manage.py set_indexes``.
 
 Download updates
 ----------------
 
-Stop all services first::
+Stop all services first.::
 
     $ supervisorctl stop all
 
-Log into the ``mapnik`` user and go to the openstreetmap-carto folder::
+Log into the ``mapnik`` user and go to the openstreetmap-carto folder.::
 
     $ su mapnik
     $ cd /home/mapnik/openstreetmap-carto
 
-Get the latest version with ``git pull``::
+Get the latest version with ``git pull``.::
 
     $ git fetch
     $ git pull
 
-Downoad the latest shapefiles & create the default mapnik style XML::
+Download the latest shape files & create the default mapnik style XML.::
 
     $ ./scripts/get-shapefiles.py
     $ carto project.mml > style.xml
 
-Go to the MapnikTileServer::
+Go to the MapnikTileServer.::
 
     $ cd /home/mapnik/MapnikTileServer
 
-Download the latest code from github, for the MapnikTileServer::
+Download the latest code from github, for the MapnikTileServer.::
 
     $ git fetch
     $ git pull
 
-Update the database & staticfiles::
+Update the database & static files.::
 
     $ python3 manage.py migrate
     $ python3 manage.py set_indexes
     $ python3 manage.py collectstatic
 
-Log out from the ``mapnik`` user & start the webservices again::
+Log out from the ``mapnik`` user & start the web services again.::
 
     $ exit
     $ supervisorctl start all

@@ -11,11 +11,11 @@ There are 3 tings, that will be cached.
 3. tile
 
 The cache will be filled on each ``HTTP`` request, where there is no cached file
-or when ussing the prerendering command. ::
+or when using the prerendering command.::
 
     $ docker-compose -f local.yml run --rm django python manage.py prerender [ZOOM_LEVEL]
 
-Below is an diagram, how the cache is used in a view.
+Below is a diagram, how the cache is used in a view.
 
 .. figure:: _static/tile-server/tile-server-task.png
    :align: center
@@ -30,14 +30,14 @@ Caching Objects
 .................................
 
 Cache will be created, when a tile process is running. For each date, the system
-need a different mapnik style xml.
+need a different mapnik style XML.
 
 2. tile cache location
 .................................
 
 Cache location of a tile. To save space on the cache server, every tile will
-be hashed with ``MD5`` and saved under the ``MD5`` value. When mutiple tiles have
-the same ``MD5`` hash, then only one tile will be saved. The cahe location key
+be hashed with ``MD5`` and saved under the ``MD5`` value. When multiple tiles have
+the same ``MD5`` hash, then only one tile will be saved. The cache location key
 is ``year-month-day-zoom-X-Y``.
 
 .. figure:: _static/tile-server/tile-server-caching.png
@@ -50,12 +50,12 @@ is ``year-month-day-zoom-X-Y``.
 3. tile
 .................................
 
-Finally the tile png. The cache key is the hash value of the tile.
+Finally, the tile PNG. The cache key is the hash value of the tile.
 
 Config
 ---------------
 
-In the config file, you can set, how low the cache should be save.::
+In the config file, you can set, how low the cache should be saved.::
 
     # caching
     # ------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ In the config file, you can set, how low the cache should be save.::
     TILE_CACHE_TIME=2592000
 
 
-**ZOOM_LEVEL** to wich zoom level the cache should be stored for ever.
+**ZOOM_LEVEL** to which zoom level the cache should be stored for ever.
 
 **TILE_CACHE_TIME** how long a tile should be cached in seconds.
 
@@ -76,12 +76,12 @@ To clear up all cached files use::
 
     $ docker-compose -f local.yml run --rm django python manage.py clear_cache
 
-But be careful, this command can't be undon!
+But be careful, this command can't be undone!
 
 Compression
 -----------
 
 To save space on the cache system, any cache object will be compressed with ``lzma``.
 For changing the compression mode, modify ``config/settings/production.py`` under
-``CACHES``. On https://docs.python.org/3/library/lzma.html#module-lzma is an list,
+``CACHES``. On https://docs.python.org/3/library/lzma.html#module-lzma is a list,
 with all available compression modes.

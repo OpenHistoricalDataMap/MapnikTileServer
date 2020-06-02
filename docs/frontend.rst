@@ -4,11 +4,11 @@ Frontend
 .. index:: Angular
 .. index:: Frontend
 
-The demo frontend is written as an Angular app. The source code is in a extra
+The demo frontend is written as an Angular app. The source code is in an extra
 git repo https://github.com/linuxluigi/ohdm-angular-frontend
 
-For handling the tile request to the MapntikTileServer it use the libary
-`OpenLayers <https://openlayers.org/>`_. The sourcecode for the map handling
+For handling the tile request to the MapntikTileServer it uses the library
+`OpenLayers <https://openlayers.org/>`_. The source code for the map handling
 is in `map.component.ts <https://github.com/linuxluigi/ohdm-angular-frontend/blob/master/src/app/map/map.component.ts>`_.
 
 .. figure:: _static/frontend.png
@@ -17,9 +17,9 @@ is in `map.component.ts <https://github.com/linuxluigi/ohdm-angular-frontend/blo
 
     angular frontend
 
-For faster tile request, use mutiple domains. Each Webbrowser has a limit how
-many ``HTTP`` connection can be use at once. To extend the limits, use mutiple
-domains. In OpenLayers you can set a mutiple domains in an array with ``OlXYZ``.::
+For faster tile request, use multiple domains. Each web browser has a limit how
+many ``HTTP`` connection can be use at once. To extend the limits, use multiple
+domains. In OpenLayers you can set a multiple domains in an array with ``OlXYZ``.::
 
     this.source = new OlXYZ({
         urls: [

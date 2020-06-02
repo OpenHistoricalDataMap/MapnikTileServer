@@ -1,10 +1,10 @@
 Intro
 =====
 
-The MapntikTileServer is a time sensitve mapnik based tile server for
+The MapntikTileServer is a time sensitive mapnik based tile server for
 `OpenStreetMap <https://www.openstreetmap.org/>`_ and `Open Historical Data Map <http://www.ohdm.net/>`_.
-Writte in python with the web framework `Django <https://www.djangoproject.com/>`_ and
-the offical `OpenStreetMap <https://www.openstreetmap.org/>`_  stylesheets.
+Written in python with the web framework `Django <https://www.djangoproject.com/>`_ and
+the official `OpenStreetMap <https://www.openstreetmap.org/>`_  style sheets.
 
 .. figure:: _static/ohdm2mapnik-bremen-2020.png
    :align: center
@@ -27,7 +27,7 @@ What is a Tile server?
 ----------------------
 
 A Tile Server is a web service which handle user request over the ``HTTP`` / ``HTTPS``
-protcol. A user request is define over the reuqest URL. As response get the user
+protocol. A user request is defined over the request URL, as response get the user
 a single tile of a map.
 
 .. figure:: _static/tile-server/tile-server-task.png
@@ -43,22 +43,22 @@ a single tile of a map.
 
    tiles of a map
 
-There are some JavaScript libaries, which can handle tile server request and
-merge each tile to a map. The two most common libaries are `Leaflet <https://leafletjs.com/>`_
+There are some JavaScript libraries, which can handle tile server request and
+merge each tile to a map. The two most common libraries are `Leaflet <https://leafletjs.com/>`_
 and `OpenLayers <https://openlayers.org/>`_.
 
-What is the different of the MapntikTileServer vs other Tile-Servers?
----------------------------------------------------------------------
+MapntikTileServer vs other Tile-Servers
+---------------------------------------
 
-The main diffence is, that this tile server can handle time request. So you
+The main difference is, that this tile server can handle time request. So you
 can request a map of a specific date. To handle date specific request,
 the project `openstreetmap-carto <https://github.com/gravitystorm/openstreetmap-carto/>`_
 was use as base. `Openstreetmap-carto <https://github.com/gravitystorm/openstreetmap-carto/>`_
-is the github repository for the stylesheets, which are used on https://openstreetmap.org/.
-To add time sensitive request, the project was forked `forked <https://github.com/linuxluigi/openstreetmap-carto/>`_
+is the github repository for the style sheets, which are used on https://openstreetmap.org/.
+To add time sensitive request, the project was `forked <https://github.com/linuxluigi/openstreetmap-carto/>`_
 and the ``project.mml`` file was modified to make ``SQL`` request for a specific day.
 
-On the diagram below, there is the workflow of the MapntikTileServer descipted.
+On the diagram below, is the workflow of the MapntikTileServer.
 
 .. figure:: _static/tile-server/tile-server.png
    :align: center
@@ -72,7 +72,7 @@ Cookiecutter Django
 The project was created with
 `Cookiecutter Django <https://github.com/pydanny/cookiecutter-django>`_ and
 build up with docker. So if you unsure how to use this MapntikTileServer,
-read the the `Cookiecutter Django Docs <https://cookiecutter-django.readthedocs.io/en/latest/>`_
+read the `Cookiecutter Django Docs <https://cookiecutter-django.readthedocs.io/en/latest/>`_
 for help.
 
 For faster developing and better testing, this project use Docker and Docker-Compose
@@ -83,7 +83,7 @@ Celery Task Queue
 
 For the production setup, the tile are produce in a `Celery-Task-Queue <https://celeryproject.org/>`_.
 Celery is a python task queue, which run in extra threads / container for more
-performence. For every URL of a tile, which is not already in the cache, there
+performance. For every URL of a tile, which is not already in the cache, there
 will be triggered a new task on the queue.
 
 .. figure:: _static/tile-server/tile-server-celery.png
@@ -92,14 +92,13 @@ will be triggered a new task on the queue.
 
    Celery-worker get work from broker.
 
-Every celery container have mutiple threads, where it can process tile request. To scale
+Every celery container have multiple threads, where it can process tile request. To scale
 up the production you can use with docker::
 
    $ docker-compose -f production.yml scale celeryworker=2
 
-But be careful how many containers you scale up to, do not create more
-celery threads on one machine than there are CPU cores. So if you host has
-8 core, scale up to max of 2 workers.
+Celery auto scale the threads, depending on your system load,
+as a recommendation is to scale celery to 2 containers.
 
 More on: https://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html#building-running-production-stack
 

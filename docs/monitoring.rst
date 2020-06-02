@@ -7,7 +7,7 @@ Flower
 ------
 
 Flower is celery task monitor. Here you can watch, how the tiles are produced and
-if there any errors.
+if their any errors.
 
 To access flower, you need to add the flower username & password in your
 ``.envs/.production/.django`` for poduction and ``.envs/.local/.django`` for the
@@ -28,5 +28,5 @@ Sentry.io
 ---------
 
 `Sentry.io <https://sentry.io>`_ is an online monitoring platform for monitoring
-erros. To enable it, add the enviroment var ``SENTRY_DSN`` in ``.envs/.production/.django``
+error. To enable it, add the enviroment var ``SENTRY_DSN`` in ``.envs/.production/.django``
 with your account sentry DNS.

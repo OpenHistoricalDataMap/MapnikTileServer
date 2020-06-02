@@ -22,7 +22,7 @@ class Command(BaseCommand):
             "--cache",
             nargs="?",
             type=int,
-            help="Amount of object witch will be handel at once!",
+            help="Amount of object which will be handle at once!",
             default=100000,
         )
 

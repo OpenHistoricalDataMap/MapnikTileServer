@@ -1,7 +1,7 @@
 Source Code
 ===========
 
-Since this project is split over mutiple github repos, here is a list of the important
+Since this project is split over multiple GitHub repos, here is a list of the important
 links:
 
 - OHDM Github Project page: https://github.com/OpenHistoricalDataMap

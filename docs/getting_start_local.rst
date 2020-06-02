@@ -17,21 +17,21 @@ Prerequisites
 Install
 -------
 
-Dowload the MapnikTileServer & openstreetmap-carto.::
+Download the MapnikTileServer & openstreetmap-carto.::
 
     $ git clone git@github.com:OpenHistoricalDataMap/MapnikTileServer.git
     $ git clone git@github.com:linuxluigi/openstreetmap-carto.git
 
-Go to the MapnikTileServer and build up all images. This could take some time ::
+Go to the MapnikTileServer and build up all images. This could take some time.::
 
     $ cd MapnikTileServer
     $ docker-compose -f local.yml build
 
-Download the shapefiles::
+Download the shape files.::
 
     $ docker-compose -f local.yml run --rm django /get-shapefiles.sh
 
-Create the base mapnik style xml::
+Create the base mapnik style XML.::
 
     $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
 
@@ -40,19 +40,19 @@ Start the postgres server and create the mapnik tables.::
     $ docker-compose -f local.yml up -d postgres
     $ docker-compose -f local.yml run --rm django python manage.py migrate
 
-Create a demo OHDM database::
+Create a demo OHDM database.::
 
     $ docker-compose -f local.yml up test-database
 
-Convert the OHDM data into mapnik tables (osm2pgsql)::
+Convert the OHDM data into mapnik tables (osm2pgsql).::
 
     $ docker-compose -f local.yml run --rm django python manage.py ohdm2mapnik
 
-Start celery worker & beat::
+Start celery worker & beat.::
 
     $ docker-compose -f local.yml up -d celerybeat celeryworker
 
-Start the django webserver::
+Start the django web server.::
 
     $ docker-compose -f local.yml up django
 
@@ -66,7 +66,7 @@ like below.
 
    world map
 
-To check if the demo data was setup right, go to
+To check if the demo data was set up right, go to
 http://localhost:8000/YEAR/MONTH/DAY/11/57/1134/tile.png. But change **YEAR**,
 **MONTH** & **DAY** to your current day. For example the like for the 2020-05-27
 will be http://localhost:8000/2020/05/27/11/57/1134/tile.png

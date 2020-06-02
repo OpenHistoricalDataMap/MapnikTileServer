@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
-
-from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables, clear_rel_tables
+from ohdm_django_mapnik.ohdm.clear_db import (clear_mapnik_tables,
+                                              clear_rel_tables)
 from ohdm_django_mapnik.ohdm.import_osh import run_import
 from ohdm_django_mapnik.ohdm.rel2pgsql import Rel2pgsql
 
@@ -29,7 +29,7 @@ class Command(BaseCommand):
             "--cache",
             nargs="?",
             type=int,
-            help="Amount of object witch will be handel at once!",
+            help="Amount of object which will be handle at once!",
             default=100000,
         )
 

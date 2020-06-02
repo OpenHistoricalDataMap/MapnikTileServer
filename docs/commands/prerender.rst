@@ -1,7 +1,7 @@
 prerender
 =========
 
-This will be prerendering all Tile to the selected zoom level. To use the
+This will be prerendering all tile to the selected zoom level. To use the
 prerendering command use::
 
     $ docker-compose -f local.yml run --rm django python manage.py prerender [ZOOM_LEVEL]

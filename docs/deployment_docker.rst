@@ -13,17 +13,17 @@ Prerequisites
 Download the software
 ---------------------
 
-To download the source, use git with::
+To download the source, use git with.::
 
     $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
 
-Configuration with enviroment vars
-----------------------------------
+Configuration with environment vars
+-----------------------------------
 
-To setup the server for your personal needs, you need to create 2 files.
+To set up the server for your personal needs, you need to create 2 files.
 ``.envs/.production/.django`` & ``.envs/.production/.postgres``.
 
-All possible enviroment vars are list in :ref:`settings`. A minimal config file
+All possible environment vars are list in :ref:`settings`. A minimal config file
 ``.envs/.production/.django`` will look like::
 
     # General
@@ -43,7 +43,7 @@ All possible enviroment vars are list in :ref:`settings`. A minimal config file
     CARTO_STYLE_PATH=/opt/openstreetmap-carto
 
 In the ``.envs/.production/.postgres`` file is the connection to the PostGis server
-and the schema of the OHDM data included. For the minimal configuration::
+and the schema of the OHDM data included. For the minimal configuration.::
 
     # Default PostgreSQL
     # ------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ and the schema of the OHDM data included. For the minimal configuration::
     # ------------------------------------------------------------------------------
     OHDM_SCHEMA=ohdm
 
-More possible options can be read on https://github.com/kartoza/docker-postgis 
+More possible options can be read on `docker-postgis <https://github.com/kartoza/docker-postgis>`_.
 
 Need to change
 ..............
@@ -85,7 +85,7 @@ For setup go to :ref:`monitoring`.
 Changing the default domains
 ----------------------------
 
-To change the default domains, you need the modify ``compose/production/traefik/traefik.yml```
+To change the default domains, you need to modify ``compose/production/traefik/traefik.yml```
 and set the enviroment var ``DJANGO_ALLOWED_HOSTS``.
 
 Building & Running Production Stack
@@ -93,42 +93,42 @@ Building & Running Production Stack
 
 You will need to build the stack first. To do that, run::
 
-    docker-compose -f production.yml build
+    $ docker-compose -f production.yml build
 
 Once this is ready, you can run it with::
 
-    docker-compose -f production.yml up
+    $ docker-compose -f production.yml up
 
 To run the stack and detach the containers, run::
 
-    docker-compose -f production.yml up -d
+    $ docker-compose -f production.yml up -d
 
 To run a migration, open up a second terminal and run::
 
-   docker-compose -f production.yml run --rm django python manage.py migrate
+   $ docker-compose -f production.yml run --rm django python manage.py migrate
 
 To create a superuser, run::
 
-   docker-compose -f production.yml run --rm django python manage.py createsuperuser
+   $ docker-compose -f production.yml run --rm django python manage.py createsuperuser
 
 If you need a shell, run::
 
-   docker-compose -f production.yml run --rm django python manage.py shell
+   $ docker-compose -f production.yml run --rm django python manage.py shell
 
 To check the logs out, run::
 
-   docker-compose -f production.yml logs
+   $ docker-compose -f production.yml logs
 
 If you want to scale your application, run::
 
-   docker-compose -f production.yml scale django=70
-   docker-compose -f production.yml scale celeryworker=2
+   $ docker-compose -f production.yml scale django=70
+   $ docker-compose -f production.yml scale celeryworker=2
 
 .. warning:: don't try to scale ``postgres``, ``celerybeat``, or ``traefik``.
 
 To see how your containers are doing run::
 
-    docker-compose -f production.yml ps
+    $ docker-compose -f production.yml ps
 
 Example: Supervisor
 -------------------
@@ -139,20 +139,20 @@ it needs to do is to run ``docker-compose -f production.yml up`` in your project
 
 If you are using ``supervisor``, you can use this file as a starting point::
 
-    [program:{{cookiecutter.project_slug}}]
+    [program:MapnikTileServer]
     command=docker-compose -f production.yml up
-    directory=/path/to/{{cookiecutter.project_slug}}
+    directory=/path/to/MapnikTileServer
     redirect_stderr=true
     autostart=true
     autorestart=true
     priority=10
 
-Move it to ``/etc/supervisor/conf.d/{{cookiecutter.project_slug}}.conf`` and run::
+Move it to ``/etc/supervisor/conf.d/MapnikTileServer.conf`` and run::
 
-    supervisorctl reread
-    supervisorctl update
-    supervisorctl start {{cookiecutter.project_slug}}
+    $ supervisorctl reread
+    $ supervisorctl update
+    $ supervisorctl start MapnikTileServer
 
 For status check, run::
 
-    supervisorctl status
+    $ supervisorctl status

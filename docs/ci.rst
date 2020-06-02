@@ -24,7 +24,7 @@ Black
      :alt: Black code style
 
 `Black <https://github.com/ambv/black>`_ is not integrated as a C/I, it's just a python code auto
-formater for the project. So if you like to contribute your code use black by ``python black ./``!
+formatter for the project. So if you like to contribute your code use black by ``python black ./``!
 
 Tests
 -----
@@ -43,7 +43,7 @@ This project use for testing `unit test <https://docs.pytest.org/en/latest/>`_,
 `django commands <https://docs.djangoproject.com/en/3.0/howto/custom-management-commands/>`_ & Docker-Compose builds
 `Travis <https://travis-ci.com/>`_
 
-Travis config is ``.travis.yml`` 
+Travis config is ``.travis.yml``.
 
 Documentation
 -------------
@@ -60,9 +60,9 @@ Readthedocs.org
      :alt: Documentation Status
 
 Documentation is written in `Sphinx <https://www.sphinx-doc.org/en/master/>`_ in ``.rst`` file
-format. The sourcecode of the docs is in ``docs/`` 
+format. The sourcecode of the docs is in ``docs/``.
 
-Travis config is ``.readthedocs.yml``
+Travis config is ``.readthedocs.yml``.
 
 Code Review
 -----------
@@ -95,7 +95,7 @@ DeepSource.io
      :alt: DeepSource
 
 `DeepSource.io <https://www.deepsource.io>`_ is like `Codacy.com <https://www.codacy.com>`_
-but it also analyze Dockerfiles.
+but it also analyzes Dockerfiles.
 
 DeepSource config is ``.deepsource.toml``
 
@@ -117,8 +117,8 @@ Pyup.io
      :target: https://pyup.io/repos/github/OpenHistoricalDataMap/MapnikTileServer/
      :alt: Python 3
 
-`Pyup.io <https://pyup.io>`_ update Python packages once a week. It push every update to an extra
-banch & create a pull request.
+`Pyup.io <https://pyup.io>`_ update Python packages once a week. It pushes every update to an extra
+branch & create a pull request.
 
 Pyup config is ``.pyup.yml``
 
@@ -127,7 +127,7 @@ Dependabot.com
 
 .. index:: Update Dockerfiles
 
-`Dependabot.com <https://dependabot.com/>`_ update Dockerfiles once a week. It push every update to
-an extra banch & create a pull request.
+`Dependabot.com <https://dependabot.com/>`_ update Dockerfiles once a week. It pushes every update to
+an extra branch & create a pull request.
 
 Dependabot config is ``.dependabot/config.yml``

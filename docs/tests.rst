@@ -8,28 +8,28 @@ Tests are written with `pytest <https://docs.pytest.org/en/latest/>`_.
 
 The pytests stored in ``ohdm_django_mapnik/ohdm/tests/``.
 
-Bevor running the test, you need to fill the database with some test data, create
-a mapnik style xml and load shapefiles.::
+Before running the test, you need to fill the database with some test data, create
+a mapnik style XML and load shape files.::
 
     $ docker-compose -f local.yml run --rm django /get-shapefiles.sh
     $ docker-compose -f local.yml run --rm django python manage.py create_style_xml
     $ docker-compose -f local.yml run --rm django python manage.py migrate
     $ docker-compose -f local.yml run --rm django python manage.py import_osm --planet /niue-latest.osm.pbf
 
-To run the tests use::
+To run the tests use.::
 
     $ docker-compose -f local.yml run --rm django pytest
 
-If you want to see the terminal output, you cann add ``-s``::
+If you want to see the terminal output, you can add ``-s``::
 
     $ docker-compose -f local.yml run --rm django pytest -s
 
-To tests a folder or single file, add the relativ path to the folder or file::
+For testing a folder or single file, add the relative path to the folder or file.::
 
     $ docker-compose -f local.yml run --rm django pytest ohdm_django_mapnik/ohdm/tests
     $ docker-compose -f local.yml run --rm django pytest ohdm_django_mapnik/ohdm/tests/test_tile.py
 
-To tests a single test in a test file, add the funktion after ``::``::
+For testing a single test in a test file, add the function after ``::``::
 
     $ docker-compose -f local.yml run --rm django pytest ohdm_django_mapnik/ohdm/tests/test_tile.py::test_tile_generator_init
 
@@ -45,7 +45,7 @@ From `mypy-lang.org <http://mypy-lang.org/>`_:
     them using any Python VM with basically no runtime overhead.
 
 On `travis <https://travis-ci.com/>`_ pipeline, the mypy tests will run and
-if there some error, the whole pipeline will shown as ``build failed``.
+if their some  error, the whole pipeline will show as ``build failed``.
 
 To run mypy::
 
