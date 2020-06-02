@@ -98,50 +98,23 @@ Install NGINX and certbot for Let's Encrypt.::
         python3-certbot python3-mock python3-openssl python3-pkg-resources \
         python3-pyparsing python3-zope.interface python3-certbot-nginx
 
-Obtaining an SSL Certificate.::
-
-    $ certbot --nginx -d a.ohdm.net -d b.ohdm.net -d c.ohdm.net
-
 Create a NGINX config file for ohdm.::
 
     $ nano /etc/nginx/sites-available/MapnikTileServer.conf
 
-    server {
-        server_name a.ohdm.net b.ohdm.net c.ohdm.net;
+server {
+    server_name a.ohdm.net b.ohdm.net c.ohdm.net;
 
-        location = /favicon.ico { access_log off; log_not_found off; }
-        location  /static/ {
-        alias /home/mapnik/MapnikTileServer/staticfiles/;
-        }
-
-        location / {
-            include proxy_params;
-        proxy_pass http://unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock;
-        }
-
-        listen 443 ssl; # managed by Certbot
-        ssl_certificate /etc/letsencrypt/live/a.ohdm.net/fullchain.pem; # managed by Certbot
-        ssl_certificate_key /etc/letsencrypt/live/a.ohdm.net/privkey.pem; # managed by Certbot
-        include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location  /static/ {
+    alias /home/mapnik/MapnikTileServer/staticfiles/;
     }
-    server {
-        if ($host = c.ohdm.net) {
-            return 301 https://$host$request_uri;
-        } # managed by Certbot
 
-        if ($host = b.ohdm.net) {
-            return 301 https://$host$request_uri;
-        } # managed by Certbot
-
-        if ($host = a.ohdm.net) {
-            return 301 https://$host$request_uri;
-        } # managed by Certbot
-
-        listen 80;
-        server_name a.ohdm.net b.ohdm.net c.ohdm.net;
-        return 404; # managed by Certbot
+    location / {
+        include proxy_params;
+    proxy_pass http://unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock;
     }
+}
 
 Link the config file from ``/etc/nginx/sites-available/MapnikTileServer.conf``
 to ``/etc/nginx/sites-enabled/MapnikTileServer.conf``.::
@@ -149,6 +122,17 @@ to ``/etc/nginx/sites-enabled/MapnikTileServer.conf``.::
     $ ln -s /etc/nginx/sites-available/MapnikTileServer.conf /etc/nginx/sites-enabled
 
 Test if the config was set up right & restart NGINX.::
+
+    $ nginx -t
+    $ systemctl restart nginx
+
+Obtaining an SSL Certificate.::
+
+    $ certbot --nginx -d a.ohdm.net -d b.ohdm.net -d c.ohdm.net
+    2
+    2
+
+Test if Let's Encrypt was sucessfully set up.::
 
     $ nginx -t
     $ systemctl restart nginx
@@ -246,7 +230,6 @@ Set environment vars for running the MapnikTileServer.::
 Fill the ``/etc/environment`` file with the following values.
 
     # Django
-    # ------------------------------------------------------------------------------
     DJANGO_READ_DOT_ENV_FILE=True
     DJANGO_SETTINGS_MODULE=config.settings.production
 
@@ -274,8 +257,7 @@ Next go back to the ``mapnik`` home folder.::
 
     $ cd
 
-Download `MapnikTileServer <https://github.com/OpenHistoricalDataMap/MapnikTileServer/>`_
-and go to the new MapnikTileServer folder.::
+Download `MapnikTileServer <https://github.com/OpenHistoricalDataMap/MapnikTileServer/>`_.::
 
     $ git clone https://github.com/OpenHistoricalDataMap/MapnikTileServer.git
     $ cd MapnikTileServer
@@ -284,6 +266,7 @@ Install / update the python packages as root user.::
 
     $ exit
     $ pip3 install -r /home/mapnik/MapnikTileServer/requirements/system.txt
+    $ pip3 install -r /home/mapnik/MapnikTileServer/requirements/base.txt
     $ pip3 install -r /home/mapnik/MapnikTileServer/requirements/production.txt
 
 .. note::
@@ -305,6 +288,7 @@ to see all possibles options. Below is a minimal configuration::
     # Redis
     # ------------------------------------------------------------------------------
     REDIS_URL=redis://localhost:6379/0
+    CELERY_BROKER_URL=redis://localhost:6379/0
 
     # ohdm
     # ------------------------------------------------------------------------------
@@ -387,13 +371,10 @@ Fill the ``supervisor`` file with the values below, but don't forget to change `
 
 To enable the ``supervisor`` script.::
 
-    supervisorctl reread
-    supervisorctl update
-    supervisorctl start MapnikTileServer_celery_worker
-    supervisorctl start MapnikTileServer_celery_beat
-    supervisorctl start MapnikTileServer_celery_flower
-    supervisorctl start MapnikTileServer_django
-    supervisorctl status
+    $ supervisorctl reread
+    $ supervisorctl update
+    $ supervisorctl start all
+    $ supervisorctl status
 
 Use commands
 ------------
@@ -424,7 +405,6 @@ Log into the ``mapnik`` user and go to the openstreetmap-carto folder.::
 
 Get the latest version with ``git pull``.::
 
-    $ git fetch
     $ git pull
 
 Download the latest shape files & create the default mapnik style XML.::
@@ -438,7 +418,6 @@ Go to the MapnikTileServer.::
 
 Download the latest code from github, for the MapnikTileServer.::
 
-    $ git fetch
     $ git pull
 
 Update the database & static files.::
@@ -451,3 +430,7 @@ Log out from the ``mapnik`` user & start the web services again.::
 
     $ exit
     $ supervisorctl start all
+
+Remove all packages were automatically installed and are no longer required.::
+
+    $ apt autoremove
