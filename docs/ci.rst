@@ -26,6 +26,10 @@ Black
 `Black <https://github.com/ambv/black>`_ is not integrated as a C/I, it's just a python code auto
 formatter for the project. So if you like to contribute your code use black by ``python black ./``!
 
+To format any file in this file in black, use::
+
+    $ docker-compose -f local.yml run --rm django black ./
+
 Tests
 -----
 
