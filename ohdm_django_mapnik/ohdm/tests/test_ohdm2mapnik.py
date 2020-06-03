@@ -21,15 +21,18 @@ class TestOhdm2mapnik:
         ohdm2mapnik.run()
 
         if (
-            PlanetOsmPoint.objects.all().count() != OhdmGeoobjectPoint.objects.all().count()
+            PlanetOsmPoint.objects.all().count()
+            != OhdmGeoobjectPoint.objects.all().count()
         ):
             raise AssertionError
         if (
-            PlanetOsmLine.objects.all().count() != OhdmGeoobjectLine.objects.all().count()
+            PlanetOsmLine.objects.all().count()
+            != OhdmGeoobjectLine.objects.all().count()
         ):
             raise AssertionError
         if (
-            PlanetOsmPolygon.objects.all().count() < OhdmGeoobjectPolygon.objects.all().count() / 100 * 98
+            PlanetOsmPolygon.objects.all().count()
+            < OhdmGeoobjectPolygon.objects.all().count() / 100 * 98
         ):
             raise AssertionError
 

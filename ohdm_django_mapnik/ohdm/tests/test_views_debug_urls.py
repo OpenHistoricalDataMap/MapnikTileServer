@@ -9,7 +9,8 @@ from django.urls import reverse
 from ohdm_django_mapnik.ohdm.views import (
     generate_osm_tile,
     generate_tile_reload_project,
-    generate_tile_reload_style)
+    generate_tile_reload_style,
+)
 
 
 @pytest.mark.django_db()

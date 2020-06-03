@@ -9,8 +9,16 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.db import connection
 from django.db.utils import OperationalError
 
-from ohdm_django_mapnik.ohdm.postgis_utily import make_polygon_valid, set_polygon_way_area
-from ohdm_django_mapnik.ohdm.tags2mapnik import cleanup_tags, fill_osm_object, get_z_order, is_road
+from ohdm_django_mapnik.ohdm.postgis_utily import (
+    make_polygon_valid,
+    set_polygon_way_area,
+)
+from ohdm_django_mapnik.ohdm.tags2mapnik import (
+    cleanup_tags,
+    fill_osm_object,
+    get_z_order,
+    is_road,
+)
 
 from .models import (
     OhdmGeoobjectLine,
@@ -19,7 +27,7 @@ from .models import (
     PlanetOsmLine,
     PlanetOsmPoint,
     PlanetOsmPolygon,
-    PlanetOsmRoads
+    PlanetOsmRoads,
 )
 
 logger = logging.getLogger(__name__)

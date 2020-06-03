@@ -8,9 +8,11 @@ from django.core.cache import cache
 from django.utils import timezone
 from mapnik import Box2d
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
-from ohdm_django_mapnik.ohdm.exceptions import (CoordinateOutOfRange,
-                                                RenderErrorNoDate,
-                                                ZoomOutOfRange)
+from ohdm_django_mapnik.ohdm.exceptions import (
+    CoordinateOutOfRange,
+    RenderErrorNoDate,
+    ZoomOutOfRange,
+)
 from ohdm_django_mapnik.ohdm.import_osm import run_import
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 from PIL import Image, ImageChops
@@ -20,7 +22,9 @@ def test_tile_generator_init():
     """test TileGenerator constructor"""
     # test valid zoom level
     for zoom in range(20):
-        if not isinstance(TileGenerator(zoom=zoom, x_pixel=0, y_pixel=0), TileGenerator):
+        if not isinstance(
+            TileGenerator(zoom=zoom, x_pixel=0, y_pixel=0), TileGenerator
+        ):
             raise AssertionError
 
     # test zoom level with invalid zoom level

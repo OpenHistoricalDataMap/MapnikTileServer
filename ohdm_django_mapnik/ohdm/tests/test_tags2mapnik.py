@@ -44,7 +44,8 @@ def test_cleanup_tags():
 
 def test_get_z_order():
     if (
-        get_z_order(tags={"highway": "motorway"}) != roads_info["highway"]["motorway"]["z"]
+        get_z_order(tags={"highway": "motorway"})
+        != roads_info["highway"]["motorway"]["z"]
     ):
         raise AssertionError
     if get_z_order(tags={"highway": "value"}) != 0:
@@ -52,7 +53,8 @@ def test_get_z_order():
     if (
         get_z_order(
             tags={"highway": "motorway", "railway": "narrow_gauge", "note": "value"}
-        ) != roads_info["highway"]["motorway"]["z"]
+        )
+        != roads_info["highway"]["motorway"]["z"]
         + roads_info["railway"]["narrow_gauge"]["z"]
     ):
         raise AssertionError

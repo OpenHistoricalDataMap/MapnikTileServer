@@ -5,7 +5,8 @@ from ohdm_django_mapnik.ohdm.models import (
     PlanetOsmLine,
     PlanetOsmPoint,
     PlanetOsmPolygon,
-    PlanetOsmRoads)
+    PlanetOsmRoads,
+)
 from ohdm_django_mapnik.ohdm.rel2pgsql import Rel2pgsql
 
 
