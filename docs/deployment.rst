@@ -25,7 +25,6 @@ To use the performance boost of the new Postgres Version, add the
 `postgres repo <https://www.postgresql.org/download/linux/debian/>`_
 from postgresql.org to your system.::
 
-
     $ apt-get --no-install-recommends install \
         locales gnupg2 wget ca-certificates rpl pwgen software-properties-common gdal-bin iputils-ping
     $ sh -c "echo \"deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main\" > /etc/apt/sources.list.d/pgdg.list"
@@ -61,6 +60,15 @@ Enable Postgis & hstore extensions for postgres.::
     $ CREATE EXTENSION postgis;
     $ CREATE EXTENSION hstore;
     $ CREATE EXTENSION postgis_topology;
+
+Set the template postgres database to ``UTF-8`` encoding.::
+
+    $ UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';
+    $ DROP DATABASE template1;
+    $ CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = 'UTF8';
+    $ UPDATE pg_database SET datistemplate = TRUE WHERE datname = 'template1';
+    $ \c template1
+    $ VACUUM FREEZE;
 
 Create the ``gis`` database with the user ``mapnik`` to access the ``gis`` database.::
 
@@ -102,19 +110,37 @@ Create a NGINX config file for ohdm.::
 
     $ nano /etc/nginx/sites-available/MapnikTileServer.conf
 
-server {
-    server_name a.ohdm.net b.ohdm.net c.ohdm.net;
+    server {
+        server_name a.ohdm.net b.ohdm.net c.ohdm.net;
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location  /static/ {
-    alias /home/mapnik/MapnikTileServer/staticfiles/;
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location  /static/ {
+        alias /home/mapnik/MapnikTileServer/staticfiles/;
+        }
+
+        location / {
+            include proxy_params;
+            proxy_pass http://unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock;
+        }
+
+        location /monitor {
+            include proxy_params;
+            proxy_pass http://127.0.0.1:5555;
+        }
     }
 
-    location / {
-        include proxy_params;
-    proxy_pass http://unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock;
+    server {
+        server_name monitor.ohdm.net;
+
+        location / {
+            include proxy_params;
+            proxy_pass http://127.0.0.1:5555;
+        }
     }
-}
+
+.. note::
+    Change the domains ``a.ohdm.net``, ``b.ohdm.net``, ``c.ohdm.net`` & ``monitor.ohdm.net``
+    in the NGINX config file to your domains!
 
 Link the config file from ``/etc/nginx/sites-available/MapnikTileServer.conf``
 to ``/etc/nginx/sites-enabled/MapnikTileServer.conf``.::
@@ -128,7 +154,7 @@ Test if the config was set up right & restart NGINX.::
 
 Obtaining an SSL Certificate.::
 
-    $ certbot --nginx -d a.ohdm.net -d b.ohdm.net -d c.ohdm.net
+    $ certbot --nginx -d a.ohdm.net -d b.ohdm.net -d c.ohdm.net -d monitor.ohdm.net
     2
     2
 
@@ -327,11 +353,11 @@ Open the text editor to create the ``supervisor`` file.::
 
     $ nano /etc/supervisor/conf.d/mapnik_tile_server.conf
 
-Fill the ``supervisor`` file with the values below, but don't forget to change ``CELERY_FLOWER_USER```
-& ``CELERY_FLOWER_PASSWORD`` values.::
+Fill the ``supervisor`` file with the values below, but don't forget to change
+``--basic_auth="ChangeMeFlowerUser:ChangeMeFlowerPassword"`` with your flower user & password.::
 
     [supervisord]
-    environment=DJANGO_READ_DOT_ENV_FILE=True,DJANGO_SETTINGS_MODULE=config.settings.production,CELERY_FLOWER_USER=ChangeMeFlowerUser,CELERY_FLOWER_PASSWORD=ChangeMeFlowerPassword,CELERY_BROKER_URL=redis://localhost:6379/0
+    environment=DJANGO_READ_DOT_ENV_FILE=True,DJANGO_SETTINGS_MODULE=config.settings.production,CELERY_BROKER_URL=redis://localhost:6379/0
 
     [program:MapnikTileServer_celery_worker]
     command=celery -A config.celery_app worker -l INFO
@@ -352,7 +378,7 @@ Fill the ``supervisor`` file with the values below, but don't forget to change `
     stderr_logfile=/var/log/MapnikTileServer_celery_beat.err.log
 
     [program:MapnikTileServer_celery_flower]
-    command=celery flower --app=config.celery_app --broker="redis://localhost:6379/0" --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
+    command=celery flower --app=config.celery_app --broker="redis://localhost:6379/0" --basic_auth="ChangeMeFlowerUser:ChangeMeFlowerPassword"
     user=mapnik
     directory=/home/mapnik/MapnikTileServer
     autostart=true
@@ -434,3 +460,7 @@ Log out from the ``mapnik`` user & start the web services again.::
 Remove all packages were automatically installed and are no longer required.::
 
     $ apt autoremove
+
+On ``monitor.ohdm.net`` you should now able to log into the flower celery monitor.
+The user information is in ``/etc/supervisor/conf.d/mapnik_tile_server.conf`` on the
+line ``--basic_auth="ChangeMeFlowerUser:ChangeMeFlowerPassword"``.
