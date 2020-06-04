@@ -9,7 +9,8 @@ from osmium import SimpleHandler
 from osmium.geom import WKTFactory
 from osmium.osm._osm import Area, Node, TagList, Way
 
-from .models import PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon, PlanetOsmRoads
+from .models import (PlanetOsmLine, PlanetOsmPoint, PlanetOsmPolygon,
+                     PlanetOsmRoads)
 from .postgis_utily import set_polygon_way_area
 from .tags2mapnik import cleanup_tags, fill_osm_object, get_z_order, is_road
 
@@ -111,10 +112,10 @@ class OSMHandler(SimpleHandler):
     def tags2dict(self, tags: TagList) -> dict:
         """
         Convert osmium TagList into python dict
-        
+
         Arguments:
             tags {TagList} -- osmium TagList for a geo-object
-        
+
         Returns:
             dict -- tags in a python dict
         """
@@ -128,7 +129,7 @@ class OSMHandler(SimpleHandler):
     def node(self, node: Node):
         """
         Import OSM node into database as point
-        
+
         Arguments:
             node {Node} -- osmium node object
         """
@@ -152,7 +153,7 @@ class OSMHandler(SimpleHandler):
     def way(self, way: Way):
         """
         Import OSM way into database as line & polygon
-        
+
         Arguments:
             way {Way} -- osmium way object
         """
@@ -173,16 +174,16 @@ class OSMHandler(SimpleHandler):
                 tags=clean_tags,
             )
             line = fill_osm_object(osm_object=line)
-            line.z_order = get_z_order(tags=tags)
+            line.z_order = get_z_order(tags=clean_tags)
             self.line_cache.append(line)
 
-            if is_road(tags=tags):
+            if is_road(tags=clean_tags):
                 self.roads_cache.append(line.to_road())
 
     def area(self, area: Area):
         """
         Import osmium area into database as polygon
-        
+
         Arguments:
             area {Area} -- osmium area -> ways where are close & relation as multipolygon
         """
@@ -213,7 +214,7 @@ class OSMHandler(SimpleHandler):
 def run_import(file_path: str, db_cache_size: int, cache2file: bool):
     """
     Start import of a osm file
-    
+
     Arguments:
         file_path {str} -- path to the osm file
         db_cache_size {int} -- how much geo-object will be cache and save into at once into the database
