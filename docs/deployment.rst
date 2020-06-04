@@ -120,13 +120,10 @@ Create a NGINX config file for ohdm.::
 
         location / {
             include proxy_params;
+            proxy_read_timeout 360;
             proxy_pass http://unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock;
         }
 
-        location /monitor {
-            include proxy_params;
-            proxy_pass http://127.0.0.1:5555;
-        }
     }
 
     server {
@@ -387,7 +384,7 @@ Fill the ``supervisor`` file with the values below, but don't forget to change
     stderr_logfile=/var/log/MapnikTileServer_celery_flower.err.log
 
     [program:MapnikTileServer_django]
-    command=/usr/local/bin/gunicorn config.wsgi --workers 2 --bind unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock -t 240
+    command=/usr/local/bin/gunicorn config.wsgi --workers 2 --bind unix:/home/mapnik/MapnikTileServer/MapnikTileServer.sock -t 360
     user=mapnik
     directory=/home/mapnik/MapnikTileServer
     autostart=true
