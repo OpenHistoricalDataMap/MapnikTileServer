@@ -72,7 +72,7 @@ RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git /opt/opens
   ./scripts/get-shapefiles.py && \
   carto project.mml > style.xml
 
-# folder for https://github.com/linuxluigi/openstreetmap-carto
+# folder for https://github.com/OpenHistoricalDataMap/openstreetmap-carto
 RUN mkdir /opt/openstreetmap-carto
 
 COPY ./compose/local/django/get-shapefiles.sh /get-shapefiles.sh

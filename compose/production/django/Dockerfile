@@ -25,8 +25,8 @@ RUN npm install -g n stable
 RUN npm install -g carto@0
 
 # download openstreetmap-carto & create style.xml
-# https://github.com/linuxluigi/openstreetmap-carto
-RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto && \
+# https://github.com/OpenHistoricalDataMap/openstreetmap-carto
+RUN git clone https://github.com/OpenHistoricalDataMap/openstreetmap-carto.git /opt/openstreetmap-carto && \
   cd /opt/openstreetmap-carto && \
   ./scripts/get-shapefiles.py && \
   carto project.mml > style.xml
@@ -93,8 +93,8 @@ RUN pip3 install -r /requirements/system.txt \
   && pip3 install -r /requirements/production.txt
 
 # download openstreetmap-carto
-# https://github.com/linuxluigi/openstreetmap-carto
-RUN git clone https://github.com/linuxluigi/openstreetmap-carto.git /opt/openstreetmap-carto && \
+# https://github.com/OpenHistoricalDataMap/openstreetmap-carto
+RUN git clone https://github.com/OpenHistoricalDataMap/openstreetmap-carto.git /opt/openstreetmap-carto && \
   cd /opt/openstreetmap-carto && \
   ./scripts/get-shapefiles.py
 

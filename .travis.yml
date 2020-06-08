@@ -21,7 +21,7 @@ addons:
 
 before_script:
   # download openstreetmap-carto
-  - git clone https://github.com/linuxluigi/openstreetmap-carto.git ../openstreetmap-carto
+  - git clone https://github.com/OpenHistoricalDataMap/openstreetmap-carto.git ../openstreetmap-carto
   # build docker images production
   - cp -r .envs/.local/ .envs/.production/
   - sudo docker-compose -f production.yml build

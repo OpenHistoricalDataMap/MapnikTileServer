@@ -5,9 +5,9 @@
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg)
 ![https://github.com/pydanny/cookiecutter-django/](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg)
 ![https://github.com/ambv/black](https://img.shields.io/badge/code%20style-black-000000.svg)
-[![Build Status](https://travis-ci.com/linuxluigi/MapnikTileServer.svg?branch=master)](https://travis-ci.com/linuxluigi/MapnikTileServer)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/linuxluigi/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=linuxluigi/MapnikTileServer&utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/linuxluigi/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=linuxluigi/MapnikTileServer&utm_campaign=Badge_Coverage)
+[![Build Status](https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer.svg?branch=master)](https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/OpenHistoricalDataMap/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=OpenHistoricalDataMap/MapnikTileServer&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/OpenHistoricalDataMap/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=OpenHistoricalDataMap/MapnikTileServer&utm_campaign=Badge_Coverage)
 
 The [OpenHistoricalDataMap](https://github.com/OpenHistoricalDataMap)
 [MapnikTileServer](https://github.com/OpenHistoricalDataMap/MapnikTileServer) is an
@@ -18,7 +18,7 @@ your choice :)
 The project is build with [Django Cookiecutter](https://github.com/pydanny/cookiecutter-django/) and it comes with
 docker support, it is design to work out of the box with Docker.
 
-The current version of this project based on a fork of [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/).
+The current version of this project based on a fork of [openstreetmap-carto](https://github.com/OpenHistoricalDataMap/openstreetmap-carto/).
 
 ## Features
 
@@ -37,7 +37,7 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 
 ### Tile Server
 
-- a custom fork of [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/) for tile styles and SQL
+- a custom fork of [openstreetmap-carto](https://github.com/OpenHistoricalDataMap/openstreetmap-carto/) for tile styles and SQL
 - [https://mapnik.org/](https://mapnik.org/)
 - [python-mapnik](https://github.com/mapnik/python-mapnik)
 
@@ -46,7 +46,7 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 - [Bootstrap 4](https://getbootstrap.com/) Theme
 - [OpenLayers](https://openlayers.org/) for map view
 
-Frontend example repo: https://github.com/linuxluigi/ohdm-angular-frontend
+Frontend example repo: https://github.com/OpenHistoricalDataMap/ohdm-angular-frontend
 
 ![MapnikTileServer OHDM Frontend](docs/_static/frontend.png "MapnikTileServer OHDM Frontend")
 

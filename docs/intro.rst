@@ -55,7 +55,7 @@ can request a map of a specific date. To handle date specific request,
 the project `openstreetmap-carto <https://github.com/gravitystorm/openstreetmap-carto/>`_
 was use as base. `Openstreetmap-carto <https://github.com/gravitystorm/openstreetmap-carto/>`_
 is the github repository for the style sheets, which are used on https://openstreetmap.org/.
-To add time sensitive request, the project was `forked <https://github.com/linuxluigi/openstreetmap-carto/>`_
+To add time sensitive request, the project was `forked <https://github.com/OpenHistoricalDataMap/openstreetmap-carto/>`_
 and the ``project.mml`` file was modified to make ``SQL`` request for a specific day.
 
 On the diagram below, is the workflow of the MapntikTileServer.

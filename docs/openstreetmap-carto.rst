@@ -5,7 +5,7 @@ The `openstreetmap-carto <https://github.com/gravitystorm/openstreetmap-carto>`_
 project is the official repo for the style sheets of `OpenStreetMap.org <https://www.openstreetmap.org/>`_.
 
 For this project there is a fork of openstreetmap-carto, which can handle the
-time request on Postgres SQL. The fork is hosted on `github.com <https://github.com/linuxluigi/openstreetmap-carto/>`_.
+time request on Postgres SQL. The fork is hosted on `github.com <https://github.com/OpenHistoricalDataMap/openstreetmap-carto/>`_.
 
 The only difference between the fork version and the original the file ``/project.mml``.
 For each request is a where clause added, which check in the columns ``valid_since``

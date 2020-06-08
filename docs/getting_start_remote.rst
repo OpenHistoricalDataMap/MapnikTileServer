@@ -184,7 +184,7 @@ fork.::
 
 Also download the OHDM version of openstreetmap-carto.::
 
-    $ git clone git@github.com:linuxluigi/openstreetmap-carto.git ~/openstreetmap-carto
+    $ git clone git@github.com:OpenHistoricalDataMap/openstreetmap-carto.git ~/openstreetmap-carto
 
 Now the server is ready to work :)
 

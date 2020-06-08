@@ -265,9 +265,9 @@ Log into ``mapnik`` user and go to the home folder.::
     $ su - mapnik
     $ cd
 
-Download `openstreetmap-carto <https://github.com/linuxluigi/openstreetmap-carto/>`_::
+Download `openstreetmap-carto <https://github.com/OpenHistoricalDataMap/openstreetmap-carto/>`_::
 
-    $ git clone https://github.com/linuxluigi/openstreetmap-carto.git
+    $ git clone https://github.com/OpenHistoricalDataMap/openstreetmap-carto.git
 
 Go to the new openstreetmap-carto folder, download the shape files & create
 the default mapnik style XML::

@@ -5,11 +5,11 @@ Frontend
 .. index:: Frontend
 
 The demo frontend is written as an Angular app. The source code is in an extra
-git repo https://github.com/linuxluigi/ohdm-angular-frontend
+git repo https://github.com/OpenHistoricalDataMap/ohdm-angular-frontend
 
 For handling the tile request to the MapntikTileServer it uses the library
 `OpenLayers <https://openlayers.org/>`_. The source code for the map handling
-is in `map.component.ts <https://github.com/linuxluigi/ohdm-angular-frontend/blob/master/src/app/map/map.component.ts>`_.
+is in `map.component.ts <https://github.com/OpenHistoricalDataMap/ohdm-angular-frontend/blob/master/src/app/map/map.component.ts>`_.
 
 .. figure:: _static/frontend.png
     :alt: angular frontend
