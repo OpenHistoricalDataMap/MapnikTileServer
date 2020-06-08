@@ -1,0 +1,23 @@
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+DJANGO_TEST_URLS=True
+
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery / Flower
+# ------------------------------------------------------------------------------
+CELERY_FLOWER_USER=msshnhBNlGfVLiDTErFKxFWpBOrcZNVp
+CELERY_FLOWER_PASSWORD=eIYplziix19gsYgGfu7HsVzlhHUwFJxQikoOwDlSDnYCjQEjo1atzobXZCyrmnG0
+
+# ohdm
+# ------------------------------------------------------------------------------
+CARTO_STYLE_PATH=/opt/openstreetmap-carto
+CARTO_STYLE_PATH_DEBUG=/opt/openstreetmap-carto-debug
+
+# VS-Code
+# ------------------------------------------------------------------------------
+CELERY_BROKER_URL=redis://redis:6379/0

@@ -1,0 +1,34 @@
+version = 1
+
+test_patterns = [
+  "tests/**",
+  "test_*.py"
+]
+
+exclude_patterns = [
+  "bin/**",
+  "**/node_modules/"
+]
+
+# Python analyzer
+[[analyzers]]
+name = "python"
+enabled = true
+
+  [analyzers.meta]
+  runtime_version = "3.x.x"
+
+# Docker analyzer
+[[analyzers]]
+name = "docker"
+enabled = true
+
+[analyzers.meta]
+  dockerfile_paths = [
+    "compose/local/django/Dockerfile",
+    "compose/local/test-database/Dockerfile",
+    "compose/production/django/Dockerfile",
+    "compose/production/postgres/Dockerfile",
+    "compose/production/redis/Dockerfile",
+    "compose/production/traefik/Dockerfile",
+  ]

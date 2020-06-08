@@ -1,0 +1,6 @@
+servername:PGHOST
+portnumber:PGPORT
+username:PGUSER
+pwd:PGPASSWORD
+dbname:PGDATABASE
+schema:rendering

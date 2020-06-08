@@ -1,0 +1,80 @@
+version: "3.7"
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  production_traefik: {}
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    shm_size: "4g"
+    image: ohdm_django_mapnik_production_django
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ../osm-files:/osm-files
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.postgres
+    command: /start
+    restart: always
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    shm_size: "4g"
+    image: ohdm_django_mapnik_production_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.production/.postgres
+    restart: on-failure
+    healthcheck:
+      test: "exit 0"
+
+  traefik:
+    build:
+      context: .
+      dockerfile: ./compose/production/traefik/Dockerfile
+    image: ohdm_django_mapnik_production_traefik
+    depends_on:
+      - django
+    volumes:
+      - production_traefik:/etc/traefik/acme
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    restart: always
+
+  redis:
+    build:
+      context: .
+      dockerfile: ./compose/production/redis/Dockerfile
+    image: ohdm_django_mapnik_production_redis
+    restart: always
+
+  celeryworker:
+    <<: *django
+    image: ohdm_django_mapnik_production_celeryworker
+    command: /start-celeryworker
+    restart: always
+
+  celerybeat:
+    <<: *django
+    image: ohdm_django_mapnik_production_celerybeat
+    command: /start-celerybeat
+    restart: always
+
+  flower:
+    <<: *django
+    image: ohdm_django_mapnik_production_flower
+    ports:
+      - "5555:5555"
+    command: /start-flower
+    restart: always

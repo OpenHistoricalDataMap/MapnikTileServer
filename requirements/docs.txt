@@ -1,0 +1,2 @@
+Sphinx==3.0.4  # https://github.com/sphinx-doc/sphinx
+sphinx-rtd-theme==0.4.3  # https://github.com/readthedocs/sphinx_rtd_theme 

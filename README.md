@@ -1,84 +1,58 @@
-# OHDM Mapnik Tile Server
+# OHDM MapnikTileServer
 
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki](https://img.shields.io/badge/wiki-read-green.svg)
+[![Documentation Status](https://readthedocs.org/projects/mapniktileserver/badge/?version=latest)](https://mapniktileserver.readthedocs.io/en/latest/?badge=latest)
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg)
+![https://github.com/pydanny/cookiecutter-django/](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg)
+![https://github.com/ambv/black](https://img.shields.io/badge/code%20style-black-000000.svg)
+[![Build Status](https://travis-ci.com/linuxluigi/MapnikTileServer.svg?branch=master)](https://travis-ci.com/linuxluigi/MapnikTileServer)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/linuxluigi/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=linuxluigi/MapnikTileServer&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/linuxluigi/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=linuxluigi/MapnikTileServer&utm_campaign=Badge_Coverage)
 
-A time sensitive [Mapnik](https://mapnik.org/) Tile Server written in Python with [Flask Framework](http://flask.pocoo.org/).
+The [OpenHistoricalDataMap](https://github.com/OpenHistoricalDataMap)
+[MapnikTileServer](https://github.com/OpenHistoricalDataMap/MapnikTileServer) is an
+[OpenStreetMap](https://www.openstreetmap.org/) time sensitive fullstack tile server. This means you can go back in time
+on a OpenStreetMap Map and see how your city changed since you was a child or you can go much more back in time, it's
+your choice :)
 
-![Docker Container Overview](https://raw.githubusercontent.com/wiki/OpenHistoricalDataMap/MapnikTileServer/_static/ProjectOverview.png)
+The project is build with [Django Cookiecutter](https://github.com/pydanny/cookiecutter-django/) and it comes with
+docker support, it is design to work out of the box with Docker.
 
-```
-OHDM Mapnik Tile Server
-│   .env                               # enviroment var file
-│   .env-example                       # example enviroment var file
-│   .gitignore
-│   .readthedocs.yml                   # config file for https://readthedocs.org/
-│   docker-compose.yml                 # docker-compose file
-│   LICENSE 
-│   project.mml                        # mapnik style, edit only for develop / testing purpose
-│   README.md  
-│    
-└───docs                               # docs based on https://readthedocs.org/
-│
-└───import                             # dockerfile & startup script to import database
-│
-└───nginx                              # nginx conf files
-│
-└───proxy                              # traefik conf files
-│
-└───tile_server                        # wordpress files
-│   │   dockerfile                     # tile_server dockerfile
-│   │   requirements.txt               # python dependencies for the tile server
-|   |   date_template_importer.py      # script for inserting date template into Mapnik style conf file
-│   └───app
-│       │   __init__.py
-│       │   app.py                     # tile server code (flask & mapnik)
-│       │   wsgi.py                    # start script for the production server
-│
-└───website                            # html content of demo OHDM website
-```
+The current version of this project based on a fork of [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/).
 
-## minimum Server Requirements for developing
+## Features
 
-- 3 GB of RAM
-- 20 GB of free disk space
+- documentation: https://mapniktileserver.readthedocs.io/en/latest/
+- work out of the box, no special configuration is need
+- work Linux, MacOS, BSD & also should work Windows Pro, just need Docker & Docker-Compose to work
+- OSM based tile server with time sensitive tiles
+- a development & production configuration
+- task-queue for rendering tile with [celery](http://www.celeryproject.org/)
+- caching tiles in redis
+- SSL with Let's Encrypt included
+- generate development database from osm / ohdm
+- include [sentry.io](https://sentry.io/) in production for error tracking
 
-## Quickstart
+## Dependencies
 
-**1. create** `.env`
+### Tile Server
 
-Copy `.env-example` to `.env` and change it to you needs
+- a custom fork of [openstreetmap-carto](https://github.com/linuxluigi/openstreetmap-carto/) for tile styles and SQL
+- [https://mapnik.org/](https://mapnik.org/)
+- [python-mapnik](https://github.com/mapnik/python-mapnik)
 
-If you need more explanation about the `.env` file, look in the docs -> https://readthedocs.org/projects/docker-ohdm/
+### Front-End
 
-```bash
-$ cp .env-example .env
-$ vim .env
-```
+- [Bootstrap 4](https://getbootstrap.com/) Theme
+- [OpenLayers](https://openlayers.org/) for map view
 
-**2. Import (Import Demo Database)**
+Frontend example repo: https://github.com/linuxluigi/ohdm-angular-frontend
 
-Download a OSM Datafile like https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf into ``./pbf``
+![MapnikTileServer OHDM Frontend](docs/_static/frontend.png "MapnikTileServer OHDM Frontend")
 
-```bash
-$ wget https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf -P pdf
-$ docker-compose up import
-```
+## minimum server requirements for developing
 
-**3. Create docker network** `web`
+- 8 GB of RAM
+- 100 GB of free disk space (better using a SSD drive instead of HDD)
 
-```bash
-$ docker network create web
-```
-
-**4. Build Docker Image**
-
-```bash
-$ docker-compose build
-```
-
-**5. Execute Docker**
-
-```bash
-$ docker-compose up -d webserver
-```
+If you can, use beefy hardware!

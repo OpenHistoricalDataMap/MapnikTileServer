@@ -1,0 +1,5 @@
+[run]
+include = ohdm_django_mapnik/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin

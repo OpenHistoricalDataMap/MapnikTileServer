@@ -1,0 +1,22 @@
+# Default PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=gis
+POSTGRES_USER=docker
+POSTGRES_PASSWORD=Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw
+POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology
+PGCONNECT_TIMEOUT=60
+
+WAL_SIZE=16GB
+MIN_WAL_SIZE=8GB
+WAL_SEGSIZE=8192
+MAINTAINANCE_WORK_MEM=4GB
+
+# OHDM PostgreSQL
+# ------------------------------------------------------------------------------
+OHDM_SCHEMA=ohdm
+
+# VS-Code
+# ------------------------------------------------------------------------------
+DATABASE_URL=postgres://docker:Dyx8lXMKIGggiQXTzSrAuZ3UsDt8YmLy53WEIAga6EkkVc2GK9lmiRfJxzx7Oahw@postgres:5432/gis
