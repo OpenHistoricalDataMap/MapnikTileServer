@@ -1,7 +1,6 @@
 # OHDM MapnikTileServer
 
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki](https://img.shields.io/badge/wiki-read-green.svg)
-[![Documentation Status](https://readthedocs.org/projects/mapniktileserver/badge/?version=latest)](https://mapniktileserver.readthedocs.io/en/latest/?badge=latest)
 ![https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki/Setup](https://img.shields.io/badge/Docker--Compose-ready-green.svg)
 ![https://github.com/pydanny/cookiecutter-django/](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg)
 ![https://github.com/ambv/black](https://img.shields.io/badge/code%20style-black-000000.svg)
@@ -22,7 +21,7 @@ The current version of this project based on a fork of [openstreetmap-carto](htt
 
 ## Features
 
-- documentation: https://mapniktileserver.readthedocs.io/en/latest/
+- documentation: https://github.com/OpenHistoricalDataMap/MapnikTileServer/wiki
 - work out of the box, no special configuration is need
 - work Linux, MacOS, BSD & also should work Windows Pro, just need Docker & Docker-Compose to work
 - OSM based tile server with time sensitive tiles
