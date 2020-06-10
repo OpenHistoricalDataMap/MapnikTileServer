@@ -29,5 +29,5 @@ flower==0.9.3  # https://github.com/mher/flower
 django-timezone-field==4.0  # https://github.com/mfogel/django-timezone-field/
 
 # read osm file
-osmium==2.15.4  # https://github.com/osmcode/pyosmium
+osmium==3.0.0  # https://github.com/osmcode/pyosmium
 Shapely==1.7.0  # https://github.com/Toblerity/Shapely
