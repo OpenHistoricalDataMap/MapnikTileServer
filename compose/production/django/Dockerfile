@@ -1,5 +1,5 @@
 # create builder for openstreetmap-carto && noto fonts
-FROM node:12-buster-slim as openstreetmap-carto-builder
+FROM node:14-buster-slim as openstreetmap-carto-builder
 
 RUN apt-get update \
   # install python dependencies
