@@ -48,8 +48,6 @@ script:
   - sudo docker-compose -f local.yml run django coverage run -m pytest
   # test clear up cache
   - sudo docker-compose -f local.yml run --rm django python manage.py clear_cache
-  # build docs
-  - sudo docker-compose -f local.yml run --rm django make --directory docs html
   # code coverage upload to codacy
   - printf "\nCODACY_PROJECT_TOKEN=$CODACY_PROJECT_TOKEN" >> .envs/.local/.django
   - sudo docker-compose -f local.yml run django coverage xml
