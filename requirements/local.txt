@@ -1,5 +1,4 @@
 -r ./base.txt
--r ./docs.txt
 
 Werkzeug==0.16.1  # pyup: < 0.15 # https://github.com/pallets/werkzeug
 ipdb==0.12.3  # https://github.com/gotcha/ipdb
