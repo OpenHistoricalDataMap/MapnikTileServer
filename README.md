@@ -5,8 +5,10 @@
 ![https://github.com/pydanny/cookiecutter-django/](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg)
 ![https://github.com/ambv/black](https://img.shields.io/badge/code%20style-black-000000.svg)
 [![Build Status](https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer.svg?branch=master)](https://travis-ci.com/OpenHistoricalDataMap/MapnikTileServer)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/OpenHistoricalDataMap/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=OpenHistoricalDataMap/MapnikTileServer&utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/7411526bd5564118acd1fdbf04e6a596)](https://www.codacy.com/manual/OpenHistoricalDataMap/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=OpenHistoricalDataMap/MapnikTileServer&utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/114be1957e31480fac1ce40b9f4943f4)](https://www.codacy.com/gh/OpenHistoricalDataMap/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=OpenHistoricalDataMap/MapnikTileServer&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/114be1957e31480fac1ce40b9f4943f4)](https://www.codacy.com/gh/OpenHistoricalDataMap/MapnikTileServer?utm_source=github.com&utm_medium=referral&utm_content=OpenHistoricalDataMap/MapnikTileServer&utm_campaign=Badge_Coverage)
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/OpenHistoricalDataMap/MapnikTileServer/?ref=repository-badge)
+[![Dependabot](https://badgen.net/dependabot/thepracticaldev/dev.to?icon=dependabot)](https://app.dependabot.com/accounts/OpenHistoricalDataMap/repos/188823068)
 
 The [OpenHistoricalDataMap](https://github.com/OpenHistoricalDataMap)
 [MapnikTileServer](https://github.com/OpenHistoricalDataMap/MapnikTileServer) is an
