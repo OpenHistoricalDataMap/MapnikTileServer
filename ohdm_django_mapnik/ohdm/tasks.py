@@ -4,6 +4,7 @@ from datetime import date
 from config.celery_app import app
 from config.settings.base import env
 from django.core.cache import cache
+
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
 
 

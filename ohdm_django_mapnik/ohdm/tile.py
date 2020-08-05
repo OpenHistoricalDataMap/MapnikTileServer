@@ -9,6 +9,7 @@ from typing import Optional
 import mapnik
 from config.settings.base import OSM_CARTO_STYLE_XML, env
 from django.core.cache import cache
+from django.db import connection
 from jinja2 import Template
 
 from ohdm_django_mapnik.ohdm.exceptions import CoordinateOutOfRange, ZoomOutOfRange
@@ -40,12 +41,12 @@ class TileGenerator:
             zoom=0, x_pixel=0, y_pixel=0, request_date=datetime(2020, 1, 1), use_cache=False
         )
         tile_png: bytes = tile_generator.render_tile()
-        
+
         Arguments:
             zoom {int} -- zoom level between 0 to 20
             x_pixel {float} -- x coordinate between 0 and 2^zoom
             y_pixel {float} -- y coordinate between 0 and 2^zoom
-        
+
         Keyword Arguments:
             request_date {Optional[date]} -- request date (default: {None})
             style_xml_template {str} -- path of default style.xml (default: {OSM_CARTO_STYLE_XML})
@@ -53,7 +54,7 @@ class TileGenerator:
             width {int} -- tile png width (default: {256})
             height {int} -- tile png height (default: {256})
             use_cache {bool} -- cache style.xml (default: {False})
-        
+
         Raises:
             ZoomOutOfRange: raise when zoom level is out of range
             CoordinateOutOfRange: raise when x & y coordinate is out of range
@@ -99,11 +100,11 @@ class TileGenerator:
         lon = 360 * px / 2^zoom - 180
 
         source: Book, OpenStreetMap, Ramm, Frederik, Topf, Jochen, page 177
-        
+
         Arguments:
             px {float} -- x pixel coordinate
             zoom {float} -- zoom level
-        
+
         Returns:
             float -- longitude
         """
@@ -119,11 +120,11 @@ class TileGenerator:
         lat = arctan(sinh(pi-(pi*y)/2^(zoom-1)))180/pi
 
         source: Book, OpenStreetMap, Ramm, Frederik, Topf, Jochen, page 177
-        
+
         Arguments:
             py {float} -- y pixel coordinate
             zoom {float} -- zoom level
-        
+
         Returns:
             float -- latitude
         """
@@ -138,7 +139,9 @@ class TileGenerator:
 
         # render current_style_xml with style_xml_template
         template: Template = Template(self.style_xml_template)
-        current_style_xml: str = template.render(date=self.request_date)
+        current_style_xml: str = template.render(
+            date=self.request_date, database=connection.settings_dict["NAME"]
+        )
 
         return current_style_xml
 
@@ -146,7 +149,7 @@ class TileGenerator:
         """
         get Bounding Box from x, y, z request
         https://wiki.openstreetmap.org/wiki/Bounding_Box
-        
+
         Returns:
             mapnik.Box2d -- mapnik Bounding Box
         """
@@ -175,10 +178,10 @@ class TileGenerator:
     def render_tile(self) -> bytes:
         """
         Render tile png
-        
+
         Raises:
             RenderErrorNoDate: [description]
-        
+
         Returns:
             bytes -- tile png as bytes
         """

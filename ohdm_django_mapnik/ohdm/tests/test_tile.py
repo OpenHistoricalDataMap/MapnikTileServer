@@ -1,12 +1,15 @@
+import hashlib
 from random import randrange
 from tempfile import SpooledTemporaryFile
 from typing import Dict
 
 import pytest
-
 from django.core.cache import cache
+from django.db import connection
 from django.utils import timezone
 from mapnik import Box2d
+from PIL import Image, ImageChops
+
 from ohdm_django_mapnik.ohdm.clear_db import clear_mapnik_tables
 from ohdm_django_mapnik.ohdm.exceptions import (
     CoordinateOutOfRange,
@@ -15,7 +18,6 @@ from ohdm_django_mapnik.ohdm.exceptions import (
 )
 from ohdm_django_mapnik.ohdm.import_osm import run_import
 from ohdm_django_mapnik.ohdm.tile import TileGenerator
-from PIL import Image, ImageChops
 
 
 def test_tile_generator_init():
@@ -164,9 +166,7 @@ def test_get_bbox_random_zoom_10_20(tile_generator: TileGenerator):
 
 
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
-def test_render_tile_with_data(
-    tile_generator: TileGenerator, tile_test_cases: Dict[str, dict]
-):
+def test_render_tile(tile_generator: TileGenerator, tile_test_cases: Dict[str, dict]):
     """
     test render tiles for tile_test_cases with using ohdm test data
 
@@ -176,13 +176,14 @@ def test_render_tile_with_data(
     # cleanup data
     clear_mapnik_tables()
 
-    # fill database
-    run_import(
-        file_path="/niue-latest.osm.pbf", db_cache_size=10000, cache2file=False,
-    )
-
     tile_generator.request_date = timezone.now()
 
+    # close database connection, so that only mapnik access the database
+    connection.close()
+
+    tile_without_data: Dict[str, Image] = dict()
+
+    # test without map data
     for test_case in tile_test_cases:
         # contine if test case has not test data
         if not tile_test_cases[test_case]["has_date_data"]:
@@ -205,17 +206,44 @@ def test_render_tile_with_data(
         if new_tile_image.format != "PNG":
             raise AssertionError
 
-        # monochrome & resize images to better compare them
-        reference_tile = Image.open(
-            "/app/compose/local/django/test_tile/{}".format(
-                tile_test_cases[test_case]["tile_png"]
-            )
-        )
+        tile_without_data[test_case] = new_tile_image
 
-        diff: bool = ImageChops.difference(
-            reference_tile, new_tile_image
-        ).getbbox() is None
-        assert diff is False
+    # fill database
+    run_import(
+        file_path="/niue-latest.osm.pbf", db_cache_size=10000, cache2file=False,
+    )
+
+    # close database connection, so that only mapnik access the database
+    connection.close()
+
+    # test with map data
+    for test_case in tile_test_cases:
+        # contine if test case has not test data
+        if not tile_test_cases[test_case]["has_date_data"]:
+            continue
+
+        print("test: {}".format(test_case))
+        tile_generator.zoom = tile_test_cases[test_case]["zoom"]
+        tile_generator.x_pixel = tile_test_cases[test_case]["x"]
+        tile_generator.y_pixel = tile_test_cases[test_case]["y"]
+
+        # generate new tile into a tmp file
+        new_tile_data: SpooledTemporaryFile = SpooledTemporaryFile()
+        new_tile_data.write(tile_generator.render_tile())
+        new_tile_data.seek(0)
+
+        # open new tile as image
+        new_tile_image_data: Image = Image.open(new_tile_data)
+
+        # check if the tile is a PNG file
+        if new_tile_image_data.format != "PNG":
+            raise AssertionError
+
+        # compare if images with and without data differ
+        assert (
+            hashlib.md5(tile_without_data[test_case].tobytes()).hexdigest()
+            != hashlib.md5(new_tile_image_data.tobytes()).hexdigest()
+        )
 
     # cleanup data
     clear_mapnik_tables()
