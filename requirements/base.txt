@@ -22,7 +22,7 @@ coreapi==2.3.3  # https://github.com/core-api/python-client
 
 # celery
 # ------------------------------------------------------------------------------
-celery==4.4.7  # pyup: < 5.0  # https://github.com/celery/celery
+celery==5.0.5  # pyup: < 5.0  # https://github.com/celery/celery
 django-celery-beat==2.0.0  # https://github.com/celery/django-celery-beat
 flower==0.9.4  # https://github.com/mher/flower
 django-timezone-field==4.0  # https://github.com/mfogel/django-timezone-field/
