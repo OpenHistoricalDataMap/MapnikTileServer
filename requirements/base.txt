@@ -29,4 +29,4 @@ django-timezone-field==4.0  # https://github.com/mfogel/django-timezone-field/
 
 # read osm file
 osmium==3.0.1  # https://github.com/osmcode/pyosmium
-Shapely==1.7.0  # https://github.com/Toblerity/Shapely
+Shapely==2.0.1  # https://github.com/Toblerity/Shapely
